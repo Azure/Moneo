@@ -1,0 +1,102 @@
+- name: === Try to Connect ===
+  hosts: all
+  gather_facts: true
+  any_errors_fatal: true
+
+- name: === Deploy Worker ===
+  tags: worker
+  hosts: worker
+  gather_facts: false
+  vars:
+    skip_worker_play: '{{ skip_worker | default(false) }}'
+    remote_worker_path: '{{ ansible_env.HOME }}/moneo-worker'
+  tasks:
+  - when: not skip_worker_play
+    block:
+    - name: Check NVIDIA or AMD GPU
+      stat:
+        path: '{{ item }}'
+      with_items:
+      - /dev/nvidiactl
+      - /dev/kfd
+      register: dev
+    - name: Set GPU Facts
+      set_fact:
+        nvidia_gpu_exist: '{{ dev.results[0].stat.ischr is defined and dev.results[0].stat.ischr }}'
+        amd_gpu_exist: '{{ dev.results[1].stat.ischr is defined and dev.results[1].stat.ischr }}'
+    - name: Print GPU Checking Result
+      debug:
+        msg: Detected {{ 'NVIDIA' if nvidia_gpu_exist else 'AMD' if amd_gpu_exist else 'N/A' }} GPU
+
+    - name: Copy Source
+      synchronize:
+        src: ../worker/
+        dest: '{{ remote_worker_path }}'
+        archive: yes
+        recursive: yes
+    - name: Installation
+      shell: |
+        cd {{ remote_worker_path }}
+        bash install/{{ 'nvidia' if nvidia_gpu_exist else 'amd' if amd_gpu_exist else 'common' }}.sh
+      become: yes
+
+    - name: Start NVIDIA DCGM Daemon
+      shell: |
+        pkill -f "^nv-hostengine" && sleep 3
+        nohup nv-hostengine </dev/null >/dev/null 2>&1 &
+      when: nvidia_gpu_exist
+      become: yes
+    - name: Start AMD RDC Daemon
+      shell: |
+        pkill -f "^/opt/rocm/rdc/bin/rdcd" && sleep 3
+        nohup /opt/rocm/rdc/bin/rdcd -u </dev/null >/dev/null 2>&1 &
+      when: amd_gpu_exist
+      become: yes
+    - name: Start NVIDIA Exporter
+      shell: |
+        cd {{ remote_worker_path }}
+        pkill -f "nvidia_exporter.py$" && sleep 1
+        nohup python2 exporters/nvidia_exporter.py </dev/null >/dev/null 2>&1 &
+      when: nvidia_gpu_exist
+    - name: Start AMD Exporter
+      shell: |
+        cd {{ remote_worker_path }}
+        pkill -f "amd_exporter.py$" && sleep 1
+        nohup python3 exporters/amd_exporter.py </dev/null >/dev/null 2>&1 &
+      when: amd_gpu_exist
+    - name: Start Net Exporter
+      shell: |
+        cd {{ remote_worker_path }}
+        pkill -f "net_exporter.py$" && sleep 1
+        nohup python3 exporters/net_exporter.py </dev/null >/dev/null 2>&1 &
+
+- name: === Deploy Master ===
+  tags: master
+  hosts: master
+  gather_facts: false
+  vars:
+    skip_master_play: '{{ skip_master | default(false) }}'
+    remote_master_path: '{{ ansible_env.HOME }}/moneo-master'
+  tasks:
+  - when: not skip_master_play
+    block:
+    - name: Copy Source
+      synchronize:
+        src: ../master/
+        dest: '{{ remote_master_path }}'
+        archive: yes
+        recursive: yes
+    - name: Generate Prometheus Config
+      template:
+        src: ./prometheus.config.j2
+        dest: '{{ remote_master_path }}/prometheus.yml'
+        mode: u=rw,g=rw,o=rw
+    - name: Generate Grafana Config
+      template:
+        src: ./grafana.config.j2
+        dest: '{{ remote_master_path }}/grafana/provisioning/datasources/prometheus.yml'
+        mode: u=rw,g=rw,o=rw
+    - name: Start Prometheus and Grafana Containers
+      shell: |
+        cd {{ remote_master_path }} && bash run.sh
+      become: yes
