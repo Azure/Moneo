@@ -8,7 +8,7 @@ Run following commands on dev box (could be one of the master/worker nodes or a 
 
 ```sh
 # get the code
-git clone https://moneo4ai@dev.azure.com/moneo4ai/moneo/_git/moneo
+git clone https://github.com/Azure/Moneo.git
 cd moneo
 
 # install dependencies
