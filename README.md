@@ -9,7 +9,7 @@ Run following commands on dev box (could be one of the master/worker nodes or a 
 ```sh
 # get the code
 git clone https://github.com/Azure/Moneo.git
-cd moneo
+cd Moneo
 
 # install dependencies
 python3 -m pip install ansible
