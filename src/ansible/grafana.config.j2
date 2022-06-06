@@ -9,7 +9,7 @@ datasources:
     type: prometheus
     access: proxy
     orgId: 1
-    url: http://{{ ansible_facts['nodename'] }}:9090
+    url: http://{{ ansible_env['SSH_CLIENT'].split() | first }}:9090
     isDefault: true
     jsonData:
       timeInterval: 1s
