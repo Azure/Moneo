@@ -9,7 +9,7 @@
   gather_facts: false
   vars:
     skip_worker_play: '{{ skip_worker | default(false) }}'
-    remote_worker_path: '{{ ansible_env.HOME }}/moneo-worker'
+    remote_worker_path: '/tmp/moneo-worker'
   tasks:
   - when: not skip_worker_play
     block:
