@@ -68,7 +68,7 @@
       shell: |
         cd {{ remote_worker_path }}
         pkill -f "net_exporter.py$" && sleep 1
-        nohup python2 exporters/net_exporter.py </dev/null >/dev/null 2>&1 &
+        nohup python3 exporters/net_exporter.py </dev/null >/dev/null 2>&1 &
 
 - name: === Deploy Master ===
   tags: master
