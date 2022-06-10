@@ -1,6 +1,13 @@
 Moneo
 =====
 
+Minimum Requirements
+-----
+
+- python >=3.7 installed
+- docker installed
+- ansible installed
+
 Setup
 -----
 
@@ -74,6 +81,12 @@ There are several cases based on the networking configuration:
 * If the master node does not have a public IP address to access, e.g., the VMSS is created behind a load balancer, you will need to create a proxy to access.
 
   For example, you can create a socks5 proxy at `socks5://localhost:1080` through `ssh -D 1080 -p PORT USER@IP`, then install [Proxy SwitchyOmega](https://chrome.google.com/webstore/detail/proxy-switchyomega/padekgcemlokbadohgkifijomclgjgif?hl=en) in Edge/Chrome browser and configure the proxy to protocol `socks5`, server `localhost`, port `1080` for all schemes, you will be able to navigate portal using master node's hostname at `http://master-hostname:3000`.
+
+* Default Grafana access:
+    *  username: azure
+    *  password: azure
+    
+  This can be changed in the "src/master/grafana/grafana.env" file.
 
 Known Issues
 ------------
