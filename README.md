@@ -1,5 +1,37 @@
 Moneo
 =====
+Description
+-----
+Moneo is a distributed GPU system monitor for AI workflows.
+
+Moneo orchestrates metric collection (DCGMI + Prometheus DB) and visualization (Grafana) across multi-GPU/node systems. This provides useful insights into workflow and system level characterization.
+
+**Metrics**
+
+There three categories of metrics that Moneo monitors:
+1.	Device Counters
+	- Compute/Memory Utilization
+	- SM and Memory Clock frequency
+	- Temperature
+	- Power
+    - ECC Counts
+2.	Profiling Counters
+    - SM Activity
+    - Memory Dram Activity
+    - NVLink Activity
+    - PCIE Rate
+3.	InfiniBand Network Counters
+    - IB TX/RX rate
+
+**Views**
+1. Device Counters
+![image](https://user-images.githubusercontent.com/70273488/173664219-43d8d7b7-a4e6-440a-8373-89ca388ce563.png)
+
+2. Profiling Counters
+![image](https://user-images.githubusercontent.com/70273488/173661651-2aa3d586-3889-45f9-81e7-c8140fb19405.png)
+
+3. InfiniBand Network Counters 
+![image](https://user-images.githubusercontent.com/70273488/173664809-bbfea8b4-91cb-42cd-aff8-a91fc9006120.png)
 
 Minimum Requirements
 -----
