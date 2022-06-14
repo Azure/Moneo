@@ -6,7 +6,7 @@ Moneo is a distributed GPU system monitor for AI workflows.
 
 Moneo orchestrates metric collection (DCGMI + Prometheus DB) and visualization (Grafana) across multi-GPU/node systems. This provides useful insights into workflow and system level characterization.
 
-**Metrics**
+### _Metrics_
 
 There three categories of metrics that Moneo monitors:
 1.	Device Counters
@@ -23,7 +23,7 @@ There three categories of metrics that Moneo monitors:
 3.	InfiniBand Network Counters
     - IB TX/RX rate
 
-**Views**
+### _Views_
 1. Device Counters
 ![image](https://user-images.githubusercontent.com/70273488/173664219-43d8d7b7-a4e6-440a-8373-89ca388ce563.png)
 
