@@ -120,6 +120,10 @@ There are several cases based on the networking configuration:
     
   This can be changed in the "src/master/grafana/grafana.env" file.
 
+### _Quick Start Guide_ ###
+
+[Quick Start](./QuickStartGuide.md)
+
 Known Issues
 ------------
 
