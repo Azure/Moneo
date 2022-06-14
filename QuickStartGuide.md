@@ -7,7 +7,7 @@ This guide assume that all dependencies and requirements have been meant.
 
 Steps
 -----
-1. Clone the Moneo from Github and install ansible. 
+1. Clone Moneo from Github and install ansible. 
     ```sh
     # get the code
     git clone https://github.com/Azure/Moneo.git
@@ -55,7 +55,7 @@ Steps
     - VM instance and GPU can be selected from the drop down menus in the top left corner:
 
         ![image](https://user-images.githubusercontent.com/70273488/173687914-ee684e71-02a7-429e-abfa-046244e9eea0.png)
-    - Various action such as dashboard selection or data source configuration can be achieved using the left screen menu:
+    - Various actions such as dashboard selection or data source configuration can be achieved using the left screen menu:
 
       ![image](https://user-images.githubusercontent.com/70273488/173689054-661bb442-4883-4f99-9147-b8307821a6b2.png)
     - Metric groups are collapsable:
