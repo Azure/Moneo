@@ -3,6 +3,7 @@ import sys
 import time
 import signal
 import logging
+import argparse
 
 import prometheus_client
 
@@ -23,7 +24,7 @@ class NetExporter():
     def __init__(self):
         self.init_connection()
         self.init_gauges()
-
+        
     def init_connection(self):
         prometheus_client.start_http_server(config['listen_port'])
         logging.info('Started prometheus client')
@@ -38,7 +39,8 @@ class NetExporter():
             self.guages[field_name] = prometheus_client.Gauge(
                 'ib_{}'.format(field_name),
                 'ib_{}'.format(field_name),
-                ['ib_port', 'ib_sys_guid'],
+                ['ib_port', 'ib_sys_guid','job_id'],
+
             )
 
     def process(self):
@@ -63,10 +65,11 @@ class NetExporter():
                     )
                 ib_port_config['counters'][field_name] = counter
 
-    def handle_field(self, ib_port, field_name, value):
+    def handle_field(self, ib_port, field_name,value):
         self.guages[field_name].labels(
             ib_port,
             config['ib_port'][ib_port]['sys_image_guid'],
+            config['job_id'],
         ).set(value)
         logging.debug('Sent InfiniBand %s %s : %s=%s', ib_port,
                       config['ib_port'][ib_port]['sys_image_guid'], field_name,
@@ -89,7 +92,7 @@ class NetExporter():
             pass
 
 
-def init_config():
+def init_config(job_id):
     global config
     config = {
         'exit': False,
@@ -97,6 +100,7 @@ def init_config():
         'listen_port': 8001,
         'publish_interval': 1,
         'ib_port': {},
+        'job_id': job_id
     }
 
 
@@ -133,9 +137,9 @@ def init_signal_handler():
     signal.signal(signal.SIGTERM, exit_handler)
 
 
-def main():
+def main(jobId):
     logging.basicConfig(level=logging.INFO)
-    init_config()
+    init_config(jobId)
     init_infiniband()
     init_signal_handler()
 
@@ -144,4 +148,10 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-j", "--job_id",type=int, default=-999, help='job id.')
+    args = parser.parse_args()
+    jobId='None'
+    if(args.job_id != -999):
+        jobId=str(args.job_id)
+    main(jobId)
