@@ -3,6 +3,7 @@ import sys
 import time
 import signal
 import logging
+import argparse
 
 import prometheus_client
 
@@ -149,7 +150,8 @@ class DcgmExporter(DcgmReader):
                 DCGM_FIELDS_DESCRIPTION[fieldId],
                 [
                     'gpu_id',
-                    'gpu_uuid' if dcgm_config['sendUuid'] else 'gpu_bus_id'
+                    'gpu_uuid' if dcgm_config['sendUuid'] else 'gpu_bus_id',
+                    'job_id'
                 ],
             )
 
@@ -158,7 +160,6 @@ class DcgmExporter(DcgmReader):
             gpuUuid = self.m_gpuIdToUUId[gpuId]
             gpuBusId = self.m_gpuIdToBusId[gpuId]
             gpuUniqueId = gpuUuid if dcgm_config['sendUuid'] else gpuBusId
-
             gpu_line = [str(gpuId), gpuUniqueId]
             for fieldId in self.m_publishFieldIds:
                 if fieldId in self.m_dcgmIgnoreFields:
@@ -171,6 +172,7 @@ class DcgmExporter(DcgmReader):
                 self.m_gauges[fieldId].labels(
                     gpuId,
                     gpuUniqueId,
+                    dcgm_config['jobId']
                 ).set(val.value)
                 gpu_line.append(str(val.value))
 
@@ -201,6 +203,7 @@ def init_config():
         'prometheusPort': None,
         'prometheusPublishInterval': None,
         'publishFieldIds': None,
+        'jobId': "None",
     }
 
 
@@ -220,8 +223,13 @@ def parse_dcgm_cli():
         publish_port=8000,
         log_level='INFO',
     )
-
+    parser.add_argument("-j", "--job_id",type=int, default=-999, help='job id.')
     args = dcgm_client_cli_parser.run_parser(parser)
+
+    #set job ID
+    if(args.job_id != -999):
+        dcgm_config['jobId']=str(args.job_id)
+
     field_ids = dcgm_client_cli_parser.get_field_ids(args)
     numeric_log_level = dcgm_client_cli_parser.get_log_level(args)
 
@@ -252,5 +260,5 @@ def main():
     exporter.Shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
     main()
