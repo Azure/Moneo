@@ -89,7 +89,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_gpu_utilization{instance=~\"$instance\",job_id=~\"$job_id\" ,gpu_id=~\"$gpu_id\"}",
+          "expr": "dcgm_gpu_utilization{job_id=~\"$job_id\",instance=~\"$instance\" ,gpu_id=~\"$gpu_id\"}",
           "legendFormat": "GPU {{gpu_id}}",
           "refId": "A"
         }
@@ -193,7 +193,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_mem_copy_utilization{instance=~\"$instance\",job_id=~\"$job_id\" ,gpu_id=~\"$gpu_id\"}",
+          "expr": "dcgm_mem_copy_utilization{job_id=~\"$job_id\",instance=~\"$instance\" ,gpu_id=~\"$gpu_id\"}",
           "legendFormat": "GPU {{gpu_id}}",
           "refId": "A"
         }
@@ -312,7 +312,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_sm_clock{instance=~\"$instance\",job_id=~\"$job_id\" ,gpu_id=~\"$gpu_id\"}",
+          "expr": "dcgm_sm_clock{job_id=~\"$job_id\",instance=~\"$instance\" ,gpu_id=~\"$gpu_id\"}",
           "legendFormat": "GPU {{gpu_id}}",
           "refId": "A"
         }
@@ -417,7 +417,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_memory_clock{instance=~\"$instance\",job_id=~\"$job_id\" ,gpu_id=~\"$gpu_id\"}",
+          "expr": "dcgm_memory_clock{job_id=~\"$job_id\",instance=~\"$instance\" ,gpu_id=~\"$gpu_id\"}",
           "legendFormat": "GPU {{gpu_id}}",
           "refId": "A"
         }
@@ -535,7 +535,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_gpu_temp{instance=~\"$instance\",job_id=~\"$job_id\" ,gpu_id=~\"$gpu_id\"}",
+          "expr": "dcgm_gpu_temp{job_id=~\"$job_id\",instance=~\"$instance\" ,gpu_id=~\"$gpu_id\"}",
           "legendFormat": "GPU {{gpu_id}}",
           "refId": "A"
         }
@@ -637,7 +637,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_memory_temp{instance=~\"$instance\",job_id=~\"$job_id\" ,gpu_id=~\"$gpu_id\"}",
+          "expr": "dcgm_memory_temp{job_id=~\"$job_id\",instance=~\"$instance\" ,gpu_id=~\"$gpu_id\"}",
           "legendFormat": "GPU {{gpu_id}}",
           "refId": "A"
         }
@@ -753,7 +753,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_power_usage{instance=~\"$instance\",job_id=~\"$job_id\" ,gpu_id=~\"$gpu_id\"}",
+          "expr": "dcgm_power_usage{job_id=~\"$job_id\",instance=~\"$instance\" ,gpu_id=~\"$gpu_id\"}",
           "legendFormat": "GPU {{gpu_id}}",
           "refId": "A"
         }
@@ -855,7 +855,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_total_energy_consumption{instance=~\"$instance\",job_id=~\"$job_id\" ,gpu_id=~\"$gpu_id\"} / 10^3",
+          "expr": "dcgm_total_energy_consumption{job_id=~\"$job_id\",instance=~\"$instance\" ,gpu_id=~\"$gpu_id\"} / 10^3",
           "legendFormat": "GPU {{gpu_id}}",
           "refId": "A"
         }
@@ -971,7 +971,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_ecc_sbe_volatile_total{instance=~\"$instance\",job_id=~\"$job_id\" ,gpu_id=~\"$gpu_id\"}",
+          "expr": "dcgm_ecc_sbe_volatile_total{job_id=~\"$job_id\",instance=~\"$instance\" ,gpu_id=~\"$gpu_id\"}",
           "legendFormat": "GPU {{gpu_id}}",
           "refId": "A"
         }
@@ -1075,7 +1075,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_ecc_dbe_volatile_total{instance=~\"$instance\",job_id=~\"$job_id\" ,gpu_id=~\"$gpu_id\"}",
+          "expr": "dcgm_ecc_dbe_volatile_total{job_id=~\"$job_id\",instance=~\"$instance\" ,gpu_id=~\"$gpu_id\"}",
           "legendFormat": "GPU {{gpu_id}}",
           "refId": "A"
         }
@@ -1179,7 +1179,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_ecc_sbe_aggregate_total{instance=~\"$instance\",job_id=~\"$job_id\" ,gpu_id=~\"$gpu_id\"}",
+          "expr": "dcgm_ecc_sbe_aggregate_total{job_id=~\"$job_id\",instance=~\"$instance\" ,gpu_id=~\"$gpu_id\"}",
           "legendFormat": "GPU {{gpu_id}}",
           "refId": "A"
         }
@@ -1283,7 +1283,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_ecc_dbe_aggregate_total{instance=~\"$instance\",job_id=~\"$job_id\" ,gpu_id=~\"$gpu_id\"}",
+          "expr": "dcgm_ecc_dbe_aggregate_total{job_id=~\"$job_id\",instance=~\"$instance\" ,gpu_id=~\"$gpu_id\"}",
           "legendFormat": "GPU {{gpu_id}}",
           "refId": "A"
         }
@@ -1339,6 +1339,37 @@
   "tags": [],
   "templating": {
     "list": [
+	  {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "dcgm-exporter",
+        "definition": "label_values(job_id)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Job ID",
+        "multi": false,
+        "name": "job_id",
+        "options": [],
+        "query": {
+          "query": "label_values(job_id)",
+          "refId": "dcgm-exporter-job_id-Variable-Query"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
       {
         "allValue": null,
         "current": {
@@ -1399,37 +1430,6 @@
         "regex": "",
         "skipUrlSync": false,
         "sort": 3,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-	  {
-        "allValue": null,
-        "current": {
-          "selected": true,
-          "text": "All",
-          "value": "All"
-        },
-        "datasource": "dcgm-exporter",
-        "definition": "label_values(job_id)",
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "includeAll": true,
-        "label": "Job ID",
-        "multi": false,
-        "name": "job_id",
-        "options": [],
-        "query": {
-          "query": "label_values(job_id)",
-          "refId": "dcgm-exporter-job_id-Variable-Query"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 1,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",

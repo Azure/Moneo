@@ -86,7 +86,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "ib_port_xmit_data{instance=~\"$instance\",job_id=~\"$job_id\", ib_port=~\"$ib_port\"}",
+          "expr": "ib_port_xmit_data{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
           "interval": "",
           "legendFormat": "{{ib_port}}",
           "refId": "A"
@@ -187,7 +187,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "ib_port_rcv_data{instance=~\"$instance\",job_id=~\"$job_id\", ib_port=~\"$ib_port\"}",
+          "expr": "ib_port_rcv_data{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
           "interval": "",
           "legendFormat": "{{ib_port}}",
           "refId": "A"
@@ -243,6 +243,37 @@
   "tags": [],
   "templating": {
     "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": null,
+        "definition": "label_values(job_id)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Job id",
+        "multi": false,
+        "name": "job_id",
+        "options": [],
+        "query": {
+          "query": "label_values(job_id)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },	
       {
         "allValue": null,
         "current": {
@@ -308,38 +339,7 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "node-000",
-          "value": "node-000"
-        },
-        "datasource": null,
-        "definition": "label_values(job_id)",
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "includeAll": true,
-        "label": "Job id",
-        "multi": false,
-        "name": "job_id",
-        "options": [],
-        "query": {
-          "query": "label_values(job_id)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 1,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }	  
+      }  
     ]
   },
   "time": {
