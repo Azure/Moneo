@@ -2,9 +2,9 @@
 # Licensed under the MIT License.
 
 import unittest
-import subprocess
 import shlex
 from pathlib import Path
+from helper import shell_process
 
 """Moneo CLI test"""
 
@@ -18,17 +18,7 @@ class CLITestCase(unittest.TestCase):
         with Path(filepath).open() as fp:
             data = fp.read()
         return data
-    
-    def shell_cmd(self,args):
-        """Helper Function for running subprocess"""
-        child = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        try:
-            result, errs = child.communicate(timeout=15)
-        except TimeoutExpired:
-            child.kill()
-            result, errs = child.communicate()
-        return result.decode()
-    
+        
     def test_cli_args(self):
         """Test bad cli input"""
         cmd="python3 ../moneo.py "
@@ -54,39 +44,39 @@ class CLITestCase(unittest.TestCase):
         #test 1 no arg
         testData = self.load_data(testFiles[0])
         args = shlex.split(cmd + test_cases[0])
-        result = self.shell_cmd(args)
+        result = shell_process.shell_cmd(args)
         assert(result == testData)
         
         #test 2 help ///wrong
         args = shlex.split(cmd + test_cases[1])
-        result = self.shell_cmd(args)
+        result = shell_process.shell_cmd(args)
         assert(result == testData)
         
         #test 3 deploy and shutdown simultaneously
         testData ='deploy and shutdown are exclusive arguments. Please only provide one.'
         args = shlex.split(cmd + test_cases[2])
-        result = self.shell_cmd(args)
+        result = shell_process.shell_cmd(args)
         assert(testData in result)
         
         #test 4 unrecognized input
         testData ='error: unrecognized arguments'
         args = shlex.split(cmd + test_cases[3])
-        result = self.shell_cmd(args)
+        result = shell_process.shell_cmd(args)
         assert(testData in result)
         
         #test 5/6 deploy/shutdown wrong option
         testData ='invalid choice'
         args = shlex.split(cmd + test_cases[4])#deploy
-        result = self.shell_cmd(args)
+        result = shell_process.shell_cmd(args)
         assert(testData in result)
         args = shlex.split(cmd + test_cases[5])#shutdown
-        result = self.shell_cmd(args)
+        result = shell_process.shell_cmd(args)
         assert(testData in result)
         
-        #test 5 incorrect host config file path
+        #test 7 incorrect host config file path
         testData ='does not exist. Please provide a host file.'
         args = shlex.split(cmd + test_cases[6])
-        result = self.shell_cmd(args)
+        result = shell_process.shell_cmd(args)
         assert(testData in result)
         
 if __name__ == '__main__':

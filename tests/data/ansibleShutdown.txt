@@ -1,0 +1,37 @@
+Are you sure you would like to stop Moneo? (Y/n)
+
+PLAY [=== Try to Connect ===] **************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+PLAY [=== Shutdown Worker ===] *************************************************
+
+TASK [Check NVIDIA or AMD GPU] *************************************************
+ok: [localhost] => (item=/dev/nvidiactl)
+ok: [localhost] => (item=/dev/kfd)
+
+TASK [Set GPU Facts] ***********************************************************
+ok: [localhost]
+
+TASK [Print GPU Checking Result] ***********************************************
+ok: [localhost] => {
+    "msg": "Detected NVIDIA GPU"
+}
+
+TASK [Stop NVIDIA DCGM Daemon and Exporter] ************************************
+changed: [localhost]
+
+TASK [Stop AMD RDC Daemon and Exporter] ****************************************
+skipping: [localhost]
+
+PLAY [=== Shutdown Master ===] *************************************************
+
+TASK [Start Prometheus and Grafana Containers] *********************************
+skipping: [localhost]
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=5    changed=1    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   
+
+Moneo is Shutting down 
+
