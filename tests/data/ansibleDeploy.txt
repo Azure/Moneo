@@ -1,0 +1,66 @@
+
+PLAY [=== Try to Connect ===] **************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+PLAY [=== Deploy Worker ===] ***************************************************
+
+TASK [Check NVIDIA or AMD GPU] *************************************************
+ok: [localhost] => (item=/dev/nvidiactl)
+ok: [localhost] => (item=/dev/kfd)
+
+TASK [Set GPU Facts] ***********************************************************
+ok: [localhost]
+
+TASK [Print GPU Checking Result] ***********************************************
+ok: [localhost] => {
+    "msg": "Detected NVIDIA GPU"
+}
+
+TASK [Copy Source] *************************************************************
+ok: [localhost]
+
+TASK [Installation] ************************************************************
+changed: [localhost]
+
+TASK [Stop Prior Instances of NVIDIA DCGM Daemon and Exporter] *****************
+changed: [localhost]
+
+TASK [Stop Prior Instances of AMD RDC Daemon and Exporter] *********************
+skipping: [localhost]
+
+TASK [Start NVIDIA DCGM Daemon] ************************************************
+changed: [localhost]
+
+TASK [Start AMD RDC Daemon] ****************************************************
+skipping: [localhost]
+
+TASK [Start NVIDIA Exporter] ***************************************************
+changed: [localhost]
+
+TASK [Start AMD Exporter] ******************************************************
+skipping: [localhost]
+
+TASK [Start Net Exporter] ******************************************************
+changed: [localhost]
+
+PLAY [=== Deploy Master ===] ***************************************************
+
+TASK [Copy Source] *************************************************************
+changed: [localhost]
+
+TASK [Generate Prometheus Config] **********************************************
+changed: [localhost]
+
+TASK [Generate Grafana Config] *************************************************
+changed: [localhost]
+
+TASK [Start Prometheus and Grafana Containers] *********************************
+changed: [localhost]
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=14   changed=9    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+
+ansible-playbook -i host.ini src/ansible/deploy.yaml -e "job_Id=-999"
+Deployment type: full
