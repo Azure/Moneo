@@ -40,6 +40,12 @@ Steps
     Note: The master node must be able to ssh into itself
     
 3. Now deploy Moneo
+    * using Moneo cli:
+    ```sh 
+    python3 moneo.py --deploy full -c host.ini -j 0
+    ```
+    note: see usage section of the README doc for more details on Moneo CLI 
+    * manual deployment
     ```sh
     ansible-playbook -i host.ini src/ansible/deploy.yaml
     ```    
