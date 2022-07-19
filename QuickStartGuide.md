@@ -57,10 +57,10 @@ Steps
 5. Navigating Moneo Grafana Portal
     - The current view is labeled in the top left corner:
     
-        ![image](https://user-images.githubusercontent.com/70273488/173687229-d1d64693-58d6-4874-a61c-c32af67e3fea.png)
-    - VM instance and GPU can be selected from the drop down menus in the top left corner:
+        ![image](https://user-images.githubusercontent.com/70273488/179831203-b9381265-1213-4a86-92c2-c820658afb0e.png)
+    - Job, VM instance, and GPU level filtering can be controlled from the drop down menus in the top left corner:
 
-        ![image](https://user-images.githubusercontent.com/70273488/173687914-ee684e71-02a7-429e-abfa-046244e9eea0.png)
+        ![image](https://user-images.githubusercontent.com/70273488/179831061-48576722-9e00-4e2e-bdf1-28a8d9c99998.png)
     - Various actions such as dashboard selection or data source configuration can be achieved using the left screen menu:
 
       ![image](https://user-images.githubusercontent.com/70273488/173689054-661bb442-4883-4f99-9147-b8307821a6b2.png)
