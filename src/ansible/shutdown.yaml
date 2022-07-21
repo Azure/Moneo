@@ -1,0 +1,58 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+- name: === Try to Connect ===
+  hosts: all
+  gather_facts: true
+  any_errors_fatal: true
+
+- name: === Shutdown Worker ===
+  tags: worker
+  hosts: worker
+  gather_facts: false
+  vars:
+    remote_worker_path: '/tmp/moneo-worker'
+    skip_worker_play: '{{ skip_worker | default(false) }}'
+  tasks:
+  - when: not skip_worker_play
+    block:
+    - name: Check NVIDIA or AMD GPU
+      stat:
+        path: '{{ item }}'
+      with_items:
+      - /dev/nvidiactl
+      - /dev/kfd
+      register: dev
+    - name: Set GPU Facts
+      set_fact:
+        nvidia_gpu_exist: '{{ dev.results[0].stat.ischr is defined and dev.results[0].stat.ischr }}'
+        amd_gpu_exist: '{{ dev.results[1].stat.ischr is defined and dev.results[1].stat.ischr }}'
+    - name: Print GPU Checking Result
+      debug:
+        msg: Detected {{ 'NVIDIA' if nvidia_gpu_exist else 'AMD' if amd_gpu_exist else 'N/A' }} GPU
+    - name: Stop NVIDIA DCGM Daemon and Exporter
+      shell: |
+        cd {{ remote_worker_path }} && bash shutdown.sh nvidia
+      when: nvidia_gpu_exist
+      become: yes
+    - name: Stop AMD RDC Daemon and Exporter
+      shell: |
+        cd {{ remote_worker_path }} && bash shutdown.sh amd
+      when: amd_gpu_exist
+      become: yes
+
+
+- name: === Shutdown Master ===
+  tags: master
+  hosts: master
+  gather_facts: false
+  vars:
+    remote_master_path: '{{ ansible_env.HOME }}/moneo-master'
+    skip_master_play: '{{ skip_master | default(false) }}'
+  tasks:
+  - when: not skip_master_play
+    block:
+    - name: Stop Prometheus and Grafana Containers
+      shell: |
+        cd {{ remote_master_path }} && bash shutdown.sh
+      become: yes
