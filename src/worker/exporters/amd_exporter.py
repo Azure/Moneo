@@ -8,7 +8,8 @@ import logging
 import prometheus_client
 
 sys.path.extend([
-    '/opt/rocm/rocm_smi/bindings',
+    '/opt/rocm/libexec/rocm_smi',   # ROCm >=5.2
+    '/opt/rocm/rocm_smi/bindings',  # ROCm <5.2
     '/opt/rocm/rdc/python_binding',
 ])
 from rsmiBindings import rocmsmi, rsmi_status_t

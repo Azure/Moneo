@@ -16,7 +16,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 1,
-  "id": 1,
+  "id": 3,
   "iteration": 1618985823890,
   "links": [],
   "panels": [
@@ -1422,6 +1422,6 @@
   },
   "timezone": "browser",
   "title": "GPU Device Counters",
-  "uid": "9Qxi6EuMk",
+  "uid": "9Qxi6EuNV",
   "version": 1
 }

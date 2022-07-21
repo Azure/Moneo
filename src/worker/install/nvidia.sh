@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # install dependencies
 source ./$(dirname "${BASH_SOURCE[0]}")/common.sh
 command -v pip2 >/dev/null 2>&1 || python2 <(curl -s https://bootstrap.pypa.io/pip/2.7/get-pip.py)

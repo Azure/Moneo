@@ -1,0 +1,895 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "target": {
+            "limit": 100,
+            "matchAny": false,
+            "tags": [],
+            "type": "dashboard"
+          },
+          "type": "dashboard"
+        }
+      ]
+    },
+    "description": "RDC_FI_* Counters",
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "id": 5,
+    "iteration": 1653294671831,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+      {
+        "collapsed": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 15,
+        "panels": [],
+        "title": "Utilization",
+        "type": "row"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
+        "decimals": 0,
+        "description": "GPU utilization (in %)",
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 1
+        },
+        "hiddenSeries": false,
+        "id": 8,
+        "legend": {
+          "alignAsTable": true,
+          "avg": true,
+          "current": false,
+          "hideEmpty": false,
+          "max": true,
+          "min": true,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 250,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+          "alertThreshold": true
+        },
+        "percentage": false,
+        "pluginVersion": "8.5.3",
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "P6FAF8666AEFFE3AA"
+            },
+            "expr": "rdc_gpu_util{instance=~\"$instance\", gpu_id=~\"$gpu_id\"}",
+            "legendFormat": "GPU {{gpu_id}}",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [],
+        "timeRegions": [],
+        "title": "GPU Utilization",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "mode": "time",
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "$$hashKey": "object:226",
+            "format": "percent",
+            "label": "",
+            "logBase": 1,
+            "max": "100",
+            "min": "0",
+            "show": true
+          },
+          {
+            "$$hashKey": "object:227",
+            "format": "percent",
+            "logBase": 1,
+            "max": "100",
+            "min": "0",
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
+        "decimals": 0,
+        "description": "Memory utilization (in %)",
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 1
+        },
+        "hiddenSeries": false,
+        "id": 9,
+        "legend": {
+          "alignAsTable": true,
+          "avg": true,
+          "current": false,
+          "hideEmpty": false,
+          "max": true,
+          "min": true,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 250,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+          "alertThreshold": true
+        },
+        "percentage": false,
+        "pluginVersion": "8.5.3",
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "P6FAF8666AEFFE3AA"
+            },
+            "expr": "rdc_gpu_memory_usage{instance=~\"$instance\", gpu_id=~\"$gpu_id\"}/rdc_gpu_memory_total{instance=~\"$instance\", gpu_id=~\"$gpu_id\"}*100",
+            "legendFormat": "GPU {{gpu_id}}",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [],
+        "timeRegions": [],
+        "title": "Memory Utilization",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "mode": "time",
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "$$hashKey": "object:401",
+            "format": "percent",
+            "label": "",
+            "logBase": 1,
+            "max": "100",
+            "min": "0",
+            "show": true
+          },
+          {
+            "$$hashKey": "object:402",
+            "format": "percent",
+            "logBase": 1,
+            "max": "100",
+            "min": "0",
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false
+        }
+      },
+      {
+        "collapsed": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 9
+        },
+        "id": 17,
+        "panels": [],
+        "title": "Clock",
+        "type": "row"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
+        "decimals": 0,
+        "description": "GPU clock frequency (in MHz)",
+        "fieldConfig": {
+          "defaults": {
+            "links": [],
+            "unit": "MHz"
+          },
+          "overrides": []
+        },
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 10
+        },
+        "hiddenSeries": false,
+        "id": 2,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "hideEmpty": false,
+          "max": true,
+          "min": true,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 250,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+          "alertThreshold": true
+        },
+        "percentage": false,
+        "pluginVersion": "8.5.3",
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "P6FAF8666AEFFE3AA"
+            },
+            "expr": "rdc_gpu_clock{instance=~\"$instance\", gpu_id=~\"$gpu_id\"}",
+            "legendFormat": "GPU {{gpu_id}}",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [],
+        "timeRegions": [],
+        "title": "GPU Clock",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "mode": "time",
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "$$hashKey": "object:462",
+            "format": "MHz",
+            "label": "",
+            "logBase": 1,
+            "show": true
+          },
+          {
+            "$$hashKey": "object:463",
+            "format": "none",
+            "logBase": 1,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
+        "decimals": 0,
+        "description": "Memory clock frequency (in MHz)",
+        "fieldConfig": {
+          "defaults": {
+            "links": [],
+            "unit": "MHz"
+          },
+          "overrides": []
+        },
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 10
+        },
+        "hiddenSeries": false,
+        "id": 3,
+        "legend": {
+          "alignAsTable": true,
+          "avg": false,
+          "current": false,
+          "hideEmpty": false,
+          "max": true,
+          "min": true,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 250,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+          "alertThreshold": true
+        },
+        "percentage": false,
+        "pluginVersion": "8.5.3",
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "P6FAF8666AEFFE3AA"
+            },
+            "expr": "rdc_mem_clock{instance=~\"$instance\", gpu_id=~\"$gpu_id\"}/1000000",
+            "legendFormat": "GPU {{gpu_id}}",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [],
+        "timeRegions": [],
+        "title": "Memory Clock",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "mode": "time",
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "$$hashKey": "object:647",
+            "format": "MHz",
+            "label": "",
+            "logBase": 1,
+            "show": true
+          },
+          {
+            "$$hashKey": "object:648",
+            "format": "none",
+            "logBase": 1,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false
+        }
+      },
+      {
+        "collapsed": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 18
+        },
+        "id": 19,
+        "panels": [],
+        "title": "Temperature",
+        "type": "row"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
+        "decimals": 0,
+        "description": "GPU temperature (in C)",
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 19
+        },
+        "hiddenSeries": false,
+        "id": 4,
+        "legend": {
+          "alignAsTable": true,
+          "avg": true,
+          "current": false,
+          "hideEmpty": false,
+          "max": true,
+          "min": true,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 250,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+          "alertThreshold": true
+        },
+        "percentage": false,
+        "pluginVersion": "8.5.3",
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "P6FAF8666AEFFE3AA"
+            },
+            "expr": "rdc_gpu_temp{instance=~\"$instance\", gpu_id=~\"$gpu_id\"}",
+            "legendFormat": "GPU {{gpu_id}}",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [],
+        "timeRegions": [],
+        "title": "GPU Temperature",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "mode": "time",
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "celsius",
+            "label": "",
+            "logBase": 1,
+            "show": true
+          },
+          {
+            "format": "celsius",
+            "logBase": 1,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
+        "decimals": 0,
+        "description": "Memory temperature (in C)",
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 19
+        },
+        "hiddenSeries": false,
+        "id": 5,
+        "legend": {
+          "alignAsTable": true,
+          "avg": true,
+          "current": false,
+          "hideEmpty": false,
+          "max": true,
+          "min": true,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 250,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+          "alertThreshold": true
+        },
+        "percentage": false,
+        "pluginVersion": "8.5.3",
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "P6FAF8666AEFFE3AA"
+            },
+            "expr": "rdc_memory_temp{instance=~\"$instance\", gpu_id=~\"$gpu_id\"}",
+            "legendFormat": "GPU {{gpu_id}}",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [],
+        "timeRegions": [],
+        "title": "Memory Temperature",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "mode": "time",
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "celsius",
+            "label": "",
+            "logBase": 1,
+            "show": true
+          },
+          {
+            "format": "celsius",
+            "logBase": 1,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false
+        }
+      },
+      {
+        "collapsed": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 27
+        },
+        "id": 21,
+        "panels": [],
+        "title": "Power",
+        "type": "row"
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
+        "decimals": 0,
+        "description": "Power usage (in W)",
+        "fieldConfig": {
+          "defaults": {
+            "links": []
+          },
+          "overrides": []
+        },
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 28
+        },
+        "hiddenSeries": false,
+        "id": 6,
+        "legend": {
+          "alignAsTable": true,
+          "avg": true,
+          "current": false,
+          "hideEmpty": false,
+          "max": true,
+          "min": true,
+          "rightSide": true,
+          "show": true,
+          "sideWidth": 250,
+          "total": false,
+          "values": true
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+          "alertThreshold": true
+        },
+        "percentage": false,
+        "pluginVersion": "8.5.3",
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "P6FAF8666AEFFE3AA"
+            },
+            "expr": "rdc_power_usage{instance=~\"$instance\", gpu_id=~\"$gpu_id\"}",
+            "legendFormat": "GPU {{gpu_id}}",
+            "refId": "A"
+          }
+        ],
+        "thresholds": [],
+        "timeRegions": [],
+        "title": "Power Usage",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "mode": "time",
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "watt",
+            "label": "",
+            "logBase": 1,
+            "show": true
+          },
+          {
+            "format": "watt",
+            "logBase": 1,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false
+        }
+      }
+    ],
+    "schemaVersion": 36,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+      "list": [
+        {
+          "current": {
+            "selected": false,
+            "text": "superbench-node-00",
+            "value": "superbench-node-00"
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P6FAF8666AEFFE3AA"
+          },
+          "definition": "label_values(instance)",
+          "hide": 0,
+          "includeAll": false,
+          "label": "Instance",
+          "multi": false,
+          "name": "instance",
+          "options": [],
+          "query": {
+            "query": "label_values(instance)",
+            "refId": "dcgm-exporter-instance-Variable-Query"
+          },
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        },
+        {
+          "current": {
+            "selected": true,
+            "text": [
+              "All"
+            ],
+            "value": [
+              "$__all"
+            ]
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P6FAF8666AEFFE3AA"
+          },
+          "definition": "label_values(gpu_id)",
+          "hide": 0,
+          "includeAll": true,
+          "label": "GPU",
+          "multi": true,
+          "name": "gpu_id",
+          "options": [],
+          "query": {
+            "query": "label_values(gpu_id)",
+            "refId": "dcgm-exporter-gpu_id-Variable-Query"
+          },
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 3,
+          "tagValuesQuery": "",
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        }
+      ]
+    },
+    "time": {
+      "from": "now-30m",
+      "to": "now"
+    },
+    "timepicker": {
+      "hidden": false,
+      "refresh_intervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m"
+      ]
+    },
+    "timezone": "browser",
+    "title": "GPU Device Counters",
+    "uid": "9Qxi6Eamd",
+    "version": 1,
+    "weekStart": ""
+  }
