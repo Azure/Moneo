@@ -32,6 +32,7 @@
       synchronize:
         src: ../worker/
         dest: '{{ remote_worker_path }}'
+        delete: yes
         archive: yes
         recursive: yes
     - name: Installation
@@ -84,6 +85,7 @@
       synchronize:
         src: ../master/
         dest: '{{ remote_master_path }}'
+        delete: yes
         archive: yes
         recursive: yes
     - name: Generate Prometheus Config
