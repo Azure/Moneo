@@ -9,6 +9,10 @@ import prometheus_client
 IB_COUNTERS = [
     'port_xmit_data',
     'port_rcv_data',
+    'port_xmit_discards',
+    'port_rcv_errors',
+    'port_xmit_constraint_errors',
+    'port_rcv_constraint_errors',
 ]
 
 
@@ -48,19 +52,22 @@ class NetExporter():
                 ib_port_config['counter_file'][field_name].seek(0)
                 counter = int(ib_port_config['counter_file']
                               [field_name].readline().strip())
-                counter_delta = counter - ib_port_config['counters'][field_name]
-                if counter_delta >= 0:
-                    self.handle_field(
-                        ib_port,
-                        field_name,
-                        counter_delta * 4 / config['update_freq'],
-                    )
+                if field_name.endswith('_data'):
+                    counter_delta = counter - ib_port_config['counters'][field_name]
+                    if counter_delta >= 0:
+                        self.handle_field(
+                            ib_port,
+                            field_name,
+                            counter_delta * 4 / config['update_freq'],
+                        )
+                    else:
+                        self.handle_field(
+                            ib_port,
+                            field_name,
+                            (counter_delta + 2**64) * 4 / config['update_freq'],
+                        )
                 else:
-                    self.handle_field(
-                        ib_port,
-                        field_name,
-                        (counter_delta + 2**64) * 4 / config['update_freq'],
-                    )
+                    self.handle_field(ib_port, field_name, counter)
                 ib_port_config['counters'][field_name] = counter
 
     def handle_field(self, ib_port, field_name, value):
