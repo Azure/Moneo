@@ -38,7 +38,13 @@ class NetExporter():
             self.guages[field_name] = prometheus_client.Gauge(
                 'ib_{}'.format(field_name),
                 'ib_{}'.format(field_name),
-                ['ib_port', 'ib_sys_guid','job_id'],
+                ['ib_port', 'ib_sys_guid'],#['ib_port', 'ib_sys_guid','job_id']
+            )
+        #job id
+        self.guages['job_id'] = prometheus_client.Gauge(
+                'job_id',
+                'job id used to track instancess',
+                ['job_id'],
             )
 
     def process(self):
@@ -94,6 +100,14 @@ class NetExporter():
 def jobID_update( signum, stack):
     with open('curr_jobID') as f:
         config['job_id'] = f.readline().strip()
+        self.guages[field_name].labels(
+        ib_port,
+        config['ib_port'][ib_port]['sys_image_guid'],
+        config['job_id'],
+    ).set(value)
+    logging.debug('Sent InfiniBand %s %s : %s=%s', ib_port,
+                  config['ib_port'][ib_port]['sys_image_guid'], field_name,
+                  str(value))
     #print(config['job_id'])
 
 def init_config(job_id):
