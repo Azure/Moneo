@@ -1,5 +1,5 @@
 import subprocess
-
+import shlex
 
 
 def shell_cmd(args, timeout):
@@ -7,7 +7,9 @@ def shell_cmd(args, timeout):
     child = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     try:
         result, errs = child.communicate(timeout=timeout)
-    except TimeoutExpired:
+    except subprocess.TimeoutExpired:       
         child.kill()
-        result, errs = child.communicate()
+        print("Command " + " ".join(args) + ", Failed on timeout")
+        result = 'TimeOut'
+        return result
     return result.decode()
