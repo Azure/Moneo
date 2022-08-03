@@ -42,7 +42,7 @@ Steps
 3. Now deploy Moneo
     * using Moneo cli:
     ```sh 
-    python3 moneo.py --deploy full -c host.ini
+    python3 moneo.py --deploy -c host.ini full
     ```
     note: see usage section of the README doc for more details on Moneo CLI 
     * manual deployment
