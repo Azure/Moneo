@@ -89,15 +89,17 @@ Which can be accessed as such:
     python3 moneo.py --help
     ```
 #### CLI Usage
-* ```python3 moneo.py [--deploy {manager,workers,full}] [-c HOST_INI]```
-* ```python3 moneo.py [--shutdown {manager,workers,full}] [-c HOST_INI]```
+* ```python3 moneo.py [-d/--deploy] [-c HOST_INI] {manager,workers,full}```
+* ```python3 moneo.py [-s/--shutdown] [-c HOST_INI] {manager,workers,full}```
+* i.e. ```python3 moneo.py -d -c ./host.ini full```
 
 
 | Flag                           | Options/arguments        |description|
 |--------------------------------|--------------------------|--------|
-|-d, --deploy | {manager,workers,full}   |Deploy option selection. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.|
-|-s, --shutdown| {manager,workers,full}  |Shutdown option selection. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.|
+|-d, --deploy | None   |Deploy option selection. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.|
+|-s, --shutdown| None  |Shutdown option selection. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.|
 |-c, --host_ini    | path + file name    |Provide filepath and name of ansible config file. The default is host.ini in the Moneo directory.|
+| | {manager,workers,full} | Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full. |
 
 ### _Manual Usage_
 #### _Deployment_
