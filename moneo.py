@@ -12,6 +12,8 @@ def deploy(args):
     if args.type == 'master' :
         dep_cmd= dep_cmd + ' -e "skip_worker=true"'
     
+    dep_cmd= dep_cmd + ' -e "skip_insights=' + ('false' if args.insights else 'true') + '"'
+
     print('Deployment type: ' + args.type)
     os.system(dep_cmd)
     
@@ -56,6 +58,7 @@ if __name__ == '__main__':
     
     parser.add_argument('-d','--deploy', action='store_true',help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
     parser.add_argument('-s','--shutdown',action='store_true', help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
+    parser.add_argument('-i', '--insights',action='store_true', help='Enable exporting of metrics to Azure Insights. Requires a valid instrumentation key and base_url for the Prometheus DB in config.ini')
     parser.add_argument('type', metavar='type', type=str,default=['full'], nargs="*", help='Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full.')    
 
     args = parser.parse_args()
