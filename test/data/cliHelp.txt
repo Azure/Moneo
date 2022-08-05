@@ -1,0 +1,13 @@
+usage: moneo.py [-d {manager,workers,full}] [-c HOST_INI]
+usage: moneo.py [-s {manager,workers,full}] [-c HOST_INI]
+
+Moneo CLI
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d {manager,workers,full}, --deploy {manager,workers,full}
+                        Deployment choices: {manager,workers,full}. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.
+  -s {manager,workers,full}, --shutdown {manager,workers,full}
+                        Shutdown choices: {manager,workers,full}. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.
+  -c HOST_INI, --host_ini HOST_INI
+                        Provide filepath and name of ansible config file. The default is host.ini in the Moneo directory.
