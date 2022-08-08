@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 - name: === Try to Connect ===
   hosts: all
   gather_facts: true
@@ -9,6 +12,7 @@
   gather_facts: false
   vars:
     skip_worker_play: '{{ skip_worker | default(false) }}'
+    job_group: '{{ job_Id | default(-999) }}'
     remote_worker_path: '/tmp/moneo-worker'
   tasks:
   - when: not skip_worker_play
@@ -27,12 +31,10 @@
     - name: Print GPU Checking Result
       debug:
         msg: Detected {{ 'NVIDIA' if nvidia_gpu_exist else 'AMD' if amd_gpu_exist else 'N/A' }} GPU
-
     - name: Copy Source
       synchronize:
         src: ../worker/
         dest: '{{ remote_worker_path }}'
-        delete: yes
         archive: yes
         recursive: yes
     - name: Installation
@@ -41,36 +43,41 @@
         bash install/{{ 'nvidia' if nvidia_gpu_exist else 'amd' if amd_gpu_exist else 'common' }}.sh
       become: yes
 
+    - name: Stop Prior Instances of NVIDIA DCGM Daemon and Exporter
+      shell: |
+        cd {{ remote_worker_path }} && bash shutdown.sh nvidia
+      when: nvidia_gpu_exist
+      become: yes
+    - name: Stop Prior Instances of AMD RDC Daemon and Exporter
+      shell: |
+        cd {{ remote_worker_path }} && bash shutdown.sh amd
+      when: amd_gpu_exist
+      become: yes
+
     - name: Start NVIDIA DCGM Daemon
       shell: |
-        pkill -f "^nv-hostengine" && sleep 3
-        nohup nv-hostengine </dev/null >/dev/null 2>&1 &
+        nohup nv-hostengine </dev/null >/dev/null 2>&1 & 
       when: nvidia_gpu_exist
       become: yes
     - name: Start AMD RDC Daemon
       shell: |
-        pkill -f "^/opt/rocm/rdc/bin/rdcd" && sleep 3
         nohup /opt/rocm/rdc/bin/rdcd -u </dev/null >/dev/null 2>&1 &
       when: amd_gpu_exist
       become: yes
     - name: Start NVIDIA Exporter
       shell: |
         cd {{ remote_worker_path }}
-        pkill -f "nvidia_exporter.py$" && sleep 1
         nohup python2 exporters/nvidia_exporter.py </dev/null >/dev/null 2>&1 &
       when: nvidia_gpu_exist
     - name: Start AMD Exporter
       shell: |
         cd {{ remote_worker_path }}
-        pkill -f "amd_exporter.py$" && sleep 1
         nohup python3 exporters/amd_exporter.py </dev/null >/dev/null 2>&1 &
       when: amd_gpu_exist
     - name: Start Net Exporter
       shell: |
         cd {{ remote_worker_path }}
-        pkill -f "net_exporter.py$" && sleep 1
         nohup python3 exporters/net_exporter.py </dev/null >/dev/null 2>&1 &
-
 - name: === Deploy Master ===
   tags: master
   hosts: master
@@ -85,7 +92,6 @@
       synchronize:
         src: ../master/
         dest: '{{ remote_master_path }}'
-        delete: yes
         archive: yes
         recursive: yes
     - name: Generate Prometheus Config

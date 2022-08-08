@@ -80,8 +80,29 @@ Please refer to [Ansible Inventory docs](https://docs.ansible.com/ansible/latest
 
 Usage
 -----
+### _Moneo CLI_
+To make deploying and shutting down easier we provide the Moneo CLI. 
 
-### _Deployment_
+Which can be accessed as such:
+
+*   ```sh
+    python3 moneo.py --help
+    ```
+#### CLI Usage
+* ```python3 moneo.py [-d/--deploy] [-c HOST_INI] {manager,workers,full}```
+* ```python3 moneo.py [-s/--shutdown] [-c HOST_INI] {manager,workers,full}```
+* i.e. ```python3 moneo.py -d -c ./host.ini full```
+
+
+| Flag                           | Options/arguments        |description|
+|--------------------------------|--------------------------|--------|
+|-d, --deploy | None   |Deploy option selection. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.|
+|-s, --shutdown| None  |Shutdown option selection. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.|
+|-c, --host_ini    | path + file name    |Provide filepath and name of ansible config file. The default is host.ini in the Moneo directory.|
+| | {manager,workers,full} | Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full. |
+
+### _Manual Usage_
+#### _Deployment_
 
 To collect metrics, you need to deploy exporters on all worker nodes and Prometheus/Grafana services on all master nodes.
 
@@ -98,7 +119,19 @@ There are several kinds of deployment scenarios:
     ```sh
     ansible-playbook -i host.ini src/ansible/deploy.yaml -e "skip_worker=true"
     ```
+    
+* If master/manager node is already running and you want to skip run the following command to deploy worker nodes only:
 
+    ```sh
+    ansible-playbook -i host.ini src/ansible/deploy.yaml -e "skip_master=true"
+    ```
+    
+#### _Shutdown_
+
+*   ```sh
+    ansible-playbook -i host.ini src/ansible/shutdown.yaml
+    ```
+*   Skipping the worker nodes or master/management node it can be done by using the same  skip_worker/skip_master flags.
 ### _Access the Portal_
 
 The Prometheus and Grafana services will be started on master nodes after deployment.
