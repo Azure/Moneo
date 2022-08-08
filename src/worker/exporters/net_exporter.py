@@ -27,7 +27,8 @@ def watch(f):
 class NetExporter():
     def __init__(self):
         self.init_connection()
-        self.init_gauges()
+        self.init_gauges()           
+        signal.signal(signal.SIGUSR1,self.jobID_update_flag)
 
     def init_connection(self):
         prometheus_client.start_http_server(config['listen_port'])
@@ -43,14 +44,9 @@ class NetExporter():
             self.guages[field_name] = prometheus_client.Gauge(
                 'ib_{}'.format(field_name),
                 'ib_{}'.format(field_name),
-                ['ib_port', 'ib_sys_guid'],#['ib_port', 'ib_sys_guid','job_id']
+                ['ib_port', 'ib_sys_guid','job_id']
             )
-        #job id
-        self.guages['job_id'] = prometheus_client.Gauge(
-                'job_id',
-                'job id used to track instancess',
-                ['job_id'],
-            )
+
 
     def process(self):
         for ib_port in config['ib_port'].keys():
@@ -87,11 +83,31 @@ class NetExporter():
                       config['ib_port'][ib_port]['sys_image_guid'], field_name,
                       str(value))
 
-
+    def jobID_update_flag(self, signum, stack):
+        global job_update
+        job_update=True
+        #print(self.guages['port_xmit_data'].get_target_info())
+        #print(self.guages['port_xmit_data'].labels('ib_port', 'ib_sys_guid','job_id')._labelnames)
+            
+    def jobID_update(self):
+        global job_update
+        job_update=False    
+        for ib_port in config['ib_port'].keys():
+            for field_name in IB_COUNTERS:
+                self.guages[field_name].remove(ib_port,config['ib_port'][ib_port]['sys_image_guid'],config['job_id'])
+                               
+        with open('curr_jobID') as f:
+            config['job_id'] = f.readline().strip()
+        print(config['job_id'])
+         
 
     def loop(self):
+        global job_update
+        job_update=False
         try:
             while True:
+                if(job_update):
+                    self.jobID_update()
                 self.process()
                 time.sleep(config['update_freq'])
                 if config['exit'] == True:
@@ -104,19 +120,6 @@ class NetExporter():
         except KeyboardInterrupt:
             pass
 
-
-def jobID_update( signum, stack):
-    with open('curr_jobID') as f:
-        config['job_id'] = f.readline().strip()
-        self.guages[field_name].labels(
-        ib_port,
-        config['ib_port'][ib_port]['sys_image_guid'],
-        config['job_id'],
-    ).set(value)
-    logging.debug('Sent InfiniBand %s %s : %s=%s', ib_port,
-                  config['ib_port'][ib_port]['sys_image_guid'], field_name,
-                  str(value))
-    #print(config['job_id'])
 
 def init_config(job_id):
     global config
@@ -158,8 +161,6 @@ def init_infiniband():
 def init_signal_handler():
     def exit_handler(signalnum, frame):
         config['exit'] = True
-    
-    signal.signal(signal.SIGUSR1,jobID_update)
     signal.signal(signal.SIGINT, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)
 
