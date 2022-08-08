@@ -3,7 +3,7 @@ Azure Application Insights
 
 Description
 -----------
-[Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) is a part of Azure Monitor that is traditionally used for monitoring web apps. However, it can also be used as an alternative to Grafana for visualization of GPU and InfiniBand metrics. 
+[Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) is a part of Azure Monitor that is traditionally used for monitoring web apps. However, it can also be used as an alternative to Grafana for visualization of GPU and InfiniBand (IB) metrics. 
 
 Prerequisites
 -------------
