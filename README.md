@@ -153,6 +153,9 @@ There are several cases based on the networking configuration:
     
   This can be changed in the "src/master/grafana/grafana.env" file.
 
+### _Azure Application Insights for Metric Visualization_ ###
+[Azure Application Insights for Metric Visualization](src/azinsights/README.md)
+
 ### _Quick Start Guide_ ###
 
 [Quick Start](./QuickStartGuide.md)
