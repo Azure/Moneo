@@ -39,15 +39,15 @@ Usage
 ### _Deployment_
 Use the -i or --insights flag alongside the Moneo deployment command to start exporting to Azure Insights. For example,
 ```sh
-# deploy Moneo fully with job id 22 and export metrics to Application Insights 
-python3 moneo.py -d full -j 22 -i
+# deploy Moneo fully and export metrics to Application Insights 
+python3 moneo.py -d -i
 ```
 
 ### _Shutdown_
 The shutdown process is unchanged. For example,
 ```sh
 # shuts down Moneo fully and stops exporting metrics to Application Insights 
-python3 moneo.py -s full
+python3 moneo.py -s
 ```
 
 Viewing Metrics on Azure Portal
