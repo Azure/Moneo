@@ -32,7 +32,7 @@ class DCGMMetricOrganizer(MetricOrganizer):
         logger.debug('extract_metric_info')
         metric = query_result['metric']
         job_id = '-999'
-        job_id = job_id if (job_id != '-999') else None
+        job_id = job_id if (job_id != '-999') else 'None'
         vm_instance = metric['instance']
         identifier = metric['gpu_id']
         metric_queried = metric['__name__']
