@@ -123,6 +123,7 @@ class DcgmExporter(DcgmReader):
         )
         self.InitConnection()
         self.InitGauges()
+        signal.signal(signal.SIGUSR1,self.jobID_update_flag)
 
     def InitConnection(self):
         self.Reconnect()
@@ -180,11 +181,37 @@ class DcgmExporter(DcgmReader):
                               str(val.value))
             logging.debug(','.join(gpu_line))
     
-
+    def jobID_update_flag(self, signum, stack):
+        '''Sets job update flag when user defined signal comes in'''
+        global job_update
+        job_update=True
+            
+    def jobID_update(self):
+        '''Updates job id when job update flag has been set'''
+        global job_update
+        job_update=False
+        fvs = self.m_dcgmGroup.samples.GetLatest(self.m_fieldGroup).values
+        #remove last set of label values
+        for gpuId in fvs.keys():
+            gpuUuid = self.m_gpuIdToUUId[gpuId]
+            gpuBusId = self.m_gpuIdToBusId[gpuId]
+            gpuUniqueId = gpuUuid if dcgm_config['sendUuid'] else gpuBusId        
+            for fieldId in self.m_publishFieldIds:
+                if fieldId in self.m_dcgmIgnoreFields:
+                    continue
+                self.m_gauges[fieldId].remove(gpuId,gpuUniqueId,dcgm_config['jobId'])                          
+        #update job id
+        with open('curr_jobID') as f:
+            dcgm_config['jobId'] = f.readline().strip()
+        logging.debug('Job ID updated to %s',dcgm_config['jobId'])   
     
     def Loop(self):
+        global job_update
+        job_update=False
         try:
             while True:
+                if(job_update):
+                    self.jobID_update()                
                 self.Process()
                 time.sleep(0.1)                
                 if dcgm_config['exit'] == True:
@@ -193,10 +220,6 @@ class DcgmExporter(DcgmReader):
         except KeyboardInterrupt:
             pass
 
-def jobID_update(signum, stack):
-    with open('curr_jobID') as f:
-        dcgm_config['jobId'] = f.readline().strip()
-    #print(dcgm_config['jobId'])
 
 def init_config():
     global dcgm_config
@@ -213,7 +236,6 @@ def init_config():
 def init_signal_handler():
     def exit_handler(signalnum, frame):
         dcgm_config['exit'] = True
-    signal.signal(signal.SIGUSR1, jobID_update)
     signal.signal(signal.SIGINT, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)
 

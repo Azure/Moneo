@@ -86,7 +86,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "ib_port_xmit_data{instance=~\"$instance\", ib_port=~\"$ib_port\"}",
+          "expr": "ib_port_xmit_data{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
           "interval": "",
           "legendFormat": "{{ib_port}}",
           "refId": "A"
@@ -187,7 +187,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "ib_port_rcv_data{instance=~\"$instance\", ib_port=~\"$ib_port\"}",
+          "expr": "ib_port_rcv_data{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
           "interval": "",
           "legendFormat": "{{ib_port}}",
           "refId": "A"
@@ -334,7 +334,7 @@
             "uid": "P6FAF8666AEFFE3AA"
           },
           "editorMode": "code",
-          "expr": "ib_port_xmit_discards{instance=~\"$instance\", ib_port=~\"$ib_port\"}",
+          "expr": "ib_port_xmit_discards{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
           "legendFormat": "{{ib_port}}",
           "range": true,
           "refId": "A"
@@ -428,7 +428,7 @@
             "uid": "P6FAF8666AEFFE3AA"
           },
           "editorMode": "code",
-          "expr": "ib_port_rcv_errors{instance=~\"$instance\", ib_port=~\"$ib_port\"}",
+          "expr": "ib_port_rcv_errors{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
           "legendFormat": "{{ib_port}}",
           "range": true,
           "refId": "A"
@@ -522,7 +522,7 @@
             "uid": "P6FAF8666AEFFE3AA"
           },
           "editorMode": "code",
-          "expr": "ib_port_xmit_constraint_errors{instance=~\"$instance\", ib_port=~\"$ib_port\"}",
+          "expr": "ib_port_xmit_constraint_errors{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
           "legendFormat": "{{ib_port}}",
           "range": true,
           "refId": "A"
@@ -616,7 +616,7 @@
             "uid": "P6FAF8666AEFFE3AA"
           },
           "editorMode": "code",
-          "expr": "ib_port_rcv_constraint_errors{instance=~\"$instance\", ib_port=~\"$ib_port\"}",
+          "expr": "ib_port_rcv_constraint_errors{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
           "legendFormat": "{{ib_port}}",
           "range": true,
           "refId": "A"
@@ -632,6 +632,37 @@
   "tags": [],
   "templating": {
     "list": [
+	  {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": null,
+        "definition": "label_values(job_id)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Job id",
+        "multi": false,
+        "name": "job_id",
+        "options": [],
+        "query": {
+          "query": "label_values(job_id)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
       {
         "allValue": null,
         "current": {

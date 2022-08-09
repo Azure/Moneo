@@ -84,22 +84,22 @@ class NetExporter():
                       str(value))
 
     def jobID_update_flag(self, signum, stack):
+        '''Sets job update flag when user defined signal comes in'''
         global job_update
         job_update=True
-        #print(self.guages['port_xmit_data'].get_target_info())
-        #print(self.guages['port_xmit_data'].labels('ib_port', 'ib_sys_guid','job_id')._labelnames)
             
     def jobID_update(self):
+        '''Updates job id when job update flag has been set'''
         global job_update
-        job_update=False    
+        job_update=False
+        #remove last set of label values        
         for ib_port in config['ib_port'].keys():
             for field_name in IB_COUNTERS:
-                self.guages[field_name].remove(ib_port,config['ib_port'][ib_port]['sys_image_guid'],config['job_id'])
-                               
+                self.guages[field_name].remove(ib_port,config['ib_port'][ib_port]['sys_image_guid'],config['job_id'])                          
+        #update job id
         with open('curr_jobID') as f:
             config['job_id'] = f.readline().strip()
-        print(config['job_id'])
-         
+        logging.debug('Job ID updated to %s',config['job_id'])      
 
     def loop(self):
         global job_update
@@ -185,8 +185,6 @@ def get_log_level(loglevel):
 def main(args):
     logging.basicConfig(level=get_log_level(args.log_level))
     jobId=None
-    # if(args.job_id):
-        # jobId=str(args.job_id)
     init_config(jobId)
     init_infiniband()
     init_signal_handler()
