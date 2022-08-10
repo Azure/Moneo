@@ -160,7 +160,7 @@ class ApplicationInsightsExporter(MetricExporter):
         else: 
             self._context.insert(VM_INSTANCE_TAGKEY, value)
 
-    def init_measures_and_views(self, path_to_metric_info: str = 'src/azinsights/metric_info.json'):
+    def init_measures_and_views(self, path_to_metric_info: str = 'metric_info.json'):
         ''' Initiates OpenCensus measures and views for them to be exported.
         
         Parameters

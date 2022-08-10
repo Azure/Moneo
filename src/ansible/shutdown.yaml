@@ -56,18 +56,3 @@
       shell: |
         cd {{ remote_master_path }} && bash shutdown.sh
       become: yes
-
-- name: === Shutdown Exporting to Azure Insights ===
-  tags: master
-  hosts: master
-  gather_facts: false
-  vars:
-    skip_master_play: '{{ skip_master | default(false) }}'
-    remote_insights_path: '{{ ansible_env.HOME }}/Moneo/src/azinsights'
-  tasks:
-  - when: not skip_master_play
-    block:
-    - name: Stop azinsights main
-      shell: |
-        cd {{ remote_insights_path }} && bash shutdown.sh
-      become: yes
