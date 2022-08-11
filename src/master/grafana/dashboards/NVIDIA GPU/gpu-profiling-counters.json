@@ -1220,15 +1220,15 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "All",
-          "value": "All"
+          "text": "None",
+          "value": "None"
         },
         "datasource": "dcgm-exporter",
         "definition": "label_values(job_id)",
         "description": null,
         "error": null,
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": "Job ID",
         "multi": false,
         "name": "job_id",
