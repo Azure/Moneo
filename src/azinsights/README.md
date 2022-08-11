@@ -58,6 +58,15 @@ While on your Application Insights resource associated with the instrumentation 
 ### _Setting up the Dashboards_
 Coming soon.
 
+1. Device Counters Dashboard:
+![DeviceDashboard](https://user-images.githubusercontent.com/71988295/184216568-5927f3fe-c5ef-4394-884f-edce1be7a956.PNG)
+
+2. Profiling Counters Dashboard:
+![ProfilingDashboard](https://user-images.githubusercontent.com/71988295/184216605-c5bf5dfa-ffff-4773-a4ad-3cd029aa4234.PNG)
+
+3. InfiniBand Network Counters Dashboard:
+![InfiniBandDashboard](https://user-images.githubusercontent.com/71988295/184216626-93825f28-885b-4326-9195-662fb90152e2.PNG)
+
 Exporting of Additional Metrics
 -------------------------------
 ### _DCGM or IB Metrics_
