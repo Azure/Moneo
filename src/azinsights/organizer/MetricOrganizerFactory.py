@@ -7,6 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class MetricOrganizerFactory:
+    '''Class used to instantiate children of MetricOrganizer'''
     @staticmethod
     def Factory(organizer_type: str = 'DCGM'):
         '''Provides instance of a certain organizer type.
@@ -30,3 +31,4 @@ class MetricOrganizerFactory:
         if organizer_type not in organizers:
             raise Exception('{0} is not a known organizer in MetricOrganizerFactory.'.format(organizer_type))
         return organizers[organizer_type]()
+        

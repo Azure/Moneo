@@ -1,5 +1,6 @@
 class MetricCollector:
-    
+    '''Abstract class meant to collect metrics internally from some resource to later expose it to an exporter.'''
+
     def __init__(self):
         pass
 
@@ -10,4 +11,4 @@ class MetricCollector:
     def get_current_results():
         '''Exposes metrics such that they may be consumed by an exporter.'''
         raise NotImplementedError('Must implement this method')
-        
+

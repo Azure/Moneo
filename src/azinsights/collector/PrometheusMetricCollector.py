@@ -43,7 +43,7 @@ CONFIG_FILE_NAME = 'config.ini'
 logger = logging.getLogger(__name__)
 
 class PrometheusMetricCollector(MetricCollector):
-    
+    '''Class meant to collect metrics internally from a Prometheus DB.'''
     def __init__(self):
         logger.debug('__init__')
         self._url = PrometheusMetricCollector.get_prometheus_url()
@@ -168,7 +168,4 @@ class PrometheusMetricCollector(MetricCollector):
         logger.debug('successful_response')
         SUCCESSFUL_CODES = [200, 201, 202, 203, 204, 205, 206]
         return response.status_code in SUCCESSFUL_CODES
-
-
-
-
+        

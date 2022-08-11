@@ -38,5 +38,5 @@ class DCGMMetricOrganizer(MetricOrganizer):
         metric_queried = metric['__name__']
         metric_value = query_result['value'][1]
         return job_id, vm_instance, identifier, metric_queried, metric_value
-
-    
+        
+            

@@ -21,6 +21,8 @@ CONFIG_FILE_NAME = 'config.ini'
 logger = logging.getLogger(__name__)
 
 class ApplicationInsightsExporter(MetricExporter):
+    '''Class meant to receive metrics from a collector and send them to an Azure Application Insights resource.'''
+
     def __init__(self):
         logger.debug('__init__')
         self._instrumentation_key = ApplicationInsightsExporter.get_azure_instrumentation_key()
@@ -254,3 +256,4 @@ class ApplicationInsightsExporter(MetricExporter):
         config_parser = ConfigParser()
         config_parser.read(CONFIG_FILE_NAME)
         return config_parser['azure']['instrumentation_key']
+        

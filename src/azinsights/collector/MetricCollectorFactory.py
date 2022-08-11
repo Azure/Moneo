@@ -5,6 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class MetricCollectorFactory:
+    '''Class used to instantiate children of MetricCollector'''
     @staticmethod
     def Factory(collector_type: str = 'Prometheus'):
         '''Provides instance of a certain collector type.
@@ -27,3 +28,4 @@ class MetricCollectorFactory:
         if collector_type not in collectors:
             raise Exception('{0} is not a known collector in MetricCollectorFactory.'.format(collector_type))
         return collectors[collector_type]()
+        

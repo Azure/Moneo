@@ -141,3 +141,4 @@
       shell: |
         cd {{ remote_insights_path }} && nohup python3 azinsights_main.py &
         
+        

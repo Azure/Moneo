@@ -4,6 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class MetricOrganizer:
+    '''Abstract class meant to format raw metric data collected by a collector; it is specific to a metric type (i.e. dcgm or ib).'''
     def __init__():
         pass
 

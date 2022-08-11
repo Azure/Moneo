@@ -4,7 +4,7 @@ import sys
 import os
 import configparser
 
-from helper import shell_process, json_helper
+from helper import shell_process, file_util
 
 sys.path.append('../src/azinsights')
 
@@ -63,7 +63,7 @@ class ExporterTestCase(unittest.TestCase):
             os.remove(config_file_name)
 
     def test_application_insights_exporter_export(self):
-        collected_data = json_helper.jsonToDict(PATH_TO_DATA + '/goodMetricsCollectedTwoVM.json')
+        collected_data = file_util.jsonToDict(PATH_TO_DATA + '/goodMetricsCollectedTwoVM.json')
 
         config_file_name = "config.ini"
         config = configparser.ConfigParser()
@@ -90,3 +90,4 @@ class ExporterTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+    

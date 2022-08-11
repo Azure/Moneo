@@ -48,6 +48,12 @@ def check_deploy_shutdown(args,parser):
         args.type = 'full'
     args.type = args.type[0]
 
+def check_insights_config(args, parser):
+    if (args.insights and not os.path.isfile('config.ini')):
+        print('The Application Insights configuration file (config.ini) does not exist. Please provide one to use this feature.')
+        parser.print_helper()
+        exit(1)
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Moneo CLI',prog='moneo.py',usage='%(prog)s [-d ] [-c HOST_INI] [{manager,workers,full}] \
@@ -69,6 +75,7 @@ if __name__ == '__main__':
          exit(1)
     elif(args.deploy):
         check_deploy_shutdown(args,parser)
+        check_insights_config(args,parser)
         deploy(args)
     elif(args.shutdown):  
         check_deploy_shutdown(args,parser)

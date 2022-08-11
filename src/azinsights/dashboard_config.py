@@ -3,7 +3,7 @@ from shutil import copyfile
 import logging
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 SOURCE_PREFIXES = ['ProfilingCounters', 'DeviceCounters', 'InfiniBandNetworkCounters']
 TEXT_REPLACEMENTS = {'sub_id': '<Subscription-ID>', 'resource_group': '<Resource-Group>', 'app_insights': '<Application-Insights>'}
@@ -34,4 +34,5 @@ def main():
             logger.debug('Finished writing into {0}'.format(dest)) 
 
 if __name__ == '__main__':
-    main() 
+    main()
+     

@@ -5,7 +5,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class MetricExporterFactory:    
+class MetricExporterFactory:
+    '''Class used to instantiate children of MetricExporter'''    
     @staticmethod
     def Factory(exporter_type: str = 'ApplicationInsights'):
         '''Provides instance of a certain exporter type.
@@ -28,3 +29,4 @@ class MetricExporterFactory:
         if exporter_type not in exporters:
             raise Exception('{0} is not a known exporter in MetricExporterFactory.'.format(exporter_type))
         return exporters[exporter_type]()
+        

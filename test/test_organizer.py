@@ -7,7 +7,7 @@ from unittest.mock import Mock
 import requests
 import sys
 
-from helper import json_helper
+from helper import file_util
 
 sys.path.append('../src/azinsights')
 from organizer.DCGMMetricOrganizer import DCGMMetricOrganizer
@@ -45,7 +45,7 @@ class OrganizerTestCase(unittest.TestCase):
                                         ('42', 'nd96-1', '6', 'dcgm_gpu_temp', '35'), ('42', 'nd96-1', '7', 'dcgm_gpu_temp', '36')
                                     ]
         dcgm_organizer = DCGMMetricOrganizer()
-        response_data = json_helper.jsonToDict(PATH_TO_DATA + '/goodDCGMResponse.json')
+        response_data = file_util.jsonToDict(PATH_TO_DATA + '/goodDCGMResponse.json')
         response = self.getMockResponse(200, response_data)
         organized_results = dcgm_organizer.organize_metric(response)
         self.assertEqual(organized_results, expected_organized_results)
@@ -62,7 +62,7 @@ class OrganizerTestCase(unittest.TestCase):
                                         ('24', 'hpcpee58f000006', '7', 'dcgm_gpu_temp', '63'), ('24', 'hpcpee58f000004', '7', 'dcgm_gpu_temp', '33')
                                     ]
         dcgm_organizer = DCGMMetricOrganizer()
-        response_data = json_helper.jsonToDict(PATH_TO_DATA + '/goodDCGMResponseTwoVM.json')
+        response_data = file_util.jsonToDict(PATH_TO_DATA + '/goodDCGMResponseTwoVM.json')
         response = self.getMockResponse(200, response_data)
         organized_results = dcgm_organizer.organize_metric(response)
         self.assertEqual(organized_results, expected_organized_results)
@@ -70,7 +70,7 @@ class OrganizerTestCase(unittest.TestCase):
     def test_dcgm_organize_metric_with_ib(self):
         expected_organized_results = []
         dcgm_organizer = DCGMMetricOrganizer()
-        response_data = json_helper.jsonToDict(PATH_TO_DATA + '/goodIBResponseTwoVM.json')
+        response_data = file_util.jsonToDict(PATH_TO_DATA + '/goodIBResponseTwoVM.json')
         response = self.getMockResponse(200, response_data)
         organized_results = dcgm_organizer.organize_metric(response)
         self.assertEqual(organized_results, expected_organized_results)
@@ -83,7 +83,7 @@ class OrganizerTestCase(unittest.TestCase):
                                         ('None', 'nd96-1', '6', 'dcgm_gpu_temp', '34'), ('None', 'nd96-1', '7', 'dcgm_gpu_temp', '35')
                                     ]
         dcgm_organizer = DCGMMetricOrganizer()
-        response_data = json_helper.jsonToDict(PATH_TO_DATA + '/noneJobIdDCGMResponse.json')
+        response_data = file_util.jsonToDict(PATH_TO_DATA + '/noneJobIdDCGMResponse.json')
         response = self.getMockResponse(200, response_data)
         organized_results = dcgm_organizer.organize_metric(response)
         self.assertEqual(organized_results, expected_organized_results)
@@ -96,7 +96,7 @@ class OrganizerTestCase(unittest.TestCase):
                                         ('42', 'nd96-1', 'mlx5_ib6:1', 'ib_port_xmit_data', '151'), ('42', 'nd96-1', 'mlx5_ib7:1', 'ib_port_xmit_data', '160')
                                     ]
         ib_organizer = IBMetricOrganizer()
-        response_data = json_helper.jsonToDict(PATH_TO_DATA + '/goodIBResponse.json')
+        response_data = file_util.jsonToDict(PATH_TO_DATA + '/goodIBResponse.json')
         response = self.getMockResponse(200, response_data)
         organized_results = ib_organizer.organize_metric(response)
         self.assertEqual(organized_results, expected_organized_results)
@@ -113,7 +113,7 @@ class OrganizerTestCase(unittest.TestCase):
                                         ('24', 'hpcpee58f000006', 'mlx5_ib7:1', 'ib_port_xmit_data', '0'), ('24', 'hpcpee58f000004', 'mlx5_ib7:1', 'ib_port_xmit_data', '151')
                                     ]
         ib_organizer = IBMetricOrganizer()
-        response_data = json_helper.jsonToDict(PATH_TO_DATA + '/goodIBResponseTwoVM.json')
+        response_data = file_util.jsonToDict(PATH_TO_DATA + '/goodIBResponseTwoVM.json')
         response = self.getMockResponse(200, response_data)
         organized_results = ib_organizer.organize_metric(response)
         self.assertEqual(organized_results, expected_organized_results)
@@ -121,7 +121,7 @@ class OrganizerTestCase(unittest.TestCase):
     def test_ib_organize_metric_with_dcgm(self):
         expected_organized_results = []
         ib_organizer = IBMetricOrganizer()
-        response_data = json_helper.jsonToDict(PATH_TO_DATA + '/goodDCGMResponseTwoVM.json')
+        response_data = file_util.jsonToDict(PATH_TO_DATA + '/goodDCGMResponseTwoVM.json')
         response = self.getMockResponse(200, response_data)
         organized_results = ib_organizer.organize_metric(response)
         self.assertEqual(organized_results, expected_organized_results)
@@ -134,7 +134,7 @@ class OrganizerTestCase(unittest.TestCase):
                                         ('None', 'nd96-1', 'mlx5_ib6:1', 'ib_port_rcv_data', '0'), ('None', 'nd96-1', 'mlx5_ib7:1', 'ib_port_rcv_data', '0')
                                     ]
         ib_organizer = IBMetricOrganizer()
-        response_data = json_helper.jsonToDict(PATH_TO_DATA + '/noneJobIdIBResponse.json')
+        response_data = file_util.jsonToDict(PATH_TO_DATA + '/noneJobIdIBResponse.json')
         response = self.getMockResponse(200, response_data)
         organized_results = ib_organizer.organize_metric(response)
         self.assertEqual(organized_results, expected_organized_results)
