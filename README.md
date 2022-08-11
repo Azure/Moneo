@@ -159,6 +159,10 @@ There are several cases based on the networking configuration:
 
 [Quick Start](./QuickStartGuide.md)
 
+### _Quick Start Guide_ ###
+Moneo provides a way to filter nodes by job group. To get started with job level filtering see:
+[Job Level Filtering](./JobFiltering.md)
+
 Known Issues
 ------------
 
