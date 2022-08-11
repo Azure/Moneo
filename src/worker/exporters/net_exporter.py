@@ -27,7 +27,8 @@ def watch(f):
 class NetExporter():
     def __init__(self):
         self.init_connection()
-        self.init_gauges()
+        self.init_gauges()           
+        signal.signal(signal.SIGUSR1,self.jobID_update_flag)
 
     def init_connection(self):
         prometheus_client.start_http_server(config['listen_port'])
@@ -43,8 +44,9 @@ class NetExporter():
             self.guages[field_name] = prometheus_client.Gauge(
                 'ib_{}'.format(field_name),
                 'ib_{}'.format(field_name),
-                ['ib_port', 'ib_sys_guid'],
+                ['ib_port', 'ib_sys_guid','job_id']
             )
+
 
     def process(self):
         for ib_port in config['ib_port'].keys():
@@ -75,17 +77,39 @@ class NetExporter():
         self.guages[field_name].labels(
             ib_port,
             config['ib_port'][ib_port]['sys_image_guid'],
+            config['job_id'],
         ).set(value)
         logging.debug('Sent InfiniBand %s %s : %s=%s', ib_port,
                       config['ib_port'][ib_port]['sys_image_guid'], field_name,
                       str(value))
 
+    def jobID_update_flag(self, signum, stack):
+        '''Sets job update flag when user defined signal comes in'''
+        global job_update
+        job_update=True
+            
+    def jobID_update(self):
+        '''Updates job id when job update flag has been set'''
+        global job_update
+        job_update=False
+        #remove last set of label values        
+        for ib_port in config['ib_port'].keys():
+            for field_name in IB_COUNTERS:
+                self.guages[field_name].remove(ib_port,config['ib_port'][ib_port]['sys_image_guid'],config['job_id'])                          
+        #update job id
+        with open('curr_jobID') as f:
+            config['job_id'] = f.readline().strip()
+        logging.debug('Job ID updated to %s',config['job_id'])      
+
     def loop(self):
+        global job_update
+        job_update=False
         try:
             while True:
+                if(job_update):
+                    self.jobID_update()
                 self.process()
                 time.sleep(config['update_freq'])
-
                 if config['exit'] == True:
                     logging.info('Received exit signal, shutting down ...')
                     for ib_port in config['ib_port'].keys():
@@ -97,7 +121,7 @@ class NetExporter():
             pass
 
 
-def init_config():
+def init_config(job_id):
     global config
     config = {
         'exit': False,
@@ -105,6 +129,7 @@ def init_config():
         'listen_port': 8001,
         'publish_interval': 1,
         'ib_port': {},
+        'job_id': job_id
     }
 
 
@@ -136,7 +161,6 @@ def init_infiniband():
 def init_signal_handler():
     def exit_handler(signalnum, frame):
         config['exit'] = True
-
     signal.signal(signal.SIGINT, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)
 
@@ -160,7 +184,8 @@ def get_log_level(loglevel):
 
 def main(args):
     logging.basicConfig(level=get_log_level(args.log_level))
-    init_config()
+    jobId=None
+    init_config(jobId)
     init_infiniband()
     init_signal_handler()
 
