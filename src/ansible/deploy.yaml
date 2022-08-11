@@ -56,7 +56,7 @@
 
     - name: Start NVIDIA DCGM Daemon
       shell: |
-        nohup nv-hostengine </dev/null >/dev/null 2>&1 & 
+        nohup nv-hostengine </dev/null >/dev/null 2>&1 &
       when: nvidia_gpu_exist
       become: yes
     - name: Start AMD RDC Daemon
@@ -108,3 +108,37 @@
       shell: |
         cd {{ remote_master_path }} && bash run.sh
       become: yes
+
+- name: === Start Exporting to Azure Insights ===
+  tags: master
+  hosts: master
+  gather_facts: false
+  vars:
+    skip_master_play: '{{ skip_master | default(false) }}'
+    remote_insights_path: '{{ ansible_env.HOME }}/moneo-master/azinsights'
+    skip_insights_play: '{{ skip_insights | default(false) }}'
+  tasks:
+  - when: not skip_insights_play | bool and not skip_master_play | bool
+    block:
+    - name: Copy azinsights Source
+      synchronize:
+        src: ../azinsights/
+        dest: '{{ remote_insights_path }}'
+        archive: yes
+        recursive: yes
+    - name: Copy config.ini
+      synchronize:
+        src: ../../config.ini
+        dest: '{{ remote_insights_path }}'
+        archive: yes
+        recursive: yes
+    - name: Install External Packages
+      shell: |
+        pip3 install opencensus
+        pip3 install opencensus-ext-azure
+      become: yes
+    - name: Start azinsights main
+      shell: |
+        cd {{ remote_insights_path }} && nohup python3 azinsights_main.py &
+        
+        
