@@ -671,7 +671,7 @@
           "value": "node-000"
         },
         "datasource": null,
-        "definition": "label_values(instance)",
+        "definition": "label_values({ job_id=~\"$job_id\"}, instance)",
         "description": null,
         "error": null,
         "hide": 0,
@@ -681,7 +681,7 @@
         "name": "instance",
         "options": [],
         "query": {
-          "query": "label_values(instance)",
+          "query": "label_values({ job_id=~\"$job_id\"}, instance)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,

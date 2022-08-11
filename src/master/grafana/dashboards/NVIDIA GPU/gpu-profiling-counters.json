@@ -1255,7 +1255,7 @@
           "value": "superbench-node-00"
         },
         "datasource": "dcgm-exporter",
-        "definition": "label_values(instance)",
+        "definition": "label_values({ job_id=~\"$job_id\"}, instance)",
         "description": null,
         "error": null,
         "hide": 0,
@@ -1265,7 +1265,7 @@
         "name": "instance",
         "options": [],
         "query": {
-          "query": "label_values(instance)",
+          "query": "label_values({ job_id=~\"$job_id\"}, instance)",
           "refId": "dcgm-exporter-instance-Variable-Query"
         },
         "refresh": 1,
