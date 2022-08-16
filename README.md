@@ -22,6 +22,7 @@ There three categories of metrics that Moneo monitors:
     - PCIE Rate
 3.	InfiniBand Network Counters
     - IB TX/RX rate
+    - IB Port errors
 
 ### _Views_
 1. Device Counters
