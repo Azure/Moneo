@@ -14,6 +14,7 @@ IB_COUNTERS = [
     'port_rcv_errors',
     'port_xmit_constraint_errors',
     'port_rcv_constraint_errors',
+    'link_downed',
 ]
 
 
@@ -145,6 +146,7 @@ def init_infiniband():
                                         'counters')
             counter_file = {}
             counters = {}
+            
             for field_name in IB_COUNTERS:
                 counter_file[field_name] = open(
                     os.path.join(counter_path, field_name), 'r')
