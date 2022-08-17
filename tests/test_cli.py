@@ -32,7 +32,6 @@ class CLITestCase(unittest.TestCase):
             '-d notTheRightOption', #bad choice for deploy
             '-s full -c /tmp/thisfiledoesnotexist.txt' #unrecognized config
         ]
-       # print(os.getcwd())
 
         #test 1 no arg
         testData = 'Moneo CLI Help Menu'

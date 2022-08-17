@@ -5,6 +5,7 @@ import unittest
 import shlex
 from helper import shell_process
 import re
+import os
 
 """Moneo ansible single node test"""
 
@@ -12,6 +13,15 @@ import re
 class AnsibleTestCase(unittest.TestCase):
     """Ansible unit test class"""
     
+    def __init__(self, method):
+        '''Test Prep'''
+        print(method)
+        #change directory to Moneo test directory
+        cdir=os.path.dirname(__file__)
+        if(cdir):
+            print(cdir)
+            os.chdir(cdir)
+
     def check_docker_status(self):
         """Helper to check docker container status"""
         cmd='sudo docker container ls'
@@ -33,12 +43,14 @@ class AnsibleTestCase(unittest.TestCase):
     
     def test_ansible_good_output(self):
         """Test ansible deployment and shutdown output"""
+   
         cmds = ['ansible-playbook -i data/host.ini ../src/ansible/deploy.yaml','ansible-playbook -i data/host.ini ../src/ansible/shutdown.yaml']        
         expected= ['failed=0','localhost'] #used for correct ansible output
         #test successful deploy and shutdown output
         for i in range(len(cmds)):
             args = shlex.split(cmds[i])
             result = shell_process.shell_cmd(args,120)
+            print(result)
             for exp in expected:
                 assert(exp in result) #check that ansible output has printed the correct output based on expected
                 
@@ -79,5 +91,5 @@ class AnsibleTestCase(unittest.TestCase):
         assert(expected[0] in result)
         assert(expected[1] in result)
 
-if __name__ == '__main__':
+if __name__ == '__main__':   
     unittest.main()

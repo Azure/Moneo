@@ -57,7 +57,7 @@ def check_deploy_shutdown(args,parser):
     choices=['manager', 'workers', 'full']
     if(args.type[0] not in choices):
         print('Deployment/shutdown type not recognized or entered defaulted to the full option.\n')
-        args.type = 'full'
+        args.type = ['full']
     args.type = args.type[0]
 
 def check_insights_config(args, parser):
@@ -67,12 +67,17 @@ def check_insights_config(args, parser):
         exit(1)
 
 if __name__ == '__main__':
+    #change directory to Moneo directory
+    # cdir=os.path.dirname(__file__)
+    # if(cdir):
+        # os.chdir(cdir)
 
-    parser = argparse.ArgumentParser(description='Moneo CLI',prog='moneo.py',usage='%(prog)s [-d ] [-c HOST_INI] [{manager,workers,full}] \
+    #parser options
+    parser = argparse.ArgumentParser(description='Moneo CLI Help Menu',prog='moneo.py',usage='%(prog)s [-d ] [-c HOST_INI] [{manager,workers,full}] \
     \nusage: %(prog)s [-s ] [-c HOST_INI] [{manager,workers,full}] \
     \nusage: %(prog)s [-j JOB_ID ] [-c HOST_INI] \
-    \ni.e. python3 moneo.py -d -c ./host.ini full')  
-
+    \ni.e. python3 moneo.py -d -c ./host.ini full')
+    
     parser.add_argument('-c','--host_ini',default='./host.ini', help='Provide filepath and name of ansible config file. The default is host.ini in the Moneo directory.' )    
     parser.add_argument('-j','--job_id',type=str, help='Job ID for filtering metrics by job group. Host.ini file required. Cannot be specified during deployment and shutdown' )
     parser.add_argument('-d','--deploy', action='store_true',help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
@@ -82,6 +87,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     
+    #Workflow selection
     if(args.deploy and args.shutdown):
         print("deploy and shutdown are exclusive arguments. Please only provide one.\n")
         parser.print_help()
