@@ -12,6 +12,10 @@ ecc_sbe_aggregate_total
 ecc_dbe_aggregate_total
 sm_active
 sm_occupancy
+tensor_active
+fp64_active
+fp32_active
+fp16_active
 dram_active
 nvlink_tx_bytes
 nvlink_rx_bytes
