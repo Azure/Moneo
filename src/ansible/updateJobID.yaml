@@ -20,11 +20,7 @@
     - name: Get Net Exporter PID
       shell: |     
         pgrep -f "python3 .*net_exporter.py*"
-      register: net_pid          
-    - name: Print PID Result2          
-      debug:
-        msg: '{{ net_pid }}'
-       
+    
     - name: update Job Id
       shell: | 
         kill -USR1 {{nv_pid.stdout_lines[0]}}

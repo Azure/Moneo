@@ -14,7 +14,8 @@ def deploy(args):
         dep_cmd= dep_cmd + ' -e "skip_worker=true"'
     
     dep_cmd= dep_cmd + ' -e "skip_insights=' + ('false' if args.insights else 'true') + '"'
-
+    dep_cmd=dep_cmd + ' -e "enable_profiling=' + ('true' if args.profiler_metrics else 'false') + '"'
+    
     print('Deployment type: ' + args.type)
     os.system(dep_cmd)
     
@@ -67,11 +68,6 @@ def check_insights_config(args, parser):
         exit(1)
 
 if __name__ == '__main__':
-    #change directory to Moneo directory
-    # cdir=os.path.dirname(__file__)
-    # if(cdir):
-        # os.chdir(cdir)
-
     #parser options
     parser = argparse.ArgumentParser(description='Moneo CLI Help Menu',prog='moneo.py',usage='%(prog)s [-d ] [-c HOST_INI] [{manager,workers,full}] \
     \nusage: %(prog)s [-s ] [-c HOST_INI] [{manager,workers,full}] \
@@ -82,9 +78,9 @@ if __name__ == '__main__':
     parser.add_argument('-j','--job_id',type=str, help='Job ID for filtering metrics by job group. Host.ini file required. Cannot be specified during deployment and shutdown' )
     parser.add_argument('-d','--deploy', action='store_true',help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
     parser.add_argument('-s','--shutdown',action='store_true', help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
-    parser.add_argument('-i', '--insights',action='store_true', help='Enable exporting of metrics to Azure Insights. Requires a valid instrumentation key and base_url for the Prometheus DB in config.ini')
+    parser.add_argument('-i', '--insights',action='store_true', help='Experimental feature: Enable exporting of metrics to Azure Insights. Requires a valid instrumentation key and base_url for the Prometheus DB in config.ini')
     parser.add_argument('type', metavar='type', type=str,default=['full'], nargs="*", help='Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full.')    
-
+    parser.add_argument('-p','--profiler_metrics',action='store_true',default=False, help='Enable profile metrics (Tensor Core,FP16,FP32,F64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
     args = parser.parse_args()
     
     #Workflow selection
