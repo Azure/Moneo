@@ -95,12 +95,13 @@ Which can be accessed as such:
 * i.e. ```python3 moneo.py -d -c ./host.ini full```
 
 
-| Flag                           | Options/arguments        |description|
+| Flag                           | Options/arguments        |Description|
 |--------------------------------|--------------------------|--------|
 |-d, --deploy | None   |Deploy option selection. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.|
 |-s, --shutdown| None  |Shutdown option selection. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.|
 |-c, --host_ini    | path + file name    |Provide filepath and name of ansible config file. The default is host.ini in the Moneo directory.|
 |-j , --job_id | Job ID |Job ID for filtering metrics by job group. Host.ini file required. Cannot be specified during deployment and shutdown.|
+|-p, --profiler_metrics | None|Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.|
 | | {manager,workers,full} | Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full. |
 
 ### _Manual Usage_
