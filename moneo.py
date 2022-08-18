@@ -80,7 +80,7 @@ if __name__ == '__main__':
     parser.add_argument('-s','--shutdown',action='store_true', help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
     parser.add_argument('-i', '--insights',action='store_true', help='Experimental feature: Enable exporting of metrics to Azure Insights. Requires a valid instrumentation key and base_url for the Prometheus DB in config.ini')
     parser.add_argument('type', metavar='type', type=str,default=['full'], nargs="*", help='Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full.')    
-    parser.add_argument('-p','--profiler_metrics',action='store_true',default=False, help='Enable profile metrics (Tensor Core,FP16,FP32,F64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
+    parser.add_argument('-p','--profiler_metrics',action='store_true',default=False, help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
     args = parser.parse_args()
     
     #Workflow selection
