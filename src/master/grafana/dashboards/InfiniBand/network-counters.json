@@ -675,7 +675,7 @@
                 "0": {
                   "color": "red",
                   "index": 1,
-                  "text": "Link Down"
+                  "text": "Polling"
                 },
                 "1": {
                   "color": "green",
@@ -743,7 +743,7 @@
             "uid": "P6FAF8666AEFFE3AA"
           },
           "editorMode": "code",
-          "expr": "1 - ib_link_downed{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
+          "expr": "ib_port_physical_state{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
           "legendFormat": "{{ib_port}}",
           "range": true,
           "refId": "A"
