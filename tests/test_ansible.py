@@ -13,14 +13,14 @@ import os
 class AnsibleTestCase(unittest.TestCase):
     """Ansible unit test class"""
     
-    def __init__(self, method):
-        '''Test Prep'''
-        print(method)
-        #change directory to Moneo test directory
-        cdir=os.path.dirname(__file__)
-        if(cdir):
-            print(cdir)
-            os.chdir(cdir)
+    #def __init__(self, method):
+    #    '''Test Prep'''
+    #    print(method)
+    #    #change directory to Moneo test directory
+    #    cdir=os.path.dirname(__file__)
+    #    if(cdir):
+    #        print(cdir)
+    #        os.chdir(cdir)
 
     def check_docker_status(self):
         """Helper to check docker container status"""
@@ -43,20 +43,25 @@ class AnsibleTestCase(unittest.TestCase):
     
     def test_ansible_good_output(self):
         """Test ansible deployment and shutdown output"""
-   
-        cmds = ['ansible-playbook -i data/host.ini ../src/ansible/deploy.yaml','ansible-playbook -i data/host.ini ../src/ansible/shutdown.yaml']        
+        path=os.path.dirname(__file__)
+        if path:
+            path=path + '/'
+        cmds = ['ansible-playbook -i ' + path + 'data/host.ini ' + path + '../src/ansible/deploy.yaml',
+            'ansible-playbook -i ' + path + 'data/host.ini ' + path + '../src/ansible/shutdown.yaml']          
         expected= ['failed=0','localhost'] #used for correct ansible output
         #test successful deploy and shutdown output
         for i in range(len(cmds)):
             args = shlex.split(cmds[i])
             result = shell_process.shell_cmd(args,120)
-            print(result)
             for exp in expected:
                 assert(exp in result) #check that ansible output has printed the correct output based on expected
                 
     def test_ansible_deployed(self):
         """Test ansible deployed containers/exporters"""
-        cmd = 'ansible-playbook -i data/host.ini ../src/ansible/deploy.yaml'        
+        path=os.path.dirname(__file__)
+        if path:
+            path=path + '/'
+        cmd = 'ansible-playbook -i ' + path + 'data/host.ini ' + path + '../src/ansible/deploy.yaml'        
         #test successful deploy by looking at docker
         args = shlex.split(cmd)
         result = shell_process.shell_cmd(args,60)
@@ -70,7 +75,10 @@ class AnsibleTestCase(unittest.TestCase):
         
     def test_ansible_shutdown(self):
         """Test ansible shutdown containers/exporters"""
-        cmd = 'ansible-playbook -i data/host.ini ../src/ansible/shutdown.yaml'      
+        path=os.path.dirname(__file__)
+        if path:
+            path=path + '/'        
+        cmd = 'ansible-playbook -i ' + path + 'data/host.ini ' + path + '../src/ansible/shutdown.yaml'      
         #test successful deploy by looking at docker
         args = shlex.split(cmd)
         result = shell_process.shell_cmd(args,60)
@@ -84,7 +92,10 @@ class AnsibleTestCase(unittest.TestCase):
     
     def test_ansible_bad_hostfile(self):
         """Test ansible when give bad input file"""
-        cmd = 'ansible-playbook -i doesnotexist.ini ../src/ansible/shutdown.yaml'
+        path=os.path.dirname(__file__)
+        if path:
+            path=path + '/'          
+        cmd = 'ansible-playbook -i doesnotexist.ini ' + path + '../src/ansible/shutdown.yaml'
         expected=['Unable to parse','no hosts matched']
         args = shlex.split(cmd)
         result = shell_process.shell_cmd(args,15)
