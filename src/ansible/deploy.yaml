@@ -116,7 +116,7 @@
   vars:
     skip_master_play: '{{ skip_master | default(false) }}'
     remote_insights_path: '{{ ansible_env.HOME }}/moneo-master/azinsights'
-    skip_insights_play: '{{ skip_insights | default(false) }}'
+    skip_insights_play: '{{ skip_insights | default(true) }}'
   tasks:
   - when: not skip_insights_play | bool and not skip_master_play | bool
     block:
