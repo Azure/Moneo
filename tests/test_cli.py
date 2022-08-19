@@ -58,7 +58,7 @@ class CLITestCase(unittest.TestCase):
         assert(testData in result)
         
         #test 5 deploy wrong option
-        testData ='Deployment/shutdown type not recognized or entered defaulted to the full option.'
+        testData ='Defaulted to the full option.'
         args = shlex.split(cmd + '-c data/host.ini ' + test_cases[4])#deploy
         result = shell_process.shell_cmd(args,60)        
         assert(testData in result)
