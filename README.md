@@ -9,14 +9,14 @@ Moneo orchestrates metric collection (DCGMI + Prometheus DB) and visualization (
 ### _Metrics_
 
 There three categories of metrics that Moneo monitors:
-1.	Device Counters
+1.	GPU Counters
     - Compute/Memory Utilization
     - SM and Memory Clock frequency
     - Temperature
     - Power
     - ECC Counts
     - GPU Throttling
-2.	Profiling Counters
+2.	GPU Profiling Counters
     - SM Activity
     - Memory Dram Activity
     - NVLink Activity
