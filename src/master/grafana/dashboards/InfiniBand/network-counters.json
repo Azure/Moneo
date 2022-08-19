@@ -792,8 +792,8 @@
       {
         "current": {
           "selected": true,
-          "text": "ip-AC1A0008",
-          "value": "ip-AC1A0008"
+          "text": "node-000",
+          "value": "node-000"
         },
         "datasource": {
           "type": "prometheus",
