@@ -46,6 +46,10 @@ DCGM_FIELDS = [
     # PCIe
     dcgm_fields.DCGM_FI_PROF_PCIE_TX_BYTES,
     dcgm_fields.DCGM_FI_PROF_PCIE_RX_BYTES,
+    #throttling and violations
+    dcgm_fields.DCGM_FI_DEV_CLOCK_THROTTLE_REASONS,
+    dcgm_fields.DCGM_FI_DEV_POWER_VIOLATION,
+    dcgm_fields.DCGM_FI_DEV_THERMAL_VIOLATION,
 ]
 
 DCGM_FIELDS_DESCRIPTION = {
@@ -106,6 +110,12 @@ DCGM_FIELDS_DESCRIPTION = {
     'The rate of data transmitted over the PCIe bus, including both protocol headers and data payloads, in bytes per second',
     dcgm_fields.DCGM_FI_PROF_PCIE_RX_BYTES:
     'The rate of data received over the PCIe bus, including both protocol headers and data payloads, in bytes per second',
+    dcgm_fields.DCGM_FI_DEV_CLOCK_THROTTLE_REASONS: 
+    'Current clock throttle reasons (bitmask of DCGM_CLOCKS_THROTTLE_REASON_*)',
+    dcgm_fields.DCGM_FI_DEV_POWER_VIOLATION:     
+    'Power Violation time in usec',
+    dcgm_fields.DCGM_FI_DEV_THERMAL_VIOLATION: 
+    'Thermal Violation time in usec',
 }
 
 class DcgmExporter(DcgmReader):
