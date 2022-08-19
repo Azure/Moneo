@@ -3,26 +3,38 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "description": "Network Counters",
-  "editable": false,
-  "gnetId": null,
+  "editable": true,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 2,
-  "iteration": 1621437923214,
+  "iteration": 1660668028323,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P6FAF8666AEFFE3AA"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -39,7 +51,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P6FAF8666AEFFE3AA"
+      },
       "description": "The rate of data transmitted over InfiniBand.",
       "fieldConfig": {
         "defaults": {
@@ -75,7 +90,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.7",
+      "pluginVersion": "8.5.0",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -93,9 +108,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "IB TX Rate",
       "tooltip": {
         "shared": true,
@@ -104,9 +117,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -114,25 +125,20 @@
         {
           "$$hashKey": "object:107",
           "format": "Bps",
-          "label": null,
           "logBase": 1,
-          "max": null,
           "min": "0",
           "show": true
         },
         {
           "$$hashKey": "object:108",
           "format": "Bps",
-          "label": null,
           "logBase": 1,
-          "max": null,
           "min": "0",
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -140,7 +146,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P6FAF8666AEFFE3AA"
+      },
       "description": "The rate of data received over InfiniBand.",
       "fieldConfig": {
         "defaults": {
@@ -176,7 +185,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.7",
+      "pluginVersion": "8.5.0",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -194,9 +203,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "IB RX Rate",
       "tooltip": {
         "shared": true,
@@ -205,9 +212,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -215,29 +220,28 @@
         {
           "$$hashKey": "object:107",
           "format": "Bps",
-          "label": null,
           "logBase": 1,
-          "max": null,
           "min": "0",
           "show": true
         },
         {
           "$$hashKey": "object:108",
           "format": "Bps",
-          "label": null,
           "logBase": 1,
-          "max": null,
           "min": "0",
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P6FAF8666AEFFE3AA"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -348,7 +352,7 @@
         "type": "prometheus",
         "uid": "P6FAF8666AEFFE3AA"
       },
-      "description": "Total number of packets containing an error that were received on the port.",
+      "description": "Total number of packets not transmitted from the switch physical port.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -406,7 +410,7 @@
         "x": 6,
         "y": 10
       },
-      "id": 8,
+      "id": 9,
       "options": {
         "legend": {
           "calcs": [
@@ -428,13 +432,13 @@
             "uid": "P6FAF8666AEFFE3AA"
           },
           "editorMode": "code",
-          "expr": "ib_port_rcv_errors{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
+          "expr": "ib_port_xmit_constraint_errors{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
           "legendFormat": "{{ib_port}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Port Rcv Errors",
+      "title": "Port Xmit Constraint Errors",
       "type": "timeseries"
     },
     {
@@ -442,7 +446,7 @@
         "type": "prometheus",
         "uid": "P6FAF8666AEFFE3AA"
       },
-      "description": "Total number of packets not transmitted from the switch physical port.",
+      "description": "Total number of packets containing an error that were received on the port.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -500,7 +504,7 @@
         "x": 12,
         "y": 10
       },
-      "id": 9,
+      "id": 8,
       "options": {
         "legend": {
           "calcs": [
@@ -522,13 +526,13 @@
             "uid": "P6FAF8666AEFFE3AA"
           },
           "editorMode": "code",
-          "expr": "ib_port_xmit_constraint_errors{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
+          "expr": "ib_port_rcv_errors{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
           "legendFormat": "{{ib_port}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Port Xmit Constraint Errors",
+      "title": "Port Rcv Errors",
       "type": "timeseries"
     },
     {
@@ -624,25 +628,148 @@
       ],
       "title": "Port Rcv Constraint Errors",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P6FAF8666AEFFE3AA"
+      },
+      "description": "Indication of IB Link status. Up:1 and Down:0",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 1,
+                  "text": "Polling"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "Link Up"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "from": 0.2,
+                "result": {
+                  "index": 2,
+                  "text": "-"
+                },
+                "to": 0.8
+              },
+              "type": "range"
+            }
+          ],
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "8.5.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P6FAF8666AEFFE3AA"
+          },
+          "editorMode": "code",
+          "expr": "ib_port_physical_state{job_id=~\"$job_id\",instance=~\"$instance\", ib_port=~\"$ib_port\"}",
+          "legendFormat": "{{ib_port}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "IB Link Status",
+      "type": "timeseries"
     }
   ],
   "refresh": false,
-  "schemaVersion": 27,
+  "schemaVersion": 36,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
-	  {
-        "allValue": null,
+      {
         "current": {
           "selected": true,
           "text": "None",
           "value": "None"
         },
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
         "definition": "label_values(job_id)",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Job id",
@@ -658,22 +785,21 @@
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
-        "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "node-000",
           "value": "node-000"
         },
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
         "definition": "label_values({ job_id=~\"$job_id\"}, instance)",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Instance",
@@ -689,15 +815,13 @@
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
-        "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -705,10 +829,11 @@
             "$__all"
           ]
         },
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P6FAF8666AEFFE3AA"
+        },
         "definition": "label_values(ib_port)",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "InfiniBand",
@@ -724,7 +849,6 @@
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
@@ -746,5 +870,6 @@
   "timezone": "browser",
   "title": "Network Counters",
   "uid": "baxV7f9Gz",
-  "version": 3
+  "version": 1,
+  "weekStart": ""
 }
