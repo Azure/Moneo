@@ -22,4 +22,4 @@
       shell: | 
         kill -USR1 {{nv_pid.stdout_lines[0]}}
         kill -USR1 {{net_pid.stdout_lines[0]}}
-        
+   

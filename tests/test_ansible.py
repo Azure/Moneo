@@ -13,14 +13,6 @@ import os
 class AnsibleTestCase(unittest.TestCase):
     """Ansible unit test class"""
     
-    #def __init__(self, method):
-    #    '''Test Prep'''
-    #    print(method)
-    #    #change directory to Moneo test directory
-    #    cdir=os.path.dirname(__file__)
-    #    if(cdir):
-    #        print(cdir)
-    #        os.chdir(cdir)
 
     def check_docker_status(self):
         """Helper to check docker container status"""
