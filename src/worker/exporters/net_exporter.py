@@ -14,8 +14,13 @@ IB_COUNTERS = [
     'port_rcv_errors',
     'port_xmit_constraint_errors',
     'port_rcv_constraint_errors',
+    'port_physical_state',
 ]
 
+PORT_STATE={
+    'Polling':0,
+    'LinkUp':1
+}
 
 def watch(f):
     while True:
@@ -53,7 +58,11 @@ class NetExporter():
             ib_port_config = config['ib_port'][ib_port]
             for field_name in IB_COUNTERS:
                 ib_port_config['counter_file'][field_name].seek(0)
-                counter = int(ib_port_config['counter_file']
+                counter=0;
+                if field_name == 'port_physical_state' :
+                    counter = PORT_STATE[ib_port_config['counter_file'][field_name].readline().split()[1].strip()]
+                else:
+                    counter = int(ib_port_config['counter_file']
                               [field_name].readline().strip())
                 if field_name.endswith('_data'):
                     counter_delta = counter - ib_port_config['counters'][field_name]
@@ -141,11 +150,18 @@ def init_infiniband():
         with open(os.path.join(sysfs_path, hca, 'sys_image_guid')) as f:
             sys_image_guid = f.readline().strip().replace(':', '')
         for port in os.listdir(os.path.join(sysfs_path, hca, 'ports')):
+
             counter_path = os.path.join(sysfs_path, hca, 'ports', port,
-                                        'counters')
+                                        'counters')                                    
             counter_file = {}
             counters = {}
+            
             for field_name in IB_COUNTERS:
+                if field_name == 'port_physical_state' :
+                    state_path = os.path.join(sysfs_path, hca, 'ports', port)
+                    counter_file[field_name] = open(os.path.join(state_path, 'phys_state'), 'r')
+                    counters[field_name] = PORT_STATE[counter_file[field_name].readline().split()[1].strip()]
+                    continue
                 counter_file[field_name] = open(
                     os.path.join(counter_path, field_name), 'r')
                 counters[field_name] = int(
