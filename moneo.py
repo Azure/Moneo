@@ -10,7 +10,7 @@ def deploy(args):
     
     if args.type == 'workers':
         dep_cmd= dep_cmd + ' -e "skip_master=true"'
-    elif args.type == 'master' :
+    elif args.type == 'manager' :
         dep_cmd= dep_cmd + ' -e "skip_worker=true"'
     
     dep_cmd= dep_cmd + ' -e "skip_insights=' + ('false' if args.insights else 'true') + '"'
