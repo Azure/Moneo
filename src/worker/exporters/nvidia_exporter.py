@@ -262,7 +262,7 @@ def parse_dcgm_cli():
         publish_port=8000,
         log_level='INFO',
     )
-    parser.add_argument('-m','--profiler_metrics',action='store_true', help='Enable profile metrics (Tensor Core,FP16,FP32,F64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
+    parser.add_argument('-m','--profiler_metrics',action='store_true', help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
      
     args = dcgm_client_cli_parser.run_parser(parser)
     #add profiling metrics if flag enabled

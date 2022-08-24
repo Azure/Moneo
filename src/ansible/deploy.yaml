@@ -62,7 +62,7 @@
       shell: |
         nohup /opt/rocm/rdc/bin/rdcd -u </dev/null >/dev/null 2>&1 &
       when: amd_gpu_exist
-      become: yes      
+      become: yes
     - name: Start NVIDIA Exporter
       shell: |
         cd {{ remote_worker_path }}
@@ -143,4 +143,4 @@
       become: yes
     - name: Start azinsights main
       shell: |
-        cd {{ remote_insights_path }} && nohup python3 azinsights_main.py &       
+        cd {{ remote_insights_path }} && nohup python3 azinsights_main.py &

@@ -15,7 +15,7 @@ def deploy(args):
 
     if args.type == 'workers':
         dep_cmd = dep_cmd + ' -e "skip_master=true"'
-    elif args.type == 'master':
+    elif args.type == 'manager':
         dep_cmd = dep_cmd + ' -e "skip_worker=true"'
 
     dep_cmd = dep_cmd + ' -e "skip_insights=' + \
@@ -70,10 +70,10 @@ def check_deploy_shutdown(args, parser):
     if args.job_id:
         print("Job Id cannot be specified during deployment and shutdown. Ignoring Job Id.\n")
     choices = ['manager', 'workers', 'full']
-    if (args.type[0] not in choices):
+    if (args.type not in choices):
         print('Deployment/shutdown type not recognized or entered. Defaulted to the full option.\n')
-        args.type = ['full']
-    args.type = args.type[0]
+        args.type = 'full'
+    args.type = args.type
 
 
 def check_insights_config(args, parser):
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--deploy', action='store_true', help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
     parser.add_argument('-s', '--shutdown', action='store_true', help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
     parser.add_argument('-i', '--insights', action='store_true', help='Experimental feature: Enable exporting of metrics to Azure Insights. Requires a valid instrumentation key and base_url for the Prometheus DB in config.ini')
-    parser.add_argument('type', metavar='type', type=str, default=['full'], nargs="*", help='Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full.')
+    parser.add_argument('type', metavar='type', type=str, default='full', nargs="?", help='Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full.')
     parser.add_argument('-p', '--profiler_metrics', action='store_true', default=False, help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
     args = parser.parse_args()
 
