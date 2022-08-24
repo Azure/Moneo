@@ -27,7 +27,7 @@ There three categories of metrics that Moneo monitors:
 </details>
 
 <details>
-<summary>Dashboard</summary>
+<summary>Grafana Dashboards</summary>
 
 1. Menu: List of available dashboards.
 ![image](https://user-images.githubusercontent.com/70273488/186491552-34d545de-b60d-4cdd-aed4-702e2f34d974.png)
