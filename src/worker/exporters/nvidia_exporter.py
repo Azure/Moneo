@@ -11,6 +11,14 @@ import dcgm_fields
 from DcgmReader import DcgmReader
 from common import dcgm_client_cli_parser
 
+
+DCGM_PROF_FIELDS = [
+    dcgm_fields.DCGM_FI_PROF_PIPE_TENSOR_ACTIVE,
+    dcgm_fields.DCGM_FI_PROF_PIPE_FP64_ACTIVE,
+    dcgm_fields.DCGM_FI_PROF_PIPE_FP32_ACTIVE,
+    dcgm_fields.DCGM_FI_PROF_PIPE_FP16_ACTIVE,
+]
+
 DCGM_FIELDS = [
     # PID
     # dcgm_fields.DCGM_FI_DEV_COMPUTE_PIDS,
@@ -34,10 +42,6 @@ DCGM_FIELDS = [
     # SM
     dcgm_fields.DCGM_FI_PROF_SM_ACTIVE,
     dcgm_fields.DCGM_FI_PROF_SM_OCCUPANCY,
-    dcgm_fields.DCGM_FI_PROF_PIPE_TENSOR_ACTIVE,
-    dcgm_fields.DCGM_FI_PROF_PIPE_FP64_ACTIVE,
-    dcgm_fields.DCGM_FI_PROF_PIPE_FP32_ACTIVE,
-    dcgm_fields.DCGM_FI_PROF_PIPE_FP16_ACTIVE,
     # Memory
     dcgm_fields.DCGM_FI_PROF_DRAM_ACTIVE,
     # NVLink
@@ -258,8 +262,12 @@ def parse_dcgm_cli():
         publish_port=8000,
         log_level='INFO',
     )
-
+    parser.add_argument('-m','--profiler_metrics',action='store_true', help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
+     
     args = dcgm_client_cli_parser.run_parser(parser)
+    #add profiling metrics if flag enabled
+    if(args.profiler_metrics) :
+        args.field_ids.extend(DCGM_PROF_FIELDS)
     field_ids = dcgm_client_cli_parser.get_field_ids(args)
     numeric_log_level = dcgm_client_cli_parser.get_log_level(args)
 
@@ -273,6 +281,7 @@ def parse_dcgm_cli():
     dcgm_config['publishFieldIds'] = field_ids
     dcgm_config['sendUuid'] = True
     dcgm_config['jobId'] = None
+    dcgm_config['profilerMetrics'] = args.profiler_metrics
     logging.basicConfig(
         level=numeric_log_level,
         filemode='w+',

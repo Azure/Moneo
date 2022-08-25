@@ -1,0 +1,6 @@
+port_xmit_data
+port_rcv_data
+port_xmit_discards
+port_rcv_errors
+port_xmit_constraint_errors
+port_rcv_constraint_errors
