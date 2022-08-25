@@ -41,7 +41,7 @@ There three categories of metrics that Moneo monitors:
 3. GPU Device Counters: Detailed view of node level GPU counters.
 ![image](https://user-images.githubusercontent.com/70273488/173664219-43d8d7b7-a4e6-440a-8373-89ca388ce563.png)
 
-4. GPU Profiling Counters: Node level profiling metrics require additional overhead which may affect pworkload performance. Tensor, FP16, FP32, and FP64 activity are disabled by default but can be switched on by CLI command.
+4. GPU Profiling Counters: Node level profiling metrics require additional overhead which may affect workload performance. Tensor, FP16, FP32, and FP64 activity are disabled by default but can be switched on by CLI command.
 ![image](https://user-images.githubusercontent.com/70273488/173661651-2aa3d586-3889-45f9-81e7-c8140fb19405.png)
 
 5. InfiniBand Network Counters: Detailed view of node level IB network metrics.
