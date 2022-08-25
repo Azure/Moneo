@@ -16,12 +16,12 @@ There three categories of metrics that Moneo monitors:
     - Power
     - ECC Counts
     - GPU Throttling
-1.	GPU Profiling Counters
+2.	GPU Profiling Counters
     - SM Activity
     - Memory Dram Activity
     - NVLink Activity
     - PCIE Rate
-1.	InfiniBand Network Counters
+3.	InfiniBand Network Counters
     - IB TX/RX rate
     - IB Port errors
 </details>
