@@ -5,8 +5,8 @@ Description
 Moneo is a distributed GPU system monitor for AI workflows.
 
 Moneo orchestrates metric collection (DCGMI + Prometheus DB) and visualization (Grafana) across multi-GPU/node systems. This provides useful insights into workflow and system level characterization.
-
-### _Metrics_
+<details>
+<summary>Metrics</summary>
 
 There three categories of metrics that Moneo monitors:
 1.	GPU Counters
@@ -24,16 +24,29 @@ There three categories of metrics that Moneo monitors:
 3.	InfiniBand Network Counters
     - IB TX/RX rate
     - IB Port errors
+</details>
 
-### _Views_
-1. Device Counters
+<details>
+<summary>Grafana Dashboards</summary>
+
+1. Menu: List of available dashboards.
+![image](https://user-images.githubusercontent.com/70273488/186491552-34d545de-b60d-4cdd-aed4-702e2f34d974.png)
+
+   Note: When viewing GPU dashboards make sure to note whether you are using Nvidia or AMD GPU nodes and select the proper dashboard.
+
+2. Cluster View: contains  min, max, average across devices for GPU/IB metrics per VM.
+![image](https://user-images.githubusercontent.com/70273488/186491238-ce032f87-cab1-41c4-b32e-9826b8c47b72.png)
+![image](https://user-images.githubusercontent.com/70273488/186491363-3a6cdb8d-0d95-4deb-a6b0-e28711f1ba56.png)
+
+3. GPU Device Counters: Detailed view of node level GPU counters.
 ![image](https://user-images.githubusercontent.com/70273488/173664219-43d8d7b7-a4e6-440a-8373-89ca388ce563.png)
 
-2. Profiling Counters
+4. GPU Profiling Counters: Node level profiling metrics require additional overhead which may affect workload performance. Tensor, FP16, FP32, and FP64 activity are disabled by default but can be switched on by CLI command.
 ![image](https://user-images.githubusercontent.com/70273488/173661651-2aa3d586-3889-45f9-81e7-c8140fb19405.png)
 
-3. InfiniBand Network Counters 
+5. InfiniBand Network Counters: Detailed view of node level IB network metrics.
 ![image](https://user-images.githubusercontent.com/70273488/173664809-bbfea8b4-91cb-42cd-aff8-a91fc9006120.png)
+</details>
 
 Minimum Requirements
 -----
@@ -106,37 +119,6 @@ Which can be accessed as such:
 |-p, --profiler_metrics | None|Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.|
 | | {manager,workers,full} | Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full. |
 
-### _Manual Usage_
-#### _Deployment_
-
-To collect metrics, you need to deploy exporters on all worker nodes and Prometheus/Grafana services on all master nodes.
-
-There are several kinds of deployment scenarios:
-
-* If all master/worker nodes are new, run the following command to deploy on all nodes:
-
-    ```sh
-    ansible-playbook -i host.ini src/ansible/deploy.yaml
-    ```
-
-* If worker nodes have already installed and started exporters (e.g., builtin for VHD image), run the following command to deploy master node only:
-
-    ```sh
-    ansible-playbook -i host.ini src/ansible/deploy.yaml -e "skip_worker=true"
-    ```
-    
-* If master/manager node is already running and you want to skip run the following command to deploy worker nodes only:
-
-    ```sh
-    ansible-playbook -i host.ini src/ansible/deploy.yaml -e "skip_master=true"
-    ```
-    
-#### _Shutdown_
-
-*   ```sh
-    ansible-playbook -i host.ini src/ansible/shutdown.yaml
-    ```
-*   Skipping the worker nodes or master/management node it can be done by using the same  skip_worker/skip_master flags.
 ### _Access the Portal_
 
 The Prometheus and Grafana services will be started on master nodes after deployment.
@@ -158,16 +140,16 @@ There are several cases based on the networking configuration:
     
   This can be changed in the "src/master/grafana/grafana.env" file.
 
-### _Azure Application Insights for Metric Visualization_ ###
-[Azure Application Insights for Metric Visualization](src/azinsights/README.md)
-
 ### _Quick Start Guide_ ###
 
 [Quick Start](./QuickStartGuide.md)
 
-### _Quick Start Guide_ ###
+### _Job Level Filtering_ ###
 Moneo provides a way to filter nodes by job group. To get started with job level filtering see:
 [Job Level Filtering](./JobFiltering.md)
+
+### _Azure Application Insights for Metric Visualization_ ###
+[Azure Application Insights for Metric Visualization](src/azinsights/README.md)
 
 Known Issues
 ------------

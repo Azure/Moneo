@@ -17,7 +17,6 @@ def deploy(args):
         dep_cmd = dep_cmd + ' -e "skip_master=true"'
     elif args.type == 'manager':
         dep_cmd = dep_cmd + ' -e "skip_worker=true"'
-
     dep_cmd = dep_cmd + ' -e "skip_insights=' + \
         ('false' if args.insights else 'true') + '"'
     dep_cmd = dep_cmd + ' -e "enable_profiling=' + \
