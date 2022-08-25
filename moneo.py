@@ -73,7 +73,6 @@ def check_deploy_shutdown(args, parser):
     if (args.type not in choices):
         print('Deployment/shutdown type not recognized or entered. Defaulted to the full option.\n')
         args.type = 'full'
-    args.type = args.type
 
 
 def check_insights_config(args, parser):
