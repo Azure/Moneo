@@ -14,18 +14,12 @@
       shell: |
         pgrep -fx  "python2 .*nvidia_exporter.py*"
       register: nv_pid
-    - name: Print PID Result          
-      debug:
-        msg: '{{ nv_pid }}'
     - name: Get Net Exporter PID
       shell: |     
         pgrep -fx "python3 .*net_exporter.py*"
-      register: net_pid          
-    - name: Print PID Result2          
-      debug:
-        msg: '{{ net_pid }}'
-       
+      register: net_pid      
     - name: update Job Id
       shell: | 
         kill -USR1 {{nv_pid.stdout_lines[0]}}
         kill -USR1 {{net_pid.stdout_lines[0]}}
+
