@@ -12,6 +12,7 @@
   gather_facts: false
   vars:
     skip_worker_play: '{{ skip_worker | default(false) }}'
+    profiling: '{{ enable_profiling | default(false) }}'
     job_group: '{{ job_Id | default(-999) }}'
     remote_worker_path: '/tmp/moneo-worker'
   tasks:
@@ -42,7 +43,6 @@
         cd {{ remote_worker_path }}
         bash install/{{ 'nvidia' if nvidia_gpu_exist else 'amd' if amd_gpu_exist else 'common' }}.sh
       become: yes
-
     - name: Stop Prior Instances of NVIDIA DCGM Daemon and Exporter
       shell: |
         cd {{ remote_worker_path }} && bash shutdown.sh nvidia
@@ -53,7 +53,6 @@
         cd {{ remote_worker_path }} && bash shutdown.sh amd
       when: amd_gpu_exist
       become: yes
-
     - name: Start NVIDIA DCGM Daemon
       shell: |
         nohup nv-hostengine </dev/null >/dev/null 2>&1 &
@@ -67,7 +66,12 @@
     - name: Start NVIDIA Exporter
       shell: |
         cd {{ remote_worker_path }}
-        nohup python2 exporters/nvidia_exporter.py </dev/null >/dev/null 2>&1 &
+        if {{ profiling }} ;
+        then        
+            nohup python2 exporters/nvidia_exporter.py -m </dev/null >/dev/null 2>&1 &
+        else
+            nohup python2 exporters/nvidia_exporter.py  </dev/null >/dev/null 2>&1 &
+        fi     
       when: nvidia_gpu_exist
     - name: Start AMD Exporter
       shell: |
@@ -116,7 +120,7 @@
   vars:
     skip_master_play: '{{ skip_master | default(false) }}'
     remote_insights_path: '{{ ansible_env.HOME }}/moneo-master/azinsights'
-    skip_insights_play: '{{ skip_insights | default(false) }}'
+    skip_insights_play: '{{ skip_insights | default(true) }}'
   tasks:
   - when: not skip_insights_play | bool and not skip_master_play | bool
     block:
@@ -140,5 +144,3 @@
     - name: Start azinsights main
       shell: |
         cd {{ remote_insights_path }} && nohup python3 azinsights_main.py &
-        
-        

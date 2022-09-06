@@ -1,2 +1,0 @@
-port_xmit_data
-port_rcv_data
