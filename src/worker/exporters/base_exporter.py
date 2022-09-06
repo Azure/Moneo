@@ -30,8 +30,8 @@ class BaseExporter:
         self.guages = {}
         for field_name in self.node_fields:
             self.guages[field_name] = prometheus_client.Gauge(
-                'ib_{}'.format(field_name),
-                'ib_{}'.format(field_name),
+                'node_{}'.format(field_name),
+                'node_{}'.format(field_name),
                 ['job_id']
             )
 
@@ -66,7 +66,7 @@ class BaseExporter:
         job_update=False
         #remove last set of label values        
         for field_name in self.node_fields:
-            self.guages[field_name].remove(ib_port,self.config['ib_port'][ib_port]['sys_image_guid'],self.config['job_id'])                          
+            self.guages[field_name].remove(self.config['job_id'])                          
         #update job id
         with open('curr_jobID') as f:
             self.config['job_id'] = f.readline().strip()
