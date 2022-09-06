@@ -7,14 +7,60 @@ import argparse
 from base_exporter import BaseExporter
 import prometheus_client
 
-FIELD_LIST = {}
+import time
+import subprocess
+import shlex
+
+FIELD_LIST = ['net_rx', 'net_tx']
+
+def shell_cmd(args, timeout):
+    """Helper Function for running subprocess"""
+    child = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    try:
+        result, errs = child.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:       
+        child.kill()
+        print("Command " + " ".join(args) + ", Failed on timeout")
+        result = 'TimeOut'
+        return result
+    return result.decode()
+
+
 
 class NodeExporter(BaseExporter):
-    def _init_(self):
-        super.init
+    def __init__(self,node_fields,exp_config):
+        super().__init__(node_fields,exp_config)
 
 
-def init_config(job_id),port=None:
+    def collect(self,field_name):
+        '''Custom collection Method'''
+        value=None
+        if field_name == self.node_fields[0]:
+            cmd = "grep 'eth0' "+ self.config['fieldFiles'][field_name]
+            args = shlex.split(cmd)
+            value = shell_cmd(args, 5).split()[1] # 1 is the column for recv bytes
+            delta = int(value) - int(self.config['counter'][field_name])
+            self.config['counter'][field_name] = value
+            value = delta/(self.config['update_freq']) # bandwidth
+
+        elif field_name == self.node_fields[1]:
+            cmd = "grep 'eth0' "+ self.config['fieldFiles'][field_name]
+            args = shlex.split(cmd)
+            value = shell_cmd(args, 5).split()[9] # 9 is the column for tx bytes
+            delta = int(value) - int(self.config['counter'][field_name])
+            self.config['counter'][field_name] = value
+            value = delta/(self.config['update_freq']) # bandwidth
+        else:
+            value = 0
+
+        return value
+
+
+    def cleanup(self):
+        logging.info('Received exit signal, shutting down ...')
+
+
+def init_config(job_id,port=None):
     global config
     if not port:
         port=8002
@@ -23,9 +69,20 @@ def init_config(job_id),port=None:
         'update_freq': 1,
         'listen_port': port,
         'publish_interval': 1,
-        'job_id': job_id
-        'fieldFiles':{}
+        'job_id': job_id,
+        'fieldFiles':{},
+        'counter':{}
     }
+    for field_name in FIELD_LIST:
+        if 'net' in field_name :
+            config['fieldFiles'][field_name]='/proc/net/dev'
+            # initialize counter
+            cmd = "grep 'eth0' " + config['fieldFiles'][field_name]
+            args = shlex.split(cmd)
+            if field_name == FIELD_LIST[0]:
+                config['counter'][field_name] = shell_cmd(args, 5).split()[1]
+            else: 
+                config['counter'][field_name] = shell_cmd(args, 5).split()[9]
 
 
 def init_signal_handler():
@@ -54,7 +111,7 @@ def get_log_level(loglevel):
     return numeric_log_level
 
 
-def main(args):
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--log_level", default='INFO', help='Specify a log level to use for logging. CRITICAL (0) - \
                         log only critical errors that drastically affect \
@@ -71,7 +128,9 @@ def main(args):
     init_config(jobId,args.port)
     init_signal_handler()
 
-    exporter = BaseExporter(FIELD_LIST)
+    exporter = NodeExporter(FIELD_LIST,config)
+    time.sleep(1)
+    #print(exporter.collect(FIELD_LIST[0]))    
     exporter.loop()
 
 
