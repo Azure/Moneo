@@ -11,6 +11,7 @@ class BaseExporter:
     '''Base exporter'''
 
     def __init__(self,node_fields,config):
+        '''Initialization of the base class'''
         self.node_fields = node_fields
         self.config=config
         self.init_connection()
@@ -20,6 +21,7 @@ class BaseExporter:
 
 
     def init_connection(self):
+        '''Set up connection for the port specified on the config dict'''
         prometheus_client.start_http_server(self.config['listen_port'])
         logging.info('Started prometheus client')
         logging.info('Publishing fields: {}'.format(','.join(self.node_fields)))
@@ -37,17 +39,19 @@ class BaseExporter:
 
 
     def collect(self,field_name):
-        '''default collection Method'''
+        '''Default collection method meant to be overiden for child class'''
         raise NotImplementedError('Must implement this method')
         return value
 
 
     def process(self):
+        '''Perform metric collection'''
         for field_name in self.node_fields:
             value = self.collect(field_name)
             self.handle_field(field_name, value)
 
     def handle_field(self, field_name, value):
+        '''Update metric value for gauge'''
         self.guages[field_name].labels(
             self.config['job_id'],
         ).set(value)
@@ -64,20 +68,22 @@ class BaseExporter:
         '''Updates job id when job update flag has been set'''
         global job_update
         job_update=False
-        #remove last set of label values        
+        # remove last set of label values        
         for field_name in self.node_fields:
             self.guages[field_name].remove(self.config['job_id'])                          
-        #update job id
+        # update job id
         with open('curr_jobID') as f:
             self.config['job_id'] = f.readline().strip()
         logging.debug('Job ID updated to %s',self.config['job_id'])    
 
 
     def cleanup(self):
+        '''Clean up method must be overridden '''
         raise NotImplementedError('Must implement this method')
 
 
     def loop(self):
+        '''Main work loop which should be called in main'''
         global job_update
         job_update=False
         try:

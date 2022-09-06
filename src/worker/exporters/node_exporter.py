@@ -1,3 +1,17 @@
+######################################################
+# This exporter file can be modified or used as 
+# an example of how to create a custom exporter.
+# 
+#
+# The following files have been modified to 
+# integrate this exporter:
+#    src/ansible/deploy.yaml
+#    src/ansible/prometheus.config.j2
+#    src/ansible/updateJobID.yaml
+#    src/master/prometheus.yml
+#    src/worker/shutdown.sh
+######################################################
+
 import os
 import sys
 import time
@@ -12,6 +26,7 @@ import subprocess
 import shlex
 
 FIELD_LIST = ['net_rx', 'net_tx']
+
 
 def shell_cmd(args, timeout):
     """Helper Function for running subprocess"""
@@ -28,7 +43,10 @@ def shell_cmd(args, timeout):
 
 
 class NodeExporter(BaseExporter):
+    '''Example custom node exporter'''
+
     def __init__(self,node_fields,exp_config):
+        '''initializes parent class'''
         super().__init__(node_fields,exp_config)
 
 
@@ -57,10 +75,12 @@ class NodeExporter(BaseExporter):
 
 
     def cleanup(self):
+        '''Things that need to be called when signal to exit is given'''
         logging.info('Received exit signal, shutting down ...')
 
 
 def init_config(job_id,port=None):
+    '''Example of config initialization'''
     global config
     if not port:
         port=8002
@@ -73,6 +93,7 @@ def init_config(job_id,port=None):
         'fieldFiles':{},
         'counter':{}
     }
+    # initalize field specific config parameters
     for field_name in FIELD_LIST:
         if 'net' in field_name :
             config['fieldFiles'][field_name]='/proc/net/dev'
@@ -86,6 +107,7 @@ def init_config(job_id,port=None):
 
 
 def init_signal_handler():
+    '''Handles exit signals, User defined signale defined in Base class'''
     def exit_handler(signalnum, frame):
         config['exit'] = True
     signal.signal(signal.SIGINT, exit_handler)
@@ -93,6 +115,7 @@ def init_signal_handler():
 
 
 def get_log_level(loglevel):
+    '''Log level helper'''
     levelStr = loglevel.upper()
     if levelStr == '0' or levelStr == 'CRITICAL':
         numeric_log_level = logging.CRITICAL
@@ -112,6 +135,7 @@ def get_log_level(loglevel):
 
 
 def main():
+    '''main class'''
     parser = argparse.ArgumentParser()
     parser.add_argument("--log_level", default='INFO', help='Specify a log level to use for logging. CRITICAL (0) - \
                         log only critical errors that drastically affect \
