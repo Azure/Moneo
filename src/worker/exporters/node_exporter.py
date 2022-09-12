@@ -27,7 +27,7 @@ import shlex
 
 FIELD_LIST = ['net_rx', 'net_tx']
 
-
+# feel free to copy and paste if os commands are needed
 def shell_cmd(args, timeout):
     """Helper Function for running subprocess"""
     child = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -78,7 +78,8 @@ class NodeExporter(BaseExporter):
         '''Things that need to be called when signal to exit is given'''
         logging.info('Received exit signal, shutting down ...')
 
-
+# you will need to initialize your custom metric's file if we are exporting from a file
+# you may also want to initialize the config's counter member for the specific field
 def init_config(job_id,port=None):
     '''Example of config initialization'''
     global config
@@ -100,12 +101,13 @@ def init_config(job_id,port=None):
             # initialize counter
             cmd = "grep 'eth0' " + config['fieldFiles'][field_name]
             args = shlex.split(cmd)
-            if field_name == FIELD_LIST[0]:
+            if field_name == 'net_rx':
                 config['counter'][field_name] = shell_cmd(args, 5).split()[1]
-            else: 
+            elif field_name == 'net_tx': 
                 config['counter'][field_name] = shell_cmd(args, 5).split()[9]
 
 
+# You can just copy paste this function. 
 def init_signal_handler():
     '''Handles exit signals, User defined signale defined in Base class'''
     def exit_handler(signalnum, frame):
@@ -113,7 +115,7 @@ def init_signal_handler():
     signal.signal(signal.SIGINT, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)
 
-
+# You can just copy paste this function
 def get_log_level(loglevel):
     '''Log level helper'''
     levelStr = loglevel.upper()
@@ -133,9 +135,9 @@ def get_log_level(loglevel):
         sys.exit(2)
     return numeric_log_level
 
-
+# Copy paste this function, modify if needed 
 def main():
-    '''main class'''
+    '''main function'''
     parser = argparse.ArgumentParser()
     parser.add_argument("--log_level", default='INFO', help='Specify a log level to use for logging. CRITICAL (0) - \
                         log only critical errors that drastically affect \
@@ -152,9 +154,7 @@ def main():
     init_config(jobId,args.port)
     init_signal_handler()
 
-    exporter = NodeExporter(FIELD_LIST,config)
-    time.sleep(1)
-    #print(exporter.collect(FIELD_LIST[0]))    
+    exporter = NodeExporter(FIELD_LIST,config)    
     exporter.loop()
 
 
