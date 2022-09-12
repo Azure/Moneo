@@ -143,8 +143,8 @@ def init_config(job_id):
 
 
 # /sys/class/net/eth0/statistics/rx_bytes
-def init_infiniband():
-    sysfs_path = '/sys/class/infiniband'
+def init_infiniband(args):
+    sysfs_path = args.inifiband_sysfs
     for hca in os.listdir(sysfs_path):
         sys_image_guid = ''
         with open(os.path.join(sysfs_path, hca, 'sys_image_guid')) as f:
@@ -202,7 +202,7 @@ def main(args):
     logging.basicConfig(level=get_log_level(args.log_level))
     jobId=None
     init_config(jobId)
-    init_infiniband()
+    init_infiniband(args)
     init_signal_handler()
 
     exporter = NetExporter()
@@ -218,5 +218,7 @@ if __name__ == '__main__':
                         INFO (3) - Log informational messages about program \
                         execution in addition to warnings and errors DEBUG (4) \
                         - Log debugging information in addition to all')
+    parser.add_argument("--inifiband_sysfs", default='/sys/class/infiniband', help='The sysfs path of infiniband')
+
     args = parser.parse_args()
     main(args)
