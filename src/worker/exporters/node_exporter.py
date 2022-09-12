@@ -10,6 +10,10 @@
 #    src/ansible/updateJobID.yaml
 #    src/master/prometheus.yml
 #    src/worker/shutdown.sh
+#
+# Modifications to the Grafana dashboard needs
+# be done to view metrics exported
+# (not done in this example)
 ######################################################
 
 import os
