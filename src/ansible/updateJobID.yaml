@@ -12,7 +12,7 @@
         echo {{job_group}} > curr_jobID
     - name: Get Nvidia Exporter PID
       shell: |
-        pgrep -fx  "python2 .*nvidia_exporter.py*"
+        pgrep -fx  "python3 .*nvidia_exporter.py*"
       register: nv_pid
     - name: Get Net Exporter PID
       shell: |     
