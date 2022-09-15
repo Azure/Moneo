@@ -47,7 +47,9 @@ class NodeExporter(BaseExporter):
         '''initializes parent class'''
         super().__init__(node_fields, exp_config)
 
-    def collect(self, field_name):
+    # example function of how to collect metrics from a command using the shell_cmd helper function
+    # the parent class will call this collect function to update the Prometheus gauges 
+    def collect(self, field_name): 
         '''Custom collection Method'''
         value = None
         if field_name == self.node_fields[0]:
@@ -68,8 +70,9 @@ class NodeExporter(BaseExporter):
         else:
             value = 0
 
-        return value
+        return value 
 
+    # This is called at the termination of the application. Can be used to close any open files.
     def cleanup(self):
         '''Things that need to be called when signal to exit is given'''
         logging.info('Received exit signal, shutting down ...')
@@ -95,7 +98,7 @@ def init_config(job_id, port=None):
     for field_name in FIELD_LIST:
         if 'net' in field_name:
             config['fieldFiles'][field_name] = '/proc/net/dev'
-            # initialize counter
+            # initialize counter, this will ensure a initial value is present to calculate bandwidth
             cmd = "grep 'eth0' " + config['fieldFiles'][field_name]
             args = shlex.split(cmd)
             if field_name == 'net_rx':
@@ -104,7 +107,7 @@ def init_config(job_id, port=None):
                 config['counter'][field_name] = shell_cmd(args, 5).split()[9]
 
 
-# You can just copy paste this function.
+# You can just copy paste this function. Used to handle signals
 def init_signal_handler():
     '''Handles exit signals, User defined signale defined in Base class'''
     def exit_handler(signalnum, frame):
@@ -113,7 +116,7 @@ def init_signal_handler():
     signal.signal(signal.SIGTERM, exit_handler)
 
 
-# You can just copy paste this function
+# You can just copy paste this function. This is used to parse the log-level argument
 def get_log_level(args):
     '''Log level helper'''
     levelStr = args.log_level.upper()
@@ -149,7 +152,7 @@ def main():
     args = parser.parse_args()
 
     logging.basicConfig(level=get_log_level(args))
-    jobId = None
+    jobId = None #set a default job id of None
     init_config(jobId, args.port)
     init_signal_handler()
 
