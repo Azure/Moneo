@@ -68,9 +68,9 @@
         cd {{ remote_worker_path }}
         if {{ profiling }} ;
         then        
-            nohup python2 exporters/nvidia_exporter.py -m </dev/null >/dev/null 2>&1 &
+            nohup python3 exporters/nvidia_exporter.py -m </dev/null >/dev/null 2>&1 &
         else
-            nohup python2 exporters/nvidia_exporter.py  </dev/null >/dev/null 2>&1 &
+            nohup python3 exporters/nvidia_exporter.py  </dev/null >/dev/null 2>&1 &
         fi     
       when: nvidia_gpu_exist
     - name: Start AMD Exporter
