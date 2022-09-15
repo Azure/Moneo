@@ -4,7 +4,7 @@ Description
 -----
 Moneo provides a way for you to export your own custom node metrics. This will require you to modify/create your own custom exporter script. The [BaseExporter](./src/worker/exporters/base_exporter.py) parent class is provided for so that a child class can be created to export your custom metrics.
 
-Additionally a [NodeExporter](./src/worker/exporters/node_exporter.py) class is provided as an example of how to create a custom exporter. You may choose to modify thisas it is already integrated to the rest of the Moneo deployment process. If you choose to to create a new exporter you will have some additional modifications you will need to make (explained below). 
+Additionally a [NodeExporter](./src/worker/exporters/node_exporter.py) class is provided as an example of how to create a custom exporter. You may choose to modify this as it is already integrated to the rest of the Moneo deployment process. If you choose to to create a new exporter you will have some additional modifications you will need to make (explained below). 
 
 Steps
 -----
@@ -14,7 +14,7 @@ Steps
    -  \_\_init\_\_(self, node_fields, exp_config)
        - This function will initialize the class and the parent class. You must pass in a list of your metrics and a config dictionary (see NodeExporter for example).
    -   collect(self, field_name)
-       - This function will be what is actuallycollecting your metrics. For example it may open a file and parse it for a give metric. 
+       - This function will be what is actually collecting your metrics. For example it may open a file and parse it for a give metric. 
    -   cleanup(self)
        - This function will be called right before exit. SO it could be used to close any open files or print a message.
 4. In addition to the class you will need to have the following supporting functions:
