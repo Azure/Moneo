@@ -4,7 +4,42 @@ Description
 -----
 Moneo provides a way for you to export your own custom node metrics. This will require you to modify/create your own custom exporter script. The [BaseExporter](./src/worker/exporters/base_exporter.py) parent class is provided for so that a child class can be created to export your custom metrics.
 
-Additionally a [NodeExporter](./src/worker/exporters/node_exporter.py) class is provided as an example of how to create a custom exporter. You may choose to modify this as it is already integrated to the rest of the Moneo deployment process. If you choose to to create a new exporter you will have some additional modifications you will need to make (explained below). 
+Additionally a [NodeExporter](./src/worker/exporters/node_exporter.py) class is provided as an example of how to create a custom exporter. You may choose to modify this as it is already integrated to the rest of the Moneo deployment process. If you choose to to create a new exporter you will have some additional modifications you will need to make (explained the Steps section). 
+
+The Node Exporter Overview
+-----
+The node exporter is a child class of the base exporter class. The base exporter defines the functions needed to collect and send telemetry to the Prometheus database. 
+### Init and Required Arguments
+The init function is pretty straight forward and requires 2 arguments. 
+- A list of the metrics to be collected:
+```FIELD_LIST = ['net_rx', 'net_tx']```
+- A config dictionary:
+```
+    config = {
+        'exit': False, # default
+        'update_freq': 1, # update frequency in seconds
+        'listen_port': port, # port number
+        'publish_interval': 1, # publish frequency in seconds
+        'job_id': job_id, # the default job id should be None.
+        'fieldFiles': {}, # Location of files needed for retrieving telemetry
+        'counter': {} # Intermediate storage of metric values. COuld be used to store old values to calculate bandwidth
+    }
+```
+### Necessary Modifications
+The node exporter defines 2 functions that the parent class leaves unimplemented. The collect and cleanup functions:
+- The collect function in this example is used to gather network tx/rx data from the /proc/net/dev file. It issues an OS command to grab the relevant data and parse the correct value. 
+- The cleanup function is called right before the exporter exits. It is most useful if you need to close any open files.
+
+Note: Other utiliy functions are described in the Steps section.
+
+### Integration
+The following files have been modified to integrate the node exporter to the rest of the Moneo workflow:
+-    src/ansible/deploy.yaml
+-    src/ansible/prometheus.config.j2
+-    src/ansible/updateJobID.yaml
+-    src/master/prometheus.yml
+-    src/worker/shutdown.sh
+
 
 Steps
 -----
