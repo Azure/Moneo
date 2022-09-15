@@ -5,8 +5,8 @@ import signal
 import logging
 
 import prometheus_client
-
-sys.path.append('/usr/local/dcgm/bindings')
+sys.path.append('/usr/local/dcgm/bindings/python3')
+#sys.path.append('/usr/local/dcgm/bindings')
 import dcgm_fields
 from DcgmReader import DcgmReader
 from common import dcgm_client_cli_parser
@@ -146,7 +146,8 @@ class DcgmExporter(DcgmReader):
         logging.info('Started prometheus client')
 
         fieldTagList = []
-        for fieldId in self.m_publishFieldIds:
+
+        for fieldId in self.m_publishFields[self.m_updateFreq]:
             if fieldId in self.m_dcgmIgnoreFields:
                 continue
             fieldTagList.append(self.m_fieldIdToInfo[fieldId].tag)
@@ -154,7 +155,7 @@ class DcgmExporter(DcgmReader):
 
     def InitGauges(self):
         self.m_gauges = {}
-        for fieldId in self.m_publishFieldIds:
+        for fieldId in self.m_publishFields[self.m_updateFreq]:
             if fieldId in self.m_dcgmIgnoreFields:
                 continue
 
@@ -175,7 +176,7 @@ class DcgmExporter(DcgmReader):
             gpuUniqueId = gpuUuid if dcgm_config['sendUuid'] else gpuBusId
 
             gpu_line = [str(gpuId), gpuUniqueId]
-            for fieldId in self.m_publishFieldIds:
+            for fieldId in self.m_publishFields[self.m_updateFreq]:
                 if fieldId in self.m_dcgmIgnoreFields:
                     continue
 
@@ -210,7 +211,7 @@ class DcgmExporter(DcgmReader):
             gpuUuid = self.m_gpuIdToUUId[gpuId]
             gpuBusId = self.m_gpuIdToBusId[gpuId]
             gpuUniqueId = gpuUuid if dcgm_config['sendUuid'] else gpuBusId        
-            for fieldId in self.m_publishFieldIds:
+            for fieldId in self.m_publishFields[self.m_updateFreq]:
                 if fieldId in self.m_dcgmIgnoreFields:
                     continue
                 self.m_gauges[fieldId].remove(gpuId,gpuUniqueId,dcgm_config['jobId'])                          

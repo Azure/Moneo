@@ -16,7 +16,7 @@ class NvidiaExporterTestCase(unittest.TestCase):
         metricData= file_util.load_data(path+'data/nv_metric.txt')
         metricData = metricData.split("\n")
         #running nvidia exporter for 5 seconds with debug log level. It will out put the metrics monitored
-        cmd='timeout 5  python2 ' + path + '../src/worker/exporters/nvidia_exporter.py --log-level DEBUG'
+        cmd='timeout 5  python3 ' + path + '../src/worker/exporters/nvidia_exporter.py --log-level DEBUG'
         args = shlex.split(cmd)
         result = shell_process.shell_cmd(args, 20)
         for metric in metricData:
@@ -31,7 +31,7 @@ class NvidiaExporterTestCase(unittest.TestCase):
         metricData= file_util.load_data(path+'data/nv_metric2.txt')
         metricData = metricData.split("\n")
         #running nvidia exporter for 5 seconds with debug log level. It will out put the metrics monitored
-        cmd='timeout 5  python2 ' + path + '../src/worker/exporters/nvidia_exporter.py -m --log-level DEBUG'
+        cmd='timeout 5  python3 ' + path + '../src/worker/exporters/nvidia_exporter.py -m --log-level DEBUG'
         args = shlex.split(cmd)
         result = shell_process.shell_cmd(args,20)
         for metric in metricData:
