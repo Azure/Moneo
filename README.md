@@ -139,17 +139,12 @@ There are several cases based on the networking configuration:
     *  password: azure
     
   This can be changed in the "src/master/grafana/grafana.env" file.
-
-### _Quick Start Guide_ ###
-
-[Quick Start](./QuickStartGuide.md)
-
-### _Job Level Filtering_ ###
-Moneo provides a way to filter nodes by job group. To get started with job level filtering see:
-[Job Level Filtering](./JobFiltering.md)
-
-### _Azure Application Insights for Metric Visualization_ ###
-[Azure Application Insights for Metric Visualization](src/azinsights/README.md)
+  
+ ### _User Docs_ ###
+- [Quick Start](./docs/QuickStartGuide.md)
+- To get started with job level filtering see: [Job Level Filtering](./docs/JobFiltering.md)
+- To add your own metrics see: [Adding custom Metrics](./docs/CustomMetrics.md)
+- To integrate Moneo with Azure Insights dashboard see: [Azure Application Insights for Metric Visualization](src/azinsights/README.md)
 
 Known Issues
 ------------

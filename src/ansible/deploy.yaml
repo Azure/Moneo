@@ -82,6 +82,10 @@
       shell: |
         cd {{ remote_worker_path }}
         nohup python3 exporters/net_exporter.py </dev/null >/dev/null 2>&1 &
+    - name: Start Node Exporter
+      shell: |
+        cd {{ remote_worker_path }}
+        nohup python3 exporters/node_exporter.py </dev/null >/dev/null 2>&1 &
 - name: === Deploy Master ===
   tags: master
   hosts: master
