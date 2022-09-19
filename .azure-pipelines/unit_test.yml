@@ -1,0 +1,15 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - script: |
+      cd tests && \ 
+      python3 -m unittest test_*.py
+    displayName: Run unit tests
+    timeoutInMinutes: 10
