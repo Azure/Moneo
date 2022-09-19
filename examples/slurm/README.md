@@ -26,19 +26,19 @@ Steps
     Note: The epilog script will update the job Id to "None" then delete the host.ini file.
 
 2. Next modify the /etc/slurm.conf file by adding the following variables:
-```
-PrologSlurmctld=<prolog dir path>/prologMoneo.sh
-EpilogSlurmctld=<epilog dir path>/epilogMoneo.sh
-```
+    ```
+    PrologSlurmctld=<prolog dir path>/prologMoneo.sh
+    EpilogSlurmctld=<epilog dir path>/epilogMoneo.sh
+    ```
 
-Note:  PrologSlurmctld and EpilogSlurmctld variables will enable the Slurm daemon to run the scripts on the head/scheduler node. The prolog will be run at the commencment of the job and the epilog script will run when it has ended. 
+    Note:  PrologSlurmctld and EpilogSlurmctld variables will enable the Slurm daemon to run the scripts on the head/scheduler node. The prolog will be run at the commencment of the job and the epilog script will run when it has ended. 
 
 3. Restart slurmctld:
-```
-sudo slurmctld restart
-```
+    ```
+    sudo slurmctld restart
+    ```
 
-Note: This will allow for the new config to be loaded
+    Note: This will allow for the new config to be loaded
 
 4. At this point Moneo will now update job Ids based off whe a Slurm job is start and completed.
 
