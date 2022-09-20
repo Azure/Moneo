@@ -40,7 +40,7 @@ Steps
 
     Note: This will allow for the new config to be loaded
 
-4. At this point Moneo will now update job Ids based off whe a Slurm job is start and completed.
+4. At this point Moneo will now update job Ids based off when a Slurm job is start and completed.
 
 
 
