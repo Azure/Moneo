@@ -6,9 +6,9 @@ Moneo allows for the assignment of job IDs to a subset of nodes. The command ```
 
 The host.ini has the following format:
 ```
-[worker]
 host-1
 host-2
+host-3
 ```
 Doing this manually may be tedious if the frequency of job deployment is high. Integrating job updates into Slurm's Prolog/Epilog scripts will offload the effort from the individual user launching a job on Slurm.
 
