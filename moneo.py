@@ -5,56 +5,60 @@ import argparse
 import os
 
 
-def deploy(args):
-    '''
-    Deploys Moneo monitoring to hosts listed in the
-    specified host ini file
-    '''
-    dep_cmd = 'ansible-playbook -i ' + \
-        args.host_ini + ' src/ansible/deploy.yaml'
+class MoneoCLI:
+    '''Moneo CLI call'''
+    def __init__(self, args):
+        '''Init for MoneoCLI'''
+        self.args = args
 
-    if args.type == 'workers':
-        dep_cmd = dep_cmd + ' -e "skip_master=true"'
-    elif args.type == 'manager':
-        dep_cmd = dep_cmd + ' -e "skip_worker=true"'
-    dep_cmd = dep_cmd + ' -e "skip_insights=' + \
-        ('false' if args.insights else 'true') + '"'
-    dep_cmd = dep_cmd + ' -e "enable_profiling=' + \
-        ('true' if args.profiler_metrics else 'false') + '"'
+    def deploy(self):
+        '''
+        Deploys Moneo monitoring to hosts listed in the
+        specified host ini file
+        '''
+        dep_cmd = 'ansible-playbook -i ' + \
+            self.args.host_ini + ' src/ansible/deploy.yaml'
 
-    print('Deployment type: ' + args.type)
-    os.system(dep_cmd)
+        if self.args.type == 'workers':
+            dep_cmd = dep_cmd + ' -e "skip_master=true"'
+        elif self.args.type == 'manager':
+            dep_cmd = dep_cmd + ' -e "skip_worker=true"'
+        dep_cmd = dep_cmd + ' -e "skip_insights=' + \
+            ('false' if self.args.insights else 'true') + '"'
+        dep_cmd = dep_cmd + ' -e "enable_profiling=' + \
+            ('true' if self.args.profiler_metrics else 'false') + '"'
 
+        print('Deployment type: ' + self.args.type)
+        os.system(dep_cmd)
 
-def stop(args):
-    '''Stops Moneo monitoring on hosts listed in the specified host ini file'''
-    while True:
-        confirm = input("Are you sure you would like to perform a '" + args.type + "' shutdown of Moneo? (Y/n)\n")
+    def stop(self):
+        '''Stops Moneo monitoring on hosts listed in the specified host ini file'''
+        while True:
+            confirm = input("Are you sure you would like to perform a '" + self.args.type + "' shutdown of Moneo? (Y/n)\n")
 
-        if confirm.upper() == 'Y':
-            dep_cmd = 'ansible-playbook -i ' + args.host_ini + \
-                ' src/ansible/shutdown.yaml'
-            if args.type == 'workers':
-                dep_cmd = dep_cmd + ' -e "skip_master=true"'
-            elif args.type == 'manager':
-                dep_cmd = dep_cmd + ' -e "skip_worker=true"'
-            os.system(dep_cmd)
-            print("Moneo is Shutting down \n")
-            return 0
+            if confirm.upper() == 'Y':
+                dep_cmd = 'ansible-playbook -i ' + self.args.host_ini + \
+                    ' src/ansible/shutdown.yaml'
+                if self.args.type == 'workers':
+                    dep_cmd = dep_cmd + ' -e "skip_master=true"'
+                elif self.args.type == 'manager':
+                    dep_cmd = dep_cmd + ' -e "skip_worker=true"'
+                os.system(dep_cmd)
+                print("Moneo is Shutting down \n")
+                return 0
 
-        elif confirm.upper() == 'N':
-            print("Canceling request to shutdown Moneo \n")
-            return 0
-        else:
-            print("Input not recognized\n")
+            elif confirm.upper() == 'N':
+                print("Canceling request to shutdown Moneo \n")
+                return 0
+            else:
+                print("Input not recognized\n")
 
-
-def jobID_update(args):
-    '''Updates job id for hosts listed in the specified host ini file'''
-    dep_cmd = 'ansible-playbook -i ' + args.host_ini + \
-        ' src/ansible/updateJobID.yaml -e job_Id=' + args.job_id
-    print('Job ID update to ' + args.job_id)
-    os.system(dep_cmd)
+    def jobID_update(self):
+        '''Updates job id for hosts listed in the specified host ini file'''
+        dep_cmd = 'ansible-playbook -i ' + self.args.host_ini + \
+            ' src/ansible/updateJobID.yaml -e job_Id=' + self.args.job_id
+        print('Job ID update to ' + self.args.job_id)
+        os.system(dep_cmd)
 
 
 def check_deploy_shutdown(args, parser):
@@ -97,6 +101,8 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--profiler_metrics', action='store_true', default=False, help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
     args = parser.parse_args()
 
+    mCLI = MoneoCLI(args)
+
     #   Workflow selection
     if (args.deploy and args.shutdown):
         print("deploy and shutdown are exclusive arguments. Please only provide one.\n")
@@ -105,16 +111,16 @@ if __name__ == '__main__':
     elif args.deploy:
         check_deploy_shutdown(args, parser)
         check_insights_config(args, parser)
-        deploy(args)
+        mCLI.deploy()
     elif args.shutdown:
         check_deploy_shutdown(args, parser)
-        stop(args)
+        mCLI.stop()
     elif args.job_id:
         if (not os.path.isfile(args.host_ini)):
             print(args.host_ini + " does not exist. Please provide a host file. i.e. host.ini.\n")
             parser.print_help()
             exit(1)
-        jobID_update(args)
+        mCLI.jobID_update()
     else:
         parser.print_help()
 
