@@ -60,6 +60,7 @@ class MoneoCLI:
         print('Job ID update to ' + self.args.job_id)
         os.system(dep_cmd)
 
+    def 
 
 def check_deploy_shutdown(args, parser):
     '''
