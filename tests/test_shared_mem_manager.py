@@ -4,8 +4,8 @@ import sys
 
 p = os.path.abspath('../src/worker/helpers')
 sys.path.insert(1, p)
-from shmem_helper import Shared_Mem_Mngr
 from shmem_helper import clean_Leaked_shm
+from shmem_helper import Shared_Mem_Mngr
 
 """Moneo Shared Memory test"""
 
@@ -16,7 +16,8 @@ class SharedMemTestCase(unittest.TestCase):
     def test_client_class(self):
         """test if client access read memory"""
         try:
-            clean_Leaked_shm("psm_moneoSM")  # in the event of a previous unclean exit. Clean up leaked resouces
+            # in the event of a previous unclean exit. Clean up leaked resouces
+            clean_Leaked_shm("psm_moneoSM")
         except FileNotFoundError:
             pass
         serverMgr = Shared_Mem_Mngr("psm_moneoSM", isClient=False)
@@ -36,7 +37,8 @@ class SharedMemTestCase(unittest.TestCase):
     def test_server_class(self):
         """test if server access read memory"""
         try:
-            clean_Leaked_shm("psm_moneoSM")  # in the event of a previous unclean exit. Clean up leaked resouces
+            # in the event of a previous unclean exit. Clean up leaked resouces
+            clean_Leaked_shm("psm_moneoSM")
         except FileNotFoundError:
             pass
         serverMgr = Shared_Mem_Mngr("psm_moneoSM", isClient=False)
