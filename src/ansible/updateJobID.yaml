@@ -1,11 +1,13 @@
 - name: === Update Worker Job ID ===
-  tags: worker
-  hosts: worker
+  hosts: all
   gather_facts: false
   vars:
     job_group: '{{ job_Id | default(-999) }}'
     remote_worker_path: '/tmp/moneo-worker'
   tasks:
+    - name: Pause 5 seconds to allow previous updates to complete
+      ansible.builtin.pause:
+        seconds: 5
     - name: Store job id to file
       shell: | 
         cd {{ remote_worker_path }}

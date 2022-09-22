@@ -205,21 +205,22 @@ class DcgmExporter(DcgmReader):
         '''Updates job id when job update flag has been set'''
         global job_update
         job_update=False
-        fvs = self.m_dcgmGroup.samples.GetLatest(self.m_fieldGroup).values
+        fvs = self.m_dcgmGroup.samples.GetAllSinceLastCall(None, self.m_fieldGroup).values
+
         #remove last set of label values
         for gpuId in fvs.keys():
             gpuUuid = self.m_gpuIdToUUId[gpuId]
             gpuBusId = self.m_gpuIdToBusId[gpuId]
-            gpuUniqueId = gpuUuid if dcgm_config['sendUuid'] else gpuBusId        
+            gpuUniqueId = gpuUuid if dcgm_config['sendUuid'] else gpuBusId
             for fieldId in self.m_publishFields[self.m_updateFreq]:
                 if fieldId in self.m_dcgmIgnoreFields:
                     continue
-                self.m_gauges[fieldId].remove(gpuId,gpuUniqueId,dcgm_config['jobId'])                          
+                self.m_gauges[fieldId].remove(gpuId,gpuUniqueId,dcgm_config['jobId'])
         #update job id
         with open('curr_jobID') as f:
             dcgm_config['jobId'] = f.readline().strip()
-        logging.debug('Job ID updated to %s',dcgm_config['jobId'])   
-    
+        logging.debug('Job ID updated to %s',dcgm_config['jobId'])
+
     def Loop(self):
         global job_update
         job_update=False
