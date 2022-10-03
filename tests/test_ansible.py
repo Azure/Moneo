@@ -23,7 +23,7 @@ class AnsibleTestCase(unittest.TestCase):
    
     def check_exporter_status(self):
         """Helper to check exporter status"""
-        cmds=['ps -f -C  python2','ps -f -C  python3']
+        cmds=['ps -f -C  python3','ps -f -C  python3']
         expected=['nvidia_exporter.py', 'net_exporter.py']
         
         for i in range(len(cmds)):
