@@ -30,7 +30,7 @@ class SharedMemTestCase(unittest.TestCase):
         serverMgr.create_shm(data)  # create mem and assign it data
         shm = clientMgr.get_shm()
         assert ("psm_moneoSM" in shm._name)  # the stored name has a slash
-        msg = bytes(shm.buf[:11]).decode('utf-8')  # bytes to string
+        msg = bytes(shm.buf[:shm._size]).decode('utf-8')  # bytes to string
         assert (msg == "hello world")
         serverMgr.delete_shm()
 
@@ -50,7 +50,7 @@ class SharedMemTestCase(unittest.TestCase):
         serverMgr.create_shm(data)  # create mem and assign it data
         shm = serverMgr.get_shm()
         assert ("psm_moneoSM" in shm._name)  # the stored name has a slash
-        msg = bytes(shm.buf[:11]).decode('utf-8')  # bytes to string
+        msg = bytes(shm.buf[:shm._size]).decode('utf-8')  # bytes to string
         assert (msg == "hello world")
         serverMgr.delete_shm()
 
