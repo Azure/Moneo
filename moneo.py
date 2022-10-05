@@ -95,7 +95,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--insights', action='store_true', help='Experimental feature: Enable exporting of metrics to Azure Insights. Requires a valid instrumentation key and base_url for the Prometheus DB in config.ini')
     parser.add_argument('type', metavar='type', type=str, default='full', nargs="?", help='Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full.')
     parser.add_argument('-p', '--profiler_metrics', action='store_true', default=False, help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
-    parser.add_argument('-f', '--fork_processes', default=16, type=int, help='The number of processes used to deploy/shutdown/update Moneo. Increase this value to for a higher process count. Default is 16.')
+    parser.add_argument('-f', '--fork_processes', default=16, type=int, help='The number of processes used to deploy/shutdown/update Moneo. Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.')
     args = parser.parse_args()
 
     #   Workflow selection
