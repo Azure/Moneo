@@ -80,7 +80,7 @@ class NodeExporter(BaseExporter):
                 ['job_id']
             )
         print(self.gauges)
-    
+
 
     # example function of how to collect metrics from a command using the shell_cmd helper function
     # the parent class will call this collect function to update the Prometheus gauges 
@@ -104,43 +104,33 @@ class NodeExporter(BaseExporter):
             value = delta / (self.config['update_freq'])  # bandwidth
 
         elif 'cpu' in field_name:
-            if 'times' in field_name or 'util' in field_name:
-                # Update the counter for CPU times % and util %,
-                # each field get's it's own version
-                for id, cpu_times in enumerate(psutil.cpu_times(percpu=True)):
-                    config['counter'][field_name]['cpu' + str(id)] = cpu_times  
-                    
+            value =  {}
+            if 'times' in field_name or 'util' in field_name:            
                 # If using psutil, times % and util % do not need to be calculated
                 # using the counters
-                value =  {}
+
                 if 'times' in field_name:
                     for id, time_percents in enumerate(psutil.cpu_times_percent(percpu=True)):
                         attribute = field_name.split('_')[-1]
                         value['cpu' + str(id)] = getattr(time_percents,attribute)
-                        
+         
                 else: # CPU Util %
                     for id, util_percent in enumerate(psutil.cpu_percent(percpu=True)):
                         value['cpu' + str(id)] = util_percent
 
-            # Since clock speed is already a gauge the value is the counter itself
             elif 'frequency' in field_name:
-                for cpu,freq in enumerate(psutil.cpu_freq(percpu=True)):
-                    config['counter'][field_name]['cpu' + str(cpu)] = freq.current
-   
-                value = config['counter'][field_name]
-        
+                for id, freq in enumerate(psutil.cpu_freq(percpu=True)):
+                    value['cpu' + str(id)] = freq.current
+
         elif 'mem' in field_name:
             metric = field_name.split('_')[-1]
             virtual_mem = psutil.virtual_memory()
             
             if metric == 'util':
-                config['counter'][field_name] = getattr(virtual_mem, 'percent')
-                value = config['counter'][field_name]
+                value = getattr(virtual_mem, 'percent')
             else:
-                config['counter'][field_name] = getattr(virtual_mem, metric)
-            
                 # psutil returns virtual memory stats in bytes, convert to kB
-                value = config['counter'][field_name] / 1024
+                value = getattr(virtual_mem, metric) / 1024
 
         else:
             value = 0
@@ -219,29 +209,17 @@ def init_config(job_id, port=None):
             if 'times' in field_name or 'util' in field_name:
                 config['fieldFiles'][field_name] = '/proc/stat'
 
-                config['counter'][field_name] = {}
-                for id, cpu_times in enumerate(psutil.cpu_times(percpu=True)):
-                    config['counter'][field_name]['cpu' + str(id)] = dict(zip(psutil._pslinux.scputimes._fields, cpu_times))
-        
+                # Call cpu_percent to get intial 0.0 values 
+                if 'util' in field_name:
+                    _ = psutil.cpu_percent(percpu=True)
+
             elif 'frequency' in field_name:
                 config['fieldFiles'][field_name] = '/proc/cpuinfo'
 
-                config['counter'][field_name] = {}
-                for id, freq in enumerate(psutil.cpu_freq(percpu=True)):
-                    config['counter'][field_name]['cpu' + str(id)] = freq.current
-
         if 'mem' in field_name:
             config['fieldFiles'][field_name] = '/proc/meminfo'
-            metric = field_name.split('_')[-1]
 
-            virtual_mem = psutil.virtual_memory()
-
-            if metric == 'util':
-                config['counter'][field_name] = getattr(virtual_mem, 'percent')
-            else:
-                config['counter'][field_name] = getattr(virtual_mem, metric) 
-
-        logging.debug(f"Initialized field: {field_name}, with: {config['counter'][field_name]}\n")
+        # logging.debug(f"Initialized field: {field_name}, with: {config['counter'][field_name]}\n")
 
 
 # You can just copy paste this function. Used to handle signals
