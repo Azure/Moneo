@@ -22,8 +22,24 @@ import argparse
 from base_exporter import BaseExporter
 import subprocess
 import shlex
+import psutil
 
-FIELD_LIST = ['net_rx', 'net_tx']
+import prometheus_client
+
+FIELD_LIST = [
+    'net_rx', 
+    'net_tx',
+    'cpu_times_user', # use /proc/stat
+    'cpu_times_system', # use /proc/stat
+    'cpu_times_idle', # use /proc/stat
+    'cpu_times_iowait', # use /proc/stat
+    'cpu_util', # use /proc/stat
+    'cpu_frequency',
+    # 'mem_free', # use /proc/meminfo
+    'mem_available', # use /proc/meminfo
+    # 'mem_used', # use /proc/meminfo
+    'mem_util' # use /proc/meminfo
+]
 
 
 # feel free to copy and paste if os commands are needed
@@ -47,6 +63,25 @@ class NodeExporter(BaseExporter):
         '''initializes parent class'''
         super().__init__(node_fields, exp_config)
 
+    def init_gauges(self):
+        '''Initialization of Prometheus parameters. Override in Child Class if needed'''      
+        self.gauges = {}
+        for field_name in self.node_fields:
+            if 'cpu' in field_name:
+                self.gauges[field_name] = prometheus_client.Gauge(
+                    'node_{}'.format(field_name),
+                    'node_{}'.format(field_name),
+                    ['job_id', 'cpu_id', 'numa_domain']
+                )
+            else:
+                self.gauges[field_name] = prometheus_client.Gauge(
+                'node_{}'.format(field_name),
+                'node_{}'.format(field_name),
+                ['job_id']
+            )
+        print(self.gauges)
+    
+
     # example function of how to collect metrics from a command using the shell_cmd helper function
     # the parent class will call this collect function to update the Prometheus gauges 
     def collect(self, field_name): 
@@ -67,10 +102,75 @@ class NodeExporter(BaseExporter):
             delta = int(value) - int(self.config['counter'][field_name])
             self.config['counter'][field_name] = value
             value = delta / (self.config['update_freq'])  # bandwidth
+
+        elif 'cpu' in field_name:
+            if 'times' in field_name or 'util' in field_name:
+                # Update the counter for CPU times % and util %,
+                # each field get's it's own version
+                for id, cpu_times in enumerate(psutil.cpu_times(percpu=True)):
+                    config['counter'][field_name]['cpu' + str(id)] = cpu_times  
+                    
+                # If using psutil, times % and util % do not need to be calculated
+                # using the counters
+                value =  {}
+                if 'times' in field_name:
+                    for id, time_percents in enumerate(psutil.cpu_times_percent(percpu=True)):
+                        attribute = field_name.split('_')[-1]
+                        value['cpu' + str(id)] = getattr(time_percents,attribute)
+                        
+                else: # CPU Util %
+                    for id, util_percent in enumerate(psutil.cpu_percent(percpu=True)):
+                        value['cpu' + str(id)] = util_percent
+
+            # Since clock speed is already a gauge the value is the counter itself
+            elif 'frequency' in field_name:
+                for cpu,freq in enumerate(psutil.cpu_freq(percpu=True)):
+                    config['counter'][field_name]['cpu' + str(cpu)] = freq.current
+   
+                value = config['counter'][field_name]
+        
+        elif 'mem' in field_name:
+            metric = field_name.split('_')[-1]
+            virtual_mem = psutil.virtual_memory()
+            
+            if metric == 'util':
+                config['counter'][field_name] = getattr(virtual_mem, 'percent')
+                value = config['counter'][field_name]
+            else:
+                config['counter'][field_name] = getattr(virtual_mem, metric)
+            
+                # psutil returns virtual memory stats in bytes, convert to kB
+                value = config['counter'][field_name] / 1024
+
         else:
             value = 0
 
         return value 
+
+    def process(self):
+        '''Perform metric collection'''
+        for field_name in self.node_fields:
+            value = self.collect(field_name)
+            self.handle_field(field_name, value)
+
+    def handle_field(self, field_name, value):
+        '''Update metric value for gauge'''
+        if 'cpu' in field_name:
+            #if 'times' in field_name or 'util' in field_name:
+            logging.debug(f'Handeling field: {field_name}')
+            for id, k in enumerate(value.keys()):
+                numa_domain='node' + str(id//config['numa_domain_size'])
+                logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
+                self.gauges[field_name].labels(
+                    job_id=self.config['job_id'],
+                    cpu_id=k,
+                    numa_domain=numa_domain
+                ).set(value[k])
+        else:
+            self.gauges[field_name].labels(
+                self.config['job_id'],
+            ).set(value)
+            logging.debug('Node exporter field %s: %s', field_name, str(value))
 
     # This is called at the termination of the application. Can be used to close any open files.
     def cleanup(self):
@@ -94,6 +194,15 @@ def init_config(job_id, port=None):
         'fieldFiles': {},
         'counter': {}
     }
+
+    # get NUMA domain
+    cores = psutil.cpu_count()
+    cmd = "lscpu"
+    args = shlex.split(cmd)
+    numa_domains = int(shell_cmd(args, 5).split("\n")[8].split()[-1])
+    domain_size = cores//numa_domains
+    config['numa_domain_size'] = domain_size
+
     # initalize field specific config parameters
     for field_name in FIELD_LIST:
         if 'net' in field_name:
@@ -105,6 +214,34 @@ def init_config(job_id, port=None):
                 config['counter'][field_name] = shell_cmd(args, 5).split()[1]
             elif field_name == 'net_tx':
                 config['counter'][field_name] = shell_cmd(args, 5).split()[9]
+
+        if 'cpu' in field_name:
+            if 'times' in field_name or 'util' in field_name:
+                config['fieldFiles'][field_name] = '/proc/stat'
+
+                config['counter'][field_name] = {}
+                for id, cpu_times in enumerate(psutil.cpu_times(percpu=True)):
+                    config['counter'][field_name]['cpu' + str(id)] = dict(zip(psutil._pslinux.scputimes._fields, cpu_times))
+        
+            elif 'frequency' in field_name:
+                config['fieldFiles'][field_name] = '/proc/cpuinfo'
+
+                config['counter'][field_name] = {}
+                for id, freq in enumerate(psutil.cpu_freq(percpu=True)):
+                    config['counter'][field_name]['cpu' + str(id)] = freq.current
+
+        if 'mem' in field_name:
+            config['fieldFiles'][field_name] = '/proc/meminfo'
+            metric = field_name.split('_')[-1]
+
+            virtual_mem = psutil.virtual_memory()
+
+            if metric == 'util':
+                config['counter'][field_name] = getattr(virtual_mem, 'percent')
+            else:
+                config['counter'][field_name] = getattr(virtual_mem, metric) 
+
+        logging.debug(f"Initialized field: {field_name}, with: {config['counter'][field_name]}\n")
 
 
 # You can just copy paste this function. Used to handle signals
