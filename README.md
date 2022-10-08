@@ -53,7 +53,7 @@ Minimum Requirements
 
 - python >=3.7 installed
 - docker installed
-- ansible installed
+- ansible installed (python module)
 
 Setup
 -----
@@ -143,6 +143,7 @@ There are several cases based on the networking configuration:
  ### _User Docs_ ###
 - [Quick Start](./docs/QuickStartGuide.md)
 - To get started with job level filtering see: [Job Level Filtering](./docs/JobFiltering.md)
+- Slurm epilog/prolog integration: [Slurm example](./examples/slurm/README.md)
 - To add your own metrics see: [Adding custom Metrics](./docs/CustomMetrics.md)
 - To integrate Moneo with Azure Insights dashboard see: [Azure Application Insights for Metric Visualization](src/azinsights/README.md)
 

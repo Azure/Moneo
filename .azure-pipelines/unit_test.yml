@@ -3,6 +3,7 @@
 
 trigger:
   - main
+  - add_test_pipeline
 
 pool:
   vmImage: ubuntu-latest
