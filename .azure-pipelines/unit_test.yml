@@ -9,25 +9,32 @@ pool:
   vmImage: ubuntu-latest
 strategy:
   matrix:
-    Python35:
-      python.version: '3.5'
     Python36:
       python.version: '3.6'
-    Python37:
-      python.version: '3.7'
+    Python38:
+      python.version: '3.8'
 
 steps:
   - task: UsePythonVersion@0
     displayName: 'Use Python $(python.version)'
     inputs:
       versionSpec: '$(python.version)'
-      
+
   - script: |
+      python3 -m pip install --upgrade
       python3 -m pip install flake8
+      python3 -m pip install prometheus-client
+      python3 -m pip install opencensus
+      python3 -m pip install opencensus-ext-azure
+    displayName: 'Install External Packages'
+  - script: |
       python3 -m flake8
-    displayName: 'Run lint tests'
+    displayName: 'Run Lint Tests'
+    continueOnError: true
   - script: |
       cd tests && \ 
       python3 -m unittest test_*.py
-    displayName: Run unit tests
+    continueOnError: true
+    displayName: Run Unit Tests
     timeoutInMinutes: 10
+    

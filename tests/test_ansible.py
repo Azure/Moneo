@@ -57,6 +57,7 @@ class AnsibleTestCase(unittest.TestCase):
         #test successful deploy by looking at docker
         args = shlex.split(cmd)
         result = shell_process.shell_cmd(args,60)
+        print(result)
         #checking docker containers up
         graf_status, prom_status =self.check_docker_status()
         assert(graf_status)
