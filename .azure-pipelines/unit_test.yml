@@ -23,9 +23,9 @@ steps:
       versionSpec: '$(python.version)'
       
   - script: |
-    python3 -m pip install flake8
-    python3 -m flake8
-  displayName: 'Run lint tests'
+      python3 -m pip install flake8
+      python3 -m flake8
+    displayName: 'Run lint tests'
   - script: |
       cd tests && \ 
       python3 -m unittest test_*.py
