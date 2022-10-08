@@ -19,6 +19,7 @@ class NvidiaExporterTestCase(unittest.TestCase):
         cmd='timeout 5  python3 ' + path + '../src/worker/exporters/nvidia_exporter.py --log-level DEBUG'
         args = shlex.split(cmd)
         result = shell_process.shell_cmd(args, 20)
+        print(result)
         for metric in metricData:
             assert(metric in result)
 
@@ -34,6 +35,7 @@ class NvidiaExporterTestCase(unittest.TestCase):
         cmd='timeout 5  python3 ' + path + '../src/worker/exporters/nvidia_exporter.py -m --log-level DEBUG'
         args = shlex.split(cmd)
         result = shell_process.shell_cmd(args,20)
+        print(result)
         for metric in metricData:
             assert(metric in result)     
 
