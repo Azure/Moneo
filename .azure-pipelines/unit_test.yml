@@ -1,0 +1,34 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+strategy:
+  matrix:
+    Python36:
+      python.version: '3.6'
+    Python38:
+      python.version: '3.8'
+
+steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python $(python.version)'
+    inputs:
+      versionSpec: '$(python.version)'
+
+  - script: |
+      python3 -m pip install --upgrade flake8 prometheus-client opencensus opencensus-ext-azure
+    displayName: 'Install External Packages'
+  - script: |
+      python3 -m flake8
+    displayName: 'Run Lint Tests'
+    continueOnError: true
+  - script: |
+      cd tests && \ 
+      python3 -m unittest test_*.py
+    continueOnError: true
+    displayName: Run Unit Tests
+    timeoutInMinutes: 10
