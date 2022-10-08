@@ -20,13 +20,15 @@ steps:
     displayName: 'Use Python $(python.version)'
     inputs:
       versionSpec: '$(python.version)'
-      
+
   - script: |
-    python3 -m pip install flake8
-    python3 -m flake8
-  displayName: 'Run lint tests'
+      python3 -m pip install flake8
+      python3 -m flake8
+    displayName: 'Run lint tests'
+    continueOnError: true
   - script: |
       cd tests && \ 
       python3 -m unittest test_*.py
+    continueOnError: true
     displayName: Run unit tests
     timeoutInMinutes: 10
