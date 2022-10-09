@@ -21,10 +21,10 @@ steps:
 
   - script: |
       python3 -m pip install --upgrade flake8 prometheus-client opencensus opencensus-ext-azure
-    displayName: 'Install External Packages'
+    displayName: Install External Packages
   - script: |
       python3 -m flake8
-    displayName: 'Run Lint Tests'
+    displayName: Run Lint Tests
     continueOnError: true
   - script: |
       cd tests && \ 
