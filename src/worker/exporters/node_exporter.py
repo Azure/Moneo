@@ -31,17 +31,8 @@ FIELD_LIST = [
     'net_tx',
     'cpu_util',  # use /proc/stat
     'cpu_frequency',  # use /proc/cpuinfo
-    # 'mem_free',  # use /proc/meminfo
     'mem_available',  # use /proc/meminfo
-    # 'mem_used',  # use /proc/meminfo
     'mem_util'  # use /proc/meminfo
-]
-
-CPU_PROF_FIELDS = [
-    'cpu_times_user',  # use /proc/stat
-    'cpu_times_system',  # use /proc/stat
-    'cpu_times_idle',  # use /proc/stat
-    'cpu_times_iowait'  # use /proc/stat
 ]
 
 
@@ -110,18 +101,12 @@ class NodeExporter(BaseExporter):
 
         elif 'cpu' in field_name:
             value = {}
-            if 'times' in field_name or 'util' in field_name:
+            if 'util' in field_name:
                 # If using psutil, times % and util % do not need to be
                 # calculated using the counters
 
-                if 'times' in field_name:
-                    for id, time_percents in enumerate(psutil.cpu_times_percent(percpu=True)):
-                        attribute = field_name.split('_')[-1]
-                        value[str(id)] = getattr(time_percents, attribute)
-
-                else:  # CPU Util %
-                    for id, util_percent in enumerate(psutil.cpu_percent(percpu=True)):
-                        value[str(id)] = util_percent
+                for id, util_percent in enumerate(psutil.cpu_percent(percpu=True)):
+                    value[str(id)] = util_percent
 
             elif 'frequency' in field_name:
                 for id, freq in enumerate(psutil.cpu_freq(percpu=True)):
@@ -193,10 +178,6 @@ def init_config(job_id, port=None, profiler_metrics=False):
     domain_size = cores//numa_domains
     config['numa_domain_size'] = domain_size
 
-    # Add profiler metrics    
-    if profiler_metrics:
-        FIELD_LIST.extend(CPU_PROF_FIELDS)
-
     # initalize field specific config parameters
     for field_name in FIELD_LIST:
         if 'net' in field_name:
@@ -210,7 +191,7 @@ def init_config(job_id, port=None, profiler_metrics=False):
                 config['counter'][field_name] = shell_cmd(args, 5).split()[9]
 
         if 'cpu' in field_name:
-            if 'times' in field_name or 'util' in field_name:
+            if 'util' in field_name:
                 config['fieldFiles'][field_name] = '/proc/stat'
 
                 # Call cpu_percent to get intial 0.0 values
@@ -222,8 +203,6 @@ def init_config(job_id, port=None, profiler_metrics=False):
 
         if 'mem' in field_name:
             config['fieldFiles'][field_name] = '/proc/meminfo'
-
-        # logging.debug(f"Initialized field: {field_name}, with: {config['counter'][field_name]}\n")
 
 
 # You can just copy paste this function. Used to handle signals
@@ -269,8 +248,6 @@ def main():
                         execution in addition to warnings and errors DEBUG (4) \
                         - Log debugging information in addition to all')
     parser.add_argument("-p", "--port", type=int, default=None, help='Port to export metrics from')
-    parser.add_argument("-m", "--profiler_metrics", action="store_true", help="Enable profile metrics \
-                        (CPU User,System,Idle, IoWait times).")
     args = parser.parse_args()
 
     logging.basicConfig(level=get_log_level(args))
