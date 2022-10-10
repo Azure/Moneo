@@ -143,7 +143,8 @@ class NodeExporter(BaseExporter):
             self.gauges[field_name].labels(
                 self.config['job_id'],
             ).set(value)
-            logging.debug('Node exporter field %s: %s', field_name, str(value))
+
+        logging.debug('Node exporter field %s: %s', field_name, str(value))
 
     # This is called at the termination of the application.
     # Can be used to close any open files.
@@ -155,7 +156,7 @@ class NodeExporter(BaseExporter):
 # you will need to initialize your custom metric's file if we are exporting
 # from a file you may also want to initialize the config's counter member
 # for the specific field
-def init_config(job_id, port=None, profiler_metrics=False):
+def init_config(job_id, port=None):
     '''Example of config initialization'''
     global config
     if not port:
@@ -252,7 +253,7 @@ def main():
 
     logging.basicConfig(level=get_log_level(args))
     jobId = None  # set a default job id of None
-    init_config(jobId, args.port, args.profiler_metrics)
+    init_config(jobId, args.port)
     init_signal_handler()
 
     exporter = NodeExporter(FIELD_LIST, config)
