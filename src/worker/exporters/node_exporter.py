@@ -210,7 +210,7 @@ def init_config(job_id, port=None):
             elif field_name == 'net_tx':
                 config['counter'][field_name] = shell_cmd(args, 5).split()[9]
 
-        if 'cpu' in field_name:
+        elif 'cpu' in field_name:
             if 'util' in field_name:
                 config['fieldFiles'][field_name] = '/proc/stat'
 
@@ -220,7 +220,7 @@ def init_config(job_id, port=None):
             elif 'frequency' in field_name:
                 config['fieldFiles'][field_name] = '/proc/cpuinfo'
 
-        if 'mem' in field_name:
+        elif 'mem' in field_name:
             config['fieldFiles'][field_name] = '/proc/meminfo'
 
 

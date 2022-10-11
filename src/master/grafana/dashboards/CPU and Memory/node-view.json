@@ -86,8 +86,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -186,8 +185,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -303,8 +301,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -405,8 +402,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -520,8 +516,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -558,7 +553,7 @@
                 "uid": "P6FAF8666AEFFE3AA"
               },
               "editorMode": "code",
-              "expr": "node_net_tx{instance=~\"$instance\"}",
+              "expr": "node_net_tx{job_id=~\"$job_id\", instance=~\"$instance\"}",
               "legendFormat": "{{instance}}",
               "range": true,
               "refId": "A"
@@ -613,8 +608,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               },
@@ -651,7 +645,7 @@
                 "uid": "P6FAF8666AEFFE3AA"
               },
               "editorMode": "code",
-              "expr": "node_net_rx{instance=~\"$instance\"}",
+              "expr": "node_net_rx{job_id=~\"$job_id\", instance=~\"$instance\"}",
               "legendFormat": "{{instance}}",
               "range": true,
               "refId": "A"
@@ -674,12 +668,8 @@
       {
         "current": {
           "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "text": "None",
+          "value": "None"
         },
         "datasource": {
           "type": "prometheus",
@@ -688,9 +678,9 @@
         "definition": "label_values(job_id)",
         "description": "",
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": "job_id",
-        "multi": true,
+        "multi": false,
         "name": "job_id",
         "options": [],
         "query": {
@@ -700,12 +690,12 @@
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 3,
+        "sort": 1,
         "type": "query"
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "compue2c6000000",
           "value": "compue2c6000000"
         },
@@ -759,7 +749,7 @@
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 0,
+        "sort": 3,
         "type": "query"
       },
       {
@@ -797,13 +787,13 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Node View",
   "uid": "2dx-qfVVz",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
