@@ -52,7 +52,7 @@ There five categories of metrics that Moneo monitors:
 5. InfiniBand Network Counters: Detailed view of node level IB network metrics.
 ![image](https://user-images.githubusercontent.com/70273488/173664809-bbfea8b4-91cb-42cd-aff8-a91fc9006120.png)
 
-6. Node View: Detailed View of node level CPU, Memory, and Network counters.
+6. Node View: Detailed view of node level CPU, Memory, and Network metrics.
 ![image](https://user-images.githubusercontent.com/107515145/195173202-8812a46a-4334-4e52-87ba-3c3137711bdd.png)
 
 </details>
