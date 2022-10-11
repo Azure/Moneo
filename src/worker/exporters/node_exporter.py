@@ -215,8 +215,7 @@ def init_config(job_id, port=None):
                 config['fieldFiles'][field_name] = '/proc/stat'
 
                 # Call cpu_percent to get intial 0.0 values
-                if 'util' in field_name:
-                    _ = psutil.cpu_percent(percpu=True)
+                _ = psutil.cpu_percent(percpu=True)
 
             elif 'frequency' in field_name:
                 config['fieldFiles'][field_name] = '/proc/cpuinfo'
