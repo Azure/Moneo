@@ -303,7 +303,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -319,7 +320,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 3
+            "y": 2
           },
           "id": 17,
           "options": {
@@ -350,7 +351,7 @@
               "editorMode": "code",
               "expr": "node_mem_util{job_id=~\"$job_id\",instance=~\"$instance\"}",
               "interval": "",
-              "legendFormat": "{{instance}} {{job_id}}",
+              "legendFormat": "{{instance}}",
               "range": true,
               "refId": "A"
             }
@@ -404,7 +405,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -420,7 +422,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 3
+            "y": 2
           },
           "id": 20,
           "options": {
@@ -450,7 +452,7 @@
               },
               "editorMode": "builder",
               "expr": "node_mem_available{job_id=~\"$job_id\", instance=~\"$instance\"}",
-              "legendFormat": "{{instance}} {{job_id}}",
+              "legendFormat": "{{instance}}",
               "range": true,
               "refId": "A"
             }
@@ -518,7 +520,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   }
                 ]
               },
@@ -530,7 +533,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 4
+            "y": 3
           },
           "id": 22,
           "options": {
@@ -556,7 +559,7 @@
               },
               "editorMode": "code",
               "expr": "node_net_tx{instance=~\"$instance\"}",
-              "legendFormat": "{{instance}} {{job_id}}",
+              "legendFormat": "{{instance}}",
               "range": true,
               "refId": "A"
             }
@@ -610,7 +613,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   }
                 ]
               },
@@ -622,7 +626,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 4
+            "y": 3
           },
           "id": 25,
           "options": {
@@ -648,7 +652,7 @@
               },
               "editorMode": "code",
               "expr": "node_net_rx{instance=~\"$instance\"}",
-              "legendFormat": "{{instance}} {{job_id}}",
+              "legendFormat": "{{instance}}",
               "range": true,
               "refId": "A"
             }
@@ -701,7 +705,7 @@
       },
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "compue2c6000000",
           "value": "compue2c6000000"
         },

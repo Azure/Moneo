@@ -8,7 +8,7 @@ Moneo orchestrates metric collection (DCGMI + Prometheus DB) and visualization (
 <details>
 <summary>Metrics</summary>
 
-There three categories of metrics that Moneo monitors:
+There five categories of metrics that Moneo monitors:
 1.	GPU Counters
     - Compute/Memory Utilization
     - SM and Memory Clock frequency
@@ -24,6 +24,11 @@ There three categories of metrics that Moneo monitors:
 3.	InfiniBand Network Counters
     - IB TX/RX rate
     - IB Port errors
+4. CPU Counters
+    - Utilization
+    - Clock frequency
+5. Memory
+    - Utilization
 </details>
 
 <details>

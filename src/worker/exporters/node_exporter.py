@@ -74,7 +74,7 @@ class NodeExporter(BaseExporter):
                     'node_{}'.format(field_name),
                     'node_{}'.format(field_name),
                     ['job_id']
-                )
+                    )
         print(self.gauges)
 
     # example function of how to collect metrics from a command using the
@@ -146,6 +146,25 @@ class NodeExporter(BaseExporter):
 
         logging.debug('Node exporter field %s: %s', field_name, str(value))
 
+    def jobID_update(self):
+        '''Updates job id when job update flag has been set'''
+        global job_update
+        job_update = False
+        # Remove last set of label values
+        for field_name in self.node_fields:
+            if 'cpu' in field_name:
+                for id in range(self.config['num_cores']):
+                    numa_domain = str(id//config['numa_domain_size'])
+                    self.gauges[field_name].remove(self.config['job_id'],
+                                                   str(id),
+                                                   numa_domain)
+            else:
+                self.gauges[field_name].remove(self.config['job_id'])
+        # Update job id
+        with open('curr_jobID') as f:
+            self.config['job_id'] = f.readline().strip()
+        logging.debug('Job ID updated to %s', self.config['job_id'])
+
     # This is called at the termination of the application.
     # Can be used to close any open files.
     def cleanup(self):
@@ -172,11 +191,11 @@ def init_config(job_id, port=None):
     }
 
     # get NUMA domain
-    cores = psutil.cpu_count()
+    config['num_cores'] = psutil.cpu_count() 
     cmd = "lscpu"
     args = shlex.split(cmd)
     numa_domains = int(shell_cmd(args, 5).split("\n")[8].split()[-1])
-    domain_size = cores//numa_domains
+    domain_size = config['num_cores']//numa_domains
     config['numa_domain_size'] = domain_size
 
     # initalize field specific config parameters
