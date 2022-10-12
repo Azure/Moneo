@@ -212,16 +212,8 @@ def init_config(job_id, port=None):
 
         elif 'cpu' in field_name:
             if 'util' in field_name:
-                config['fieldFiles'][field_name] = '/proc/stat'
-
                 # Call cpu_percent to get intial 0.0 values
                 _ = psutil.cpu_percent(percpu=True)
-
-            elif 'frequency' in field_name:
-                config['fieldFiles'][field_name] = '/proc/cpuinfo'
-
-        elif 'mem' in field_name:
-            config['fieldFiles'][field_name] = '/proc/meminfo'
 
 
 # You can just copy paste this function. Used to handle signals
