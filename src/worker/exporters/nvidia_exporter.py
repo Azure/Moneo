@@ -139,7 +139,7 @@ class DcgmExporter(DcgmReader):
         self.InitConnection()
         self.InitGauges()
         signal.signal(signal.SIGUSR1, self.jobID_update_flag)
-        self.InitcounterConfig()
+        self.InitCounterConfig()
 
     def InitConnection(self):
         self.Reconnect()
@@ -171,7 +171,7 @@ class DcgmExporter(DcgmReader):
                 ],
             )
 
-    def InitcounterConfig(self):
+    def InitCounterConfig(self):
         global dcgm_config
         fvs = self.m_dcgmGroup.samples.GetAllSinceLastCall(None, self.m_fieldGroup).values
         for gpuId in fvs.keys():
