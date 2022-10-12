@@ -29,9 +29,9 @@ class BaseExporter:
 
     def init_gauges(self):
         '''Initialization of Prometheus parameters. Override in Child Class if needed'''      
-        self.guages = {}
+        self.gauges = {}
         for field_name in self.node_fields:
-            self.guages[field_name] = prometheus_client.Gauge(
+            self.gauges[field_name] = prometheus_client.Gauge(
                 'node_{}'.format(field_name),
                 'node_{}'.format(field_name),
                 ['job_id']
@@ -52,7 +52,7 @@ class BaseExporter:
 
     def handle_field(self, field_name, value):
         '''Update metric value for gauge'''
-        self.guages[field_name].labels(
+        self.gauges[field_name].labels(
             self.config['job_id'],
         ).set(value)
         logging.debug('Node exporter field %s: %s', field_name, str(value))
@@ -70,7 +70,7 @@ class BaseExporter:
         job_update=False
         # remove last set of label values        
         for field_name in self.node_fields:
-            self.guages[field_name].remove(self.config['job_id'])                          
+            self.gauges[field_name].remove(self.config['job_id'])                          
         # update job id
         with open('curr_jobID') as f:
             self.config['job_id'] = f.readline().strip()

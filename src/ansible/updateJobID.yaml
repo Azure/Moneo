@@ -14,15 +14,15 @@
         echo {{job_group}} > curr_jobID
     - name: Get Nvidia Exporter PID
       shell: |
-        pgrep -fx  "python3 .*nvidia_exporter.py*"
+        pgrep -fx  "python3 .*nvidia_exporter.py.*"
       register: nv_pid
     - name: Get Net Exporter PID
       shell: |     
-        pgrep -fx "python3 .*net_exporter.py*"
+        pgrep -fx "python3 .*net_exporter.py.*"
       register: net_pid    
     - name: Get Node Exporter PID
       shell: |     
-        pgrep -fx "python3 .*node_exporter.py*"
+        pgrep -fx "python3 .*node_exporter.py.*"
       register: node_pid         
     - name: update Job Id
       shell: | 
