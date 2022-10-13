@@ -23,11 +23,11 @@ class AnsibleTestCase(unittest.TestCase):
    
     def check_exporter_status(self):
         """Helper to check exporter status"""
-        cmds=['ps -f -C  python3','ps -f -C  python3']
+        cmds='ps -f -C  python3'
         expected=['nvidia_exporter.py', 'net_exporter.py']
         
-        for i in range(len(cmds)):
-            args = shlex.split(cmds[i])
+        for i in range(len(expected)):
+            args = shlex.split(cmds)
             result = shell_process.shell_cmd(args,15)
             if expected[i] not in result:
                 return False
