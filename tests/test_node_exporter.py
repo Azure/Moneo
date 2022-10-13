@@ -40,9 +40,20 @@ class NodeExporterTestCase(unittest.TestCase):
         path = os.path.dirname(__file__)
         if path:
             path = path + '/'
-        metricData = ['net_rx', 'net_tx']
-        # running node exporter for 5 seconds with debug log level. It will out put the metrics monitored
-        cmd = 'timeout 5  python3 ' + path + '../src/worker/exporters/node_exporter.py --log_level DEBUG'
+
+        metricData = [
+            'net_rx',
+            'net_tx',
+            'cpu_util',
+            'cpu_frequency',
+            'mem_available',
+            'mem_util'
+        ]
+
+        # Running node exporter for 5 seconds with debug log level. It will
+        # out put the metrics monitored
+        cmd = 'timeout 5  python3 ' + path + \
+              '../src/worker/exporters/node_exporter.py --log_level DEBUG'
         args = shlex.split(cmd)
         result = shell_process.shell_cmd(args, 20)
         for metric in metricData:
