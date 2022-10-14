@@ -199,14 +199,18 @@ def get_log_level(loglevel):
     return numeric_log_level
 
 def main(args):
-    logging.basicConfig(level=get_log_level(args.log_level))
+    # set up logging
+    logging.basicConfig(level=get_log_level(args.log_level),filename='/tmp/moneo-worker/moneoExporter.log',format='[%(asctime)s] net_exporter-%(levelname)s-%(message)s')
     jobId=None
-    init_config(jobId)
-    init_infiniband(args)
-    init_signal_handler()
+    try:
+        init_config(jobId)
+        init_infiniband(args)
+        init_signal_handler()
 
-    exporter = NetExporter()
-    exporter.loop()
+        exporter = NetExporter()
+        exporter.loop()
+    except Exception as e:
+            logging.error('Raised exception. Message: %s' ,e)
 
 
 if __name__ == '__main__':
@@ -221,4 +225,5 @@ if __name__ == '__main__':
     parser.add_argument("--inifiband_sysfs", default='/sys/class/infiniband', help='The sysfs path of infiniband')
 
     args = parser.parse_args()
+
     main(args)
