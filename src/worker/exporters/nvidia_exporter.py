@@ -50,7 +50,7 @@ DCGM_FIELDS = [
     # PCIe
     dcgm_fields.DCGM_FI_PROF_PCIE_TX_BYTES,
     dcgm_fields.DCGM_FI_PROF_PCIE_RX_BYTES,
-    #throttling and violations
+    # throttling and violations
     dcgm_fields.DCGM_FI_DEV_CLOCK_THROTTLE_REASONS,
     dcgm_fields.DCGM_FI_DEV_POWER_VIOLATION,
     dcgm_fields.DCGM_FI_DEV_THERMAL_VIOLATION,
@@ -139,6 +139,7 @@ class DcgmExporter(DcgmReader):
         self.InitConnection()
         self.InitGauges()
         signal.signal(signal.SIGUSR1, self.jobID_update_flag)
+        self.InitCounterConfig()
 
     def InitConnection(self):
         self.Reconnect()
@@ -170,7 +171,18 @@ class DcgmExporter(DcgmReader):
                 ],
             )
 
+    def InitCounterConfig(self):
+        global dcgm_config
+        fvs = self.m_dcgmGroup.samples.GetAllSinceLastCall(None, self.m_fieldGroup).values
+        for gpuId in fvs.keys():
+            dcgm_config['last_value'][gpuId] = {}
+            for fieldId in self.m_publishFields[self.m_updateFreq]:
+                if fieldId in self.m_dcgmIgnoreFields:
+                    continue
+                dcgm_config['last_value'][gpuId][fieldId] = None
+
     def CustomDataHandler(self, fvs):
+        global dcgm_config
         for gpuId in fvs.keys():
             gpuUuid = self.m_gpuIdToUUId[gpuId]
             gpuBusId = self.m_gpuIdToBusId[gpuId]
@@ -185,6 +197,7 @@ class DcgmExporter(DcgmReader):
                 if val.isBlank:
                     continue
 
+                dcgm_config['last_value'][gpuId][fieldId] = val.value
                 self.m_gauges[fieldId].labels(
                     gpuId,
                     gpuUniqueId,
@@ -206,6 +219,10 @@ class DcgmExporter(DcgmReader):
         '''Updates job id when job update flag has been set'''
         global job_update
         job_update = False
+        newJobID = None
+        # get new job id
+        with open('curr_jobID') as f:
+            newJobID = f.readline().strip()
         fvs = self.m_dcgmGroup.samples.GetAllSinceLastCall(None, self.m_fieldGroup).values
 
         # remove last set of label values
@@ -216,10 +233,21 @@ class DcgmExporter(DcgmReader):
             for fieldId in self.m_publishFields[self.m_updateFreq]:
                 if fieldId in self.m_dcgmIgnoreFields:
                     continue
+                # remove last set of label values
                 self.m_gauges[fieldId].remove(gpuId, gpuUniqueId, dcgm_config['jobId'])
+
+                val = fvs[gpuId][fieldId][-1]
+                if val.isBlank:
+                    val = dcgm_config['last_value'][gpuId][fieldId]
+                # update new gauge with new job id label
+                self.m_gauges[fieldId].labels(
+                    gpuId,
+                    gpuUniqueId,
+                    newJobID
+                ).set(val.value)
+
         # update job id
-        with open('curr_jobID') as f:
-            dcgm_config['jobId'] = f.readline().strip()
+        dcgm_config['jobId'] = newJobID
         logging.debug('Job ID updated to %s', dcgm_config['jobId'])
 
     def Loop(self):
@@ -231,7 +259,7 @@ class DcgmExporter(DcgmReader):
                     self.jobID_update()
                 self.Process()
                 time.sleep(0.1)
-                if dcgm_config['exit'] == True:
+                if dcgm_config['exit']:
                     logging.info('Received exit signal, shutting down ...')
                     break
         except KeyboardInterrupt:
@@ -247,6 +275,7 @@ def init_config():
         'prometheusPort': None,
         'prometheusPublishInterval': None,
         'publishFieldIds': None,
+        'last_value': {}
     }
 
 

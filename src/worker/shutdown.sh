@@ -3,9 +3,9 @@
 arch=$1
 
 kill_exporters() {
-    pkill -f "${1}_exporter.py*" && sleep 1
-	pkill -f "net_exporter.py*" && sleep 1
-	pkill -f "node_exporter.py*" && sleep 1
+    pkill -f "${1}_exporter.py*"
+	pkill -f "net_exporter.py*"
+	pkill -f "node_exporter.py*"
 }
 
 if [ $arch == "nvidia" ]; then

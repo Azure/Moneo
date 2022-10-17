@@ -22,14 +22,25 @@ import argparse
 from base_exporter import BaseExporter
 import subprocess
 import shlex
+import psutil
 
-FIELD_LIST = ['net_rx', 'net_tx']
+import prometheus_client
+
+FIELD_LIST = [
+    'net_rx',
+    'net_tx',
+    'cpu_util',  # use /proc/stat
+    'cpu_frequency',  # use /proc/cpuinfo
+    'mem_available',  # use /proc/meminfo
+    'mem_util'  # use /proc/meminfo
+]
 
 
 # feel free to copy and paste if os commands are needed
 def shell_cmd(args, timeout):
     """Helper Function for running subprocess"""
-    child = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    child = subprocess.Popen(args, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
     try:
         result, errs = child.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:
@@ -47,8 +58,28 @@ class NodeExporter(BaseExporter):
         '''initializes parent class'''
         super().__init__(node_fields, exp_config)
 
-    # example function of how to collect metrics from a command using the shell_cmd helper function
-    # the parent class will call this collect function to update the Prometheus gauges
+    def init_gauges(self):
+        '''Initialization of Prometheus parameters.
+           Override in Child Class if needed'''
+        self.gauges = {}
+        for field_name in self.node_fields:
+            if 'cpu' in field_name:
+                self.gauges[field_name] = prometheus_client.Gauge(
+                    'node_{}'.format(field_name),
+                    'node_{}'.format(field_name),
+                    ['job_id', 'cpu_id', 'numa_domain']
+                )
+            else:
+                self.gauges[field_name] = prometheus_client.Gauge(
+                    'node_{}'.format(field_name),
+                    'node_{}'.format(field_name),
+                    ['job_id']
+                    )
+        print(self.gauges)
+
+    # example function of how to collect metrics from a command using the
+    # shell_cmd helper function the parent class will call this collect
+    # function to update the Prometheus gauges
     def collect(self, field_name):
         '''Custom collection Method'''
         value = None
@@ -67,19 +98,83 @@ class NodeExporter(BaseExporter):
             delta = int(value) - int(self.config['counter'][field_name])
             self.config['counter'][field_name] = value
             value = delta / (self.config['update_freq'])  # bandwidth
+
+        elif 'cpu' in field_name:
+            value = {}
+            if 'util' in field_name:
+                # If using psutil, times % and util % do not need to be
+                # calculated using the counters
+
+                for id, util_percent in enumerate(psutil.cpu_percent(percpu=True)):
+                    value[str(id)] = util_percent
+
+            elif 'frequency' in field_name:
+                for id, freq in enumerate(psutil.cpu_freq(percpu=True)):
+                    value[str(id)] = freq.current
+
+        elif 'mem' in field_name:
+            metric = field_name.split('_')[-1]
+            virtual_mem = psutil.virtual_memory()
+
+            if metric == 'util':
+                value = getattr(virtual_mem, 'percent')
+            else:
+                # psutil returns virtual memory stats in bytes, convert to kB
+                value = getattr(virtual_mem, metric) / 1024
+
         else:
             value = 0
 
         return value
 
-    # This is called at the termination of the application. Can be used to close any open files.
+    def handle_field(self, field_name, value):
+        '''Update metric value for gauge'''
+        if 'cpu' in field_name:
+            logging.debug(f'Handeling field: {field_name}')
+            for id, k in enumerate(value.keys()):
+                numa_domain = str(id//config['numa_domain_size'])
+                logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
+                self.gauges[field_name].labels(
+                    job_id=self.config['job_id'],
+                    cpu_id=k,
+                    numa_domain=numa_domain
+                ).set(value[k])
+        else:
+            self.gauges[field_name].labels(
+                self.config['job_id'],
+            ).set(value)
+
+        logging.debug('Node exporter field %s: %s', field_name, str(value))
+
+    def jobID_update(self):
+        '''Updates job id when job update flag has been set'''
+        global job_update
+        job_update = False
+        # Remove last set of label values
+        for field_name in self.node_fields:
+            if 'cpu' in field_name:
+                for id in range(self.config['num_cores']):
+                    numa_domain = str(id//config['numa_domain_size'])
+                    self.gauges[field_name].remove(self.config['job_id'],
+                                                   str(id),
+                                                   numa_domain)
+            else:
+                self.gauges[field_name].remove(self.config['job_id'])
+        # Update job id
+        with open('curr_jobID') as f:
+            self.config['job_id'] = f.readline().strip()
+        logging.debug('Job ID updated to %s', self.config['job_id'])
+
+    # This is called at the termination of the application.
+    # Can be used to close any open files.
     def cleanup(self):
         '''Things that need to be called when signal to exit is given'''
         logging.info('Received exit signal, shutting down ...')
 
 
-# you will need to initialize your custom metric's file if we are exporting from a file
-# you may also want to initialize the config's counter member for the specific field
+# you will need to initialize your custom metric's file if we are exporting
+# from a file you may also want to initialize the config's counter member
+# for the specific field
 def init_config(job_id, port=None):
     '''Example of config initialization'''
     global config
@@ -94,6 +189,15 @@ def init_config(job_id, port=None):
         'fieldFiles': {},
         'counter': {}
     }
+
+    # get NUMA domain
+    config['num_cores'] = psutil.cpu_count() 
+    cmd = "lscpu"
+    args = shlex.split(cmd)
+    numa_domains = int(shell_cmd(args, 5).split("\n")[8].split()[-1])
+    domain_size = config['num_cores']//numa_domains
+    config['numa_domain_size'] = domain_size
+
     # initalize field specific config parameters
     for field_name in FIELD_LIST:
         if 'net' in field_name:
@@ -106,6 +210,11 @@ def init_config(job_id, port=None):
             elif field_name == 'net_tx':
                 config['counter'][field_name] = shell_cmd(args, 5).split()[9]
 
+        elif 'cpu' in field_name:
+            if 'util' in field_name:
+                # Call cpu_percent to get intial 0.0 values
+                _ = psutil.cpu_percent(percpu=True)
+
 
 # You can just copy paste this function. Used to handle signals
 def init_signal_handler():
@@ -116,7 +225,8 @@ def init_signal_handler():
     signal.signal(signal.SIGTERM, exit_handler)
 
 
-# You can just copy paste this function. This is used to parse the log-level argument
+# You can just copy paste this function. This is used to parse the log-level
+# argument
 def get_log_level(args):
     '''Log level helper'''
     levelStr = args.log_level.upper()
