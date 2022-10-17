@@ -17,8 +17,7 @@ class MoneoCLI:
         Deploys Moneo monitoring to hosts listed in the
         specified host ini file
         '''
-        dep_cmd = 'ansible-playbook -i ' + \
-            self.args.host_ini + ' src/ansible/deploy.yaml'
+        dep_cmd = 'ansible-playbook' + ' -f '+ str(args.fork_processes)  + ' -i ' + args.host_ini + ' src/ansible/deploy.yaml'
 
         if self.args.type == 'workers':
             dep_cmd = dep_cmd + ' -e "skip_master=true"'
@@ -41,8 +40,7 @@ class MoneoCLI:
                 "' shutdown of Moneo? (Y/n)\n")
 
             if confirm.upper() == 'Y':
-                dep_cmd = 'ansible-playbook -i ' + self.args.host_ini + \
-                    ' src/ansible/shutdown.yaml'
+                dep_cmd = 'ansible-playbook' + ' -f '+ str(args.fork_processes)  + ' -i ' + args.host_ini + ' src/ansible/shutdown.yaml'
                 if self.args.type == 'workers':
                     dep_cmd = dep_cmd + ' -e "skip_master=true"'
                 elif self.args.type == 'manager':
@@ -59,8 +57,7 @@ class MoneoCLI:
 
     def jobID_update(self):
         '''Updates job id for hosts listed in the specified host ini file'''
-        dep_cmd = 'ansible-playbook -i ' + self.args.host_ini + \
-            ' src/ansible/updateJobID.yaml -e job_Id=' + self.args.job_id
+        dep_cmd = 'ansible-playbook' + ' -f '+ str(args.fork_processes)  + ' -i '  + args.host_ini + ' src/ansible/updateJobID.yaml -e job_Id=' + args.job_id
         print('Job ID update to ' + self.args.job_id)
         os.system(dep_cmd)
 
@@ -137,6 +134,9 @@ if __name__ == '__main__':
         action='store_true',
         default=False,
         help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
+
+    parser.add_argument('-f', '--fork_processes', default=16, type=int, help='The number of processes used to deploy/shutdown/update Moneo. Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.')
+
     args = parser.parse_args()
 
     mCLI = MoneoCLI(args)

@@ -8,7 +8,7 @@ Moneo orchestrates metric collection (DCGMI + Prometheus DB) and visualization (
 <details>
 <summary>Metrics</summary>
 
-There three categories of metrics that Moneo monitors:
+There five categories of metrics that Moneo monitors:
 1.	GPU Counters
     - Compute/Memory Utilization
     - SM and Memory Clock frequency
@@ -24,13 +24,18 @@ There three categories of metrics that Moneo monitors:
 3.	InfiniBand Network Counters
     - IB TX/RX rate
     - IB Port errors
+4. CPU Counters
+    - Utilization
+    - Clock frequency
+5. Memory
+    - Utilization
 </details>
 
 <details>
 <summary>Grafana Dashboards</summary>
 
 1. Menu: List of available dashboards.
-![image](https://user-images.githubusercontent.com/70273488/186491552-34d545de-b60d-4cdd-aed4-702e2f34d974.png)
+![image](https://user-images.githubusercontent.com/107515145/195170743-0b4755b5-f97f-4a00-883f-0560400620f9.png)
 
    Note: When viewing GPU dashboards make sure to note whether you are using Nvidia or AMD GPU nodes and select the proper dashboard.
 
@@ -46,6 +51,10 @@ There three categories of metrics that Moneo monitors:
 
 5. InfiniBand Network Counters: Detailed view of node level IB network metrics.
 ![image](https://user-images.githubusercontent.com/70273488/173664809-bbfea8b4-91cb-42cd-aff8-a91fc9006120.png)
+
+6. Node View: Detailed view of node level CPU, Memory, and Network metrics.
+![image](https://user-images.githubusercontent.com/107515145/195173202-8812a46a-4334-4e52-87ba-3c3137711bdd.png)
+
 </details>
 
 Minimum Requirements
@@ -117,6 +126,7 @@ Which can be accessed as such:
 |-c, --host_ini    | path + file name    |Provide filepath and name of ansible config file. The default is host.ini in the Moneo directory.|
 |-j , --job_id | Job ID |Job ID for filtering metrics by job group. Host.ini file required. Cannot be specified during deployment and shutdown.|
 |-p, --profiler_metrics | None|Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.|
+|-f, --fork_processes | number of processes | The number of processes used to deploy/shutdown/update Moneo. Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.|
 | | {manager,workers,full} | Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full. |
 
 ### _Access the Portal_
