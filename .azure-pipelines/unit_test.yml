@@ -20,7 +20,7 @@ steps:
       versionSpec: '$(python.version)'
 
   - script: |
-      python3 -m pip install --upgrade flake8 prometheus-client opencensus opencensus-ext-azure
+      python3 -m pip install --upgrade flake8 prometheus-client psutil opencensus opencensus-ext-azure
     displayName: Install External Packages
   - script: |
       python3 -m flake8
