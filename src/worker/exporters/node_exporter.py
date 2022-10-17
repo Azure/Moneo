@@ -48,8 +48,8 @@ class NodeExporter(BaseExporter):
         super().__init__(node_fields, exp_config)
 
     # example function of how to collect metrics from a command using the shell_cmd helper function
-    # the parent class will call this collect function to update the Prometheus gauges 
-    def collect(self, field_name): 
+    # the parent class will call this collect function to update the Prometheus gauges
+    def collect(self, field_name):
         '''Custom collection Method'''
         value = None
         if field_name == self.node_fields[0]:
@@ -70,7 +70,7 @@ class NodeExporter(BaseExporter):
         else:
             value = 0
 
-        return value 
+        return value
 
     # This is called at the termination of the application. Can be used to close any open files.
     def cleanup(self):
@@ -151,15 +151,15 @@ def main():
     parser.add_argument("-p", "--port", type=int, default=None, help='Port to export metrics from')
     args = parser.parse_args()
     # set up logging
-    logging.basicConfig(level=get_log_level(args),filename='/tmp/moneo-worker/moneoExporter.log',format='[%(asctime)s] node_exporter-%(levelname)s-%(message)s')
-    jobId = None #set a default job id of None
+    logging.basicConfig(level=get_log_level(args), filename='/tmp/moneo-worker/moneoExporter.log', format='[%(asctime)s] node_exporter-%(levelname)s-%(message)s')
+    jobId = None  # set a default job id of None
     try:
         init_config(jobId, args.port)
         init_signal_handler()
         exporter = NodeExporter(FIELD_LIST, config)
         exporter.loop()
     except Exception as e:
-        logging.error('Raised exception. Message: %s' ,e)
+        logging.error('Raised exception. Message: %s', e)
 
 
 if __name__ == '__main__':

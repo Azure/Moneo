@@ -3,6 +3,7 @@
 
 import argparse
 import os
+import logging
 
 
 def deploy(args):
@@ -23,6 +24,7 @@ def deploy(args):
         ('true' if args.profiler_metrics else 'false') + '"'
 
     print('Deployment type: ' + args.type)
+    logging.info('Moneo starting, Deployment type: ' + args.type)
     os.system(dep_cmd)
 
 
@@ -40,10 +42,12 @@ def stop(args):
                 dep_cmd = dep_cmd + ' -e "skip_worker=true"'
             os.system(dep_cmd)
             print("Moneo is Shutting down \n")
+            logging.info('Moneo is Shutting down')
             return 0
 
         elif confirm.upper() == 'N':
             print("Canceling request to shutdown Moneo \n")
+            logging.info('Canceling request to shutdown Moneo')
             return 0
         else:
             print("Input not recognized\n")
@@ -54,6 +58,7 @@ def jobID_update(args):
     dep_cmd = 'ansible-playbook -i ' + args.host_ini + \
         ' src/ansible/updateJobID.yaml -e job_Id=' + args.job_id
     print('Job ID update to ' + args.job_id)
+    logging.info('Job ID update to ' + args.job_id + ". Hostfile: " + args.host_ini)
     os.system(dep_cmd)
 
 
@@ -97,25 +102,32 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--profiler_metrics', action='store_true', default=False, help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
     args = parser.parse_args()
 
-    #   Workflow selection
-    if (args.deploy and args.shutdown):
-        print("deploy and shutdown are exclusive arguments. Please only provide one.\n")
-        parser.print_help()
-        exit(1)
-    elif args.deploy:
-        check_deploy_shutdown(args, parser)
-        check_insights_config(args, parser)
-        deploy(args)
-    elif args.shutdown:
-        check_deploy_shutdown(args, parser)
-        stop(args)
-    elif args.job_id:
-        if (not os.path.isfile(args.host_ini)):
-            print(args.host_ini + " does not exist. Please provide a host file. i.e. host.ini.\n")
+    logging.basicConfig(level=logging.INFO, filename='./moneoCLI.log', format='[%(asctime)s] moneoCLI-%(levelname)s-%(message)s')
+
+    try:
+        #   Workflow selection
+        logging.info('Moneo CLI usage. Arguments: ' + ' '.join(f'{k}={v}' for k, v in vars(args).items()))
+        if (args.deploy and args.shutdown):
+            print("deploy and shutdown are exclusive arguments. Please only provide one.\n")
             parser.print_help()
             exit(1)
-        jobID_update(args)
-    else:
-        parser.print_help()
+        elif args.deploy:
+            check_deploy_shutdown(args, parser)
+            check_insights_config(args, parser)
+            deploy(args)
+        elif args.shutdown:
+            check_deploy_shutdown(args, parser)
+            stop(args)
+        elif args.job_id:
+            if (not os.path.isfile(args.host_ini)):
+                print(args.host_ini + " does not exist. Please provide a host file. i.e. host.ini.\n")
+                parser.print_help()
+                exit(1)
+            jobID_update(args)
+        else:
+            parser.print_help()
+
+    except Exception as e:
+        logging.error('Raised exception. Message: %s', e)
 
     exit(0)

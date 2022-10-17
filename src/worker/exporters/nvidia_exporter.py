@@ -6,7 +6,7 @@ import logging
 
 import prometheus_client
 sys.path.append('/usr/local/dcgm/bindings/python3')
-#sys.path.append('/usr/local/dcgm/bindings')
+# sys.path.append('/usr/local/dcgm/bindings')
 import dcgm_fields
 from DcgmReader import DcgmReader
 from common import dcgm_client_cli_parser
@@ -114,13 +114,14 @@ DCGM_FIELDS_DESCRIPTION = {
     'The rate of data transmitted over the PCIe bus, including both protocol headers and data payloads, in bytes per second',
     dcgm_fields.DCGM_FI_PROF_PCIE_RX_BYTES:
     'The rate of data received over the PCIe bus, including both protocol headers and data payloads, in bytes per second',
-    dcgm_fields.DCGM_FI_DEV_CLOCK_THROTTLE_REASONS: 
+    dcgm_fields.DCGM_FI_DEV_CLOCK_THROTTLE_REASONS:
     'Current clock throttle reasons (bitmask of DCGM_CLOCKS_THROTTLE_REASON_*)',
-    dcgm_fields.DCGM_FI_DEV_POWER_VIOLATION:     
+    dcgm_fields.DCGM_FI_DEV_POWER_VIOLATION:
     'Power Violation time in usec',
-    dcgm_fields.DCGM_FI_DEV_THERMAL_VIOLATION: 
+    dcgm_fields.DCGM_FI_DEV_THERMAL_VIOLATION:
     'Thermal Violation time in usec',
 }
+
 
 class DcgmExporter(DcgmReader):
     def __init__(self):
@@ -137,7 +138,7 @@ class DcgmExporter(DcgmReader):
         )
         self.InitConnection()
         self.InitGauges()
-        signal.signal(signal.SIGUSR1,self.jobID_update_flag)
+        signal.signal(signal.SIGUSR1, self.jobID_update_flag)
 
     def InitConnection(self):
         self.Reconnect()
@@ -195,19 +196,19 @@ class DcgmExporter(DcgmReader):
                               gpuUniqueId, self.m_fieldIdToInfo[fieldId].tag,
                               str(val.value))
             logging.debug(','.join(gpu_line))
-    
+
     def jobID_update_flag(self, signum, stack):
         '''Sets job update flag when user defined signal comes in'''
         global job_update
-        job_update=True
-            
+        job_update = True
+
     def jobID_update(self):
         '''Updates job id when job update flag has been set'''
         global job_update
-        job_update=False
+        job_update = False
         fvs = self.m_dcgmGroup.samples.GetAllSinceLastCall(None, self.m_fieldGroup).values
 
-        #remove last set of label values
+        # remove last set of label values
         for gpuId in fvs.keys():
             gpuUuid = self.m_gpuIdToUUId[gpuId]
             gpuBusId = self.m_gpuIdToBusId[gpuId]
@@ -215,21 +216,21 @@ class DcgmExporter(DcgmReader):
             for fieldId in self.m_publishFields[self.m_updateFreq]:
                 if fieldId in self.m_dcgmIgnoreFields:
                     continue
-                self.m_gauges[fieldId].remove(gpuId,gpuUniqueId,dcgm_config['jobId'])
-        #update job id
+                self.m_gauges[fieldId].remove(gpuId, gpuUniqueId, dcgm_config['jobId'])
+        # update job id
         with open('curr_jobID') as f:
             dcgm_config['jobId'] = f.readline().strip()
-        logging.debug('Job ID updated to %s',dcgm_config['jobId'])
+        logging.debug('Job ID updated to %s', dcgm_config['jobId'])
 
     def Loop(self):
         global job_update
-        job_update=False
+        job_update = False
         try:
             while True:
-                if(job_update):
-                    self.jobID_update()                
+                if (job_update):
+                    self.jobID_update()
                 self.Process()
-                time.sleep(0.1)                
+                time.sleep(0.1)
                 if dcgm_config['exit'] == True:
                     logging.info('Received exit signal, shutting down ...')
                     break
@@ -264,18 +265,18 @@ def parse_dcgm_cli():
         publish_port=8000,
         log_level='INFO',
     )
-    parser.add_argument('-m','--profiler_metrics',action='store_true', help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
-     
+    parser.add_argument('-m', '--profiler_metrics', action='store_true', help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
+
     args = dcgm_client_cli_parser.run_parser(parser)
-    #add profiling metrics if flag enabled
-    if(args.profiler_metrics) :
+    # add profiling metrics if flag enabled
+    if (args.profiler_metrics):
         args.field_ids.extend(DCGM_PROF_FIELDS)
     field_ids = dcgm_client_cli_parser.get_field_ids(args)
     numeric_log_level = dcgm_client_cli_parser.get_log_level(args)
-    filemode='w+'
+    filemode = 'w+'
     if not args.logfile:
         args.logfile = '/tmp/moneo-worker/moneoExporter.log'
-        filemode='a'
+        filemode = 'a'
     # Defaults to localhost, so we need to set it to None.
     if args.embedded:
         dcgm_config['dcgmHostName'] = None
@@ -304,7 +305,7 @@ def main():
         exporter.Loop()
         exporter.Shutdown()
     except Exception as e:
-            logging.error('Raised exception. Message: %s' ,e)
+        logging.error('Raised exception. Message: %s', e)
 
 
 if __name__ == '__main__':
