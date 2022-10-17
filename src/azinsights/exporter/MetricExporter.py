@@ -1,4 +1,3 @@
-
 class MetricExporter:
     '''Abstract class meant to receive metrics from a collector and send them elsewhere.'''
 
@@ -8,5 +7,3 @@ class MetricExporter:
     def export(self, data: dict):
         '''Exports metrics collected by a collector.'''
         raise NotImplementedError('Must implement this method')
-        
-    

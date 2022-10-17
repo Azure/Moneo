@@ -10,8 +10,8 @@ def deploy(args):
     Deploys Moneo monitoring to hosts listed in the
     specified host ini file
     '''
-    dep_cmd = 'ansible-playbook' + ' -f '+ str(args.fork_processes)  + ' -i ' + \
-        args.host_ini + ' src/ansible/deploy.yaml'
+    dep_cmd = 'ansible-playbook' + ' -f ' + str(args.fork_processes) + \
+        ' -i ' + args.host_ini + ' src/ansible/deploy.yaml'
 
     if args.type == 'workers':
         dep_cmd = dep_cmd + ' -e "skip_master=true"'
@@ -32,8 +32,8 @@ def stop(args):
         confirm = input("Are you sure you would like to perform a '" + args.type + "' shutdown of Moneo? (Y/n)\n")
 
         if confirm.upper() == 'Y':
-            dep_cmd = 'ansible-playbook' + ' -f '+ str(args.fork_processes)  + ' -i ' + args.host_ini + \
-                ' src/ansible/shutdown.yaml'
+            dep_cmd = 'ansible-playbook' + ' -f ' + str(args.fork_processes) + \
+                ' -i ' + args.host_ini + ' src/ansible/shutdown.yaml'
             if args.type == 'workers':
                 dep_cmd = dep_cmd + ' -e "skip_master=true"'
             elif args.type == 'manager':
@@ -51,7 +51,7 @@ def stop(args):
 
 def jobID_update(args):
     '''Updates job id for hosts listed in the specified host ini file'''
-    dep_cmd = 'ansible-playbook' + ' -f '+ str(args.fork_processes)  + ' -i '  + args.host_ini + \
+    dep_cmd = 'ansible-playbook' + ' -f ' + str(args.fork_processes) + ' -i ' + args.host_ini + \
         ' src/ansible/updateJobID.yaml -e job_Id=' + args.job_id
     print('Job ID update to ' + args.job_id)
     os.system(dep_cmd)
@@ -76,26 +76,70 @@ def check_deploy_shutdown(args, parser):
 
 def check_insights_config(args, parser):
     if (args.insights and not os.path.isfile('config.ini')):
-        print('The Application Insights configuration file (config.ini) does not exist. Please provide one to use this feature.')
+        print('The Application Insights configuration file (config.ini) does not exist.'
+              'Please provide one to use this feature.')
         parser.print_helper()
         exit(1)
 
 
 if __name__ == '__main__':
     #   parser options
-    parser = argparse.ArgumentParser(description='Moneo CLI Help Menu', prog='moneo.py', usage='%(prog)s [-d ] [-c HOST_INI] [{manager,workers,full}] \
+    parser = argparse.ArgumentParser(
+        description='Moneo CLI Help Menu',
+        prog='moneo.py',
+        usage='%(prog)s [-d ] [-c HOST_INI] [{manager,workers,full}] \
         \nusage: %(prog)s [-s ] [-c HOST_INI] [{manager,workers,full}] \
         \nusage: %(prog)s [-j JOB_ID ] [-c HOST_INI] \
         \ni.e. python3 moneo.py -d -c ./host.ini full')
 
-    parser.add_argument('-c', '--host_ini', default='./host.ini', help='Provide filepath and name of ansible config file. The default is host.ini in the Moneo directory.')
-    parser.add_argument('-j', '--job_id', type=str, help='Job ID for filtering metrics by job group. Host.ini file required. Cannot be specified during deployment and shutdown')
-    parser.add_argument('-d', '--deploy', action='store_true', help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
-    parser.add_argument('-s', '--shutdown', action='store_true', help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
-    parser.add_argument('-i', '--insights', action='store_true', help='Experimental feature: Enable exporting of metrics to Azure Insights. Requires a valid instrumentation key and base_url for the Prometheus DB in config.ini')
-    parser.add_argument('type', metavar='type', type=str, default='full', nargs="?", help='Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full.')
-    parser.add_argument('-p', '--profiler_metrics', action='store_true', default=False, help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
-    parser.add_argument('-f', '--fork_processes', default=16, type=int, help='The number of processes used to deploy/shutdown/update Moneo. Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.')
+    parser.add_argument(
+        '-c',
+        '--host_ini',
+        default='./host.ini',
+        help='Provide filepath and name of ansible config file.''The default is host.ini in the Moneo directory.')
+    parser.add_argument(
+        '-j',
+        '--job_id',
+        type=str,
+        help='Job ID for filtering metrics by job group. Host.ini file required.'
+             'Cannot be specified during deployment and shutdown')
+    parser.add_argument(
+        '-d',
+        '--deploy',
+        action='store_true',
+        help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
+    parser.add_argument(
+        '-s',
+        '--shutdown',
+        action='store_true',
+        help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
+    parser.add_argument(
+        '-i',
+        '--insights',
+        action='store_true',
+        help='Experimental feature: Enable exporting of metrics to Azure Insights.'
+             'Requires a valid instrumentation key and base_url for the Prometheus DB in config.ini')
+    parser.add_argument(
+        'type',
+        metavar='type',
+        type=str,
+        default='full',
+        nargs="?",
+        help='Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full.')
+    parser.add_argument(
+        '-p',
+        '--profiler_metrics',
+        action='store_true',
+        default=False,
+        help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity).'
+             'Addition of profile metrics encurs additional overhead on computer nodes.')
+    parser.add_argument(
+        '-f',
+        '--fork_processes',
+        default=16,
+        type=int,
+        help='The number of processes used to deploy/shutdown/update Moneo.'
+             'Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.')
     args = parser.parse_args()
 
     #   Workflow selection

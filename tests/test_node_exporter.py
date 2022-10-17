@@ -1,14 +1,12 @@
 import unittest
 import shlex
-from helper import shell_process
 import os
 import sys
 
 p = os.path.abspath('../src/worker/exporters')
 sys.path.insert(1, p)
-
+from helper import shell_process
 from base_exporter import BaseExporter
-
 
 """Moneo Node Exporter test"""
 
