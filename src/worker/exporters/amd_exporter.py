@@ -7,16 +7,15 @@ import logging
 
 import prometheus_client
 
-from rsmiBindings import rocmsmi, rsmi_status_t
-from RdcReader import RdcReader
-from rdc_bootstrap import *  # noqa: F403
-
 sys.path.extend([
     '/opt/rocm/libexec/rocm_smi',   # ROCm >=5.2
     '/opt/rocm/rocm_smi/bindings',  # ROCm <5.2
     '/opt/rocm/rdc/python_binding',
 ])
 
+from rsmiBindings import rocmsmi, rsmi_status_t
+from RdcReader import RdcReader
+from rdc_bootstrap import *  # noqa: F403
 
 RDC_FIELDS = [
     # PID
