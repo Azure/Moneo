@@ -32,7 +32,8 @@ FIELD_LIST = [
     'cpu_util',  # use /proc/stat
     'cpu_frequency',  # use /proc/cpuinfo
     'mem_available',  # use /proc/meminfo
-    'mem_util'  # use /proc/meminfo
+    'mem_util',  # use /proc/meminfo
+    'xid_error'
 ]
 
 
@@ -75,7 +76,6 @@ class NodeExporter(BaseExporter):
                     'node_{}'.format(field_name),
                     ['job_id']
                     )
-        print(self.gauges)
 
     # example function of how to collect metrics from a command using the
     # shell_cmd helper function the parent class will call this collect
@@ -121,7 +121,14 @@ class NodeExporter(BaseExporter):
             else:
                 # psutil returns virtual memory stats in bytes, convert to kB
                 value = getattr(virtual_mem, metric) / 1024
-
+        elif 'xid' in field_name:
+            cmd = "grep 'NVRM: Xid' /var/log/syslog"
+            args = shlex.split(cmd)
+            xid_check = shell_cmd(args, 5)
+            if xid_check:
+                value = True
+            else:
+                value= False
         else:
             value = 0
 

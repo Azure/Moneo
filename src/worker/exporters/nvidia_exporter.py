@@ -54,6 +54,8 @@ DCGM_FIELDS = [
     dcgm_fields.DCGM_FI_DEV_CLOCK_THROTTLE_REASONS,
     dcgm_fields.DCGM_FI_DEV_POWER_VIOLATION,
     dcgm_fields.DCGM_FI_DEV_THERMAL_VIOLATION,
+    # xid
+    #dcgm_fields.DCGM_FI_DEV_XID_ERRORS
 ]
 
 DCGM_FIELDS_DESCRIPTION = {
@@ -120,6 +122,8 @@ DCGM_FIELDS_DESCRIPTION = {
     'Power Violation time in usec',
     dcgm_fields.DCGM_FI_DEV_THERMAL_VIOLATION:
     'Thermal Violation time in usec',
+   #dcgm_fields.DCGM_FI_DEV_XID_ERRORS:
+    #'XID errors. The value is the specific XID error',
 }
 
 
