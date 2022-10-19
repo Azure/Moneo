@@ -1,6 +1,5 @@
 from multiprocessing import shared_memory
 from multiprocessing import resource_tracker
-import sys
 
 """Moneo Shared Memory Helper"""
 

@@ -69,9 +69,7 @@ def check_deploy_shutdown(args, parser):
     deploy and shutdwon
     '''
     if (not os.path.isfile(args.host_ini)):
-        print(
-            args.host_ini +
-            " does not exist. Please provide a host file. i.e. host.ini.\n")
+        print(args.host_ini + " does not exist. Please provide a host file. i.e. host.ini.\n")
         parser.print_help()
         exit(1)
     if args.job_id:
@@ -170,9 +168,7 @@ if __name__ == '__main__':
         mCLI.stop()
     elif args.job_id:
         if (not os.path.isfile(args.host_ini)):
-            print(
-                args.host_ini +
-                " does not exist. Please provide a host file. i.e. host.ini.\n")
+            print(args.host_ini + " does not exist. Please provide a host file. i.e. host.ini.\n")
             parser.print_help()
             exit(1)
         mCLI.jobID_update()
