@@ -6,10 +6,11 @@ import logging
 
 import prometheus_client
 
+sys.path.append('/usr/local/dcgm/bindings/python3')
 import dcgm_fields
 from DcgmReader import DcgmReader
 from common import dcgm_client_cli_parser
-sys.path.append('/usr/local/dcgm/bindings/python3')
+
 # sys.path.append('/usr/local/dcgm/bindings')
 
 
