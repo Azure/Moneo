@@ -48,6 +48,8 @@ class BaseExporter:
         '''Perform metric collection'''
         for field_name in self.node_fields:
             value = self.collect(field_name)
+            if not value:
+                continue
             self.handle_field(field_name, value)
 
     def handle_field(self, field_name, value):

@@ -23,7 +23,7 @@ from base_exporter import BaseExporter
 import subprocess
 import shlex
 import psutil
-
+import re
 import prometheus_client
 
 FIELD_LIST = [
@@ -69,6 +69,12 @@ class NodeExporter(BaseExporter):
                     'node_{}'.format(field_name),
                     'node_{}'.format(field_name),
                     ['job_id', 'cpu_id', 'numa_domain']
+                )
+            elif 'xid' in field_name:
+                self.gauges[field_name] = prometheus_client.Gauge(
+                    'node_{}'.format(field_name),
+                    'node_{}'.format(field_name),
+                    ['job_id', 'pci_id']
                 )
             else:
                 self.gauges[field_name] = prometheus_client.Gauge(
@@ -122,13 +128,19 @@ class NodeExporter(BaseExporter):
                 # psutil returns virtual memory stats in bytes, convert to kB
                 value = getattr(virtual_mem, metric) / 1024
         elif 'xid' in field_name:
+            value = {}
             cmd = "grep 'NVRM: Xid' /var/log/syslog"
             args = shlex.split(cmd)
             xid_check = shell_cmd(args, 5)
             if xid_check:
-                value = True
+                result = [line for line in xid_check.split('\n') if line.strip() != '']
+                result = re.search(r"\(.+\):\s\d\d", result[-1]).group()
+                #print (result)
+                results=result.split()
+                pci =results[0].replace('(','').replace('):','')
+                value [pci] = int(results[1])
             else:
-                value= False
+                value = None
         else:
             value = 0
 
@@ -146,6 +158,14 @@ class NodeExporter(BaseExporter):
                     cpu_id=k,
                     numa_domain=numa_domain
                 ).set(value[k])
+        elif 'xid' in field_name:
+
+            for pci_id in value.keys():
+                logging.debug(f'Handeling key: {pci_id}. Setting value: {value[pci_id]}')
+                self.gauges[field_name].labels(
+                    job_id=self.config['job_id'],
+                    pci_id=pci_id
+                ).set(value[pci_id])
         else:
             self.gauges[field_name].labels(
                 self.config['job_id'],
