@@ -16,6 +16,7 @@
 ######################################################
 
 import sys
+import os
 import signal
 import logging
 import argparse
@@ -32,10 +33,10 @@ FIELD_LIST = [
     'cpu_util',  # use /proc/stat
     'cpu_frequency',  # use /proc/cpuinfo
     'mem_available',  # use /proc/meminfo
-    'mem_util',  # use /proc/meminfo
-    'xid_error'
+    'mem_util'  # use /proc/meminfo
 ]
 
+GPU_Mapping={}
 
 # feel free to copy and paste if os commands are needed
 def shell_cmd(args, timeout):
@@ -74,7 +75,7 @@ class NodeExporter(BaseExporter):
                 self.gauges[field_name] = prometheus_client.Gauge(
                     'node_{}'.format(field_name),
                     'node_{}'.format(field_name),
-                    ['job_id', 'pci_id']
+                    ['job_id', 'pci_id','gpu_id','time_stamp']
                 )
             else:
                 self.gauges[field_name] = prometheus_client.Gauge(
@@ -134,11 +135,12 @@ class NodeExporter(BaseExporter):
             xid_check = shell_cmd(args, 5)
             if xid_check:
                 result = [line for line in xid_check.split('\n') if line.strip() != '']
-                result = re.search(r"\(.+\):\s\d\d", result[-1]).group()
-                #print (result)
-                results=result.split()
-                pci =results[0].replace('(','').replace('):','')
-                value [pci] = int(results[1])
+                for line in result:
+                    result = re.search(r"\(.+\):\s\d\d", line).group()
+                    results=result.split()
+                    pci =results[0].replace('(PCI:','').replace('):','')[-10:]
+                    timestamp=re.search(r"\w\w\w\s\d\d\s\d\d:\d\d:\d\d",line).group()
+                    value [pci] = { timestamp:int(results[1])}
             else:
                 value = None
         else:
@@ -159,13 +161,19 @@ class NodeExporter(BaseExporter):
                     numa_domain=numa_domain
                 ).set(value[k])
         elif 'xid' in field_name:
-
             for pci_id in value.keys():
-                logging.debug(f'Handeling key: {pci_id}. Setting value: {value[pci_id]}')
-                self.gauges[field_name].labels(
-                    job_id=self.config['job_id'],
-                    pci_id=pci_id
-                ).set(value[pci_id])
+                for time_stamp in value[pci_id].keys():
+                    logging.debug(f'Handeling key: {pci_id}. Setting value: {value[pci_id]}')
+                    if self.config['counter'][pci_id].has_key(time_stamp): #skip this time stamp is already recorded
+                        continue
+                    else: # timestamp does not exist
+                        self.gauges[field_name].labels(
+                            job_id=self.config['job_id'],
+                            pci_id=pci_id,
+                            gpu_id=GPU_Mapping[pci_id],
+                            time_stamp=time_stamp
+                        ).set(value[pci_id][time_stamp]) 
+                        config['counter'][pci_id][time_stamp]=value[pci_id][time_stamp]
         else:
             self.gauges[field_name].labels(
                 self.config['job_id'],
@@ -185,6 +193,10 @@ class NodeExporter(BaseExporter):
                     self.gauges[field_name].remove(self.config['job_id'],
                                                    str(id),
                                                    numa_domain)
+            if 'xid' in field_name:
+                    for pci_id in self.config['counter'][field_name].keys():
+                        for time_stamp in self.config['counter'][pci_id].keys():
+                            self.gauges[field_name].remove(self.config['job_id'],pci_id,GPU_Mapping[pci_id],time_stamp) # remove old
             else:
                 self.gauges[field_name].remove(self.config['job_id'])
         # Update job id
@@ -214,7 +226,7 @@ def init_config(job_id, port=None):
         'publish_interval': 1,
         'job_id': job_id,
         'fieldFiles': {},
-        'counter': {}
+        'counter': {},
     }
 
     # get NUMA domain
@@ -273,6 +285,25 @@ def get_log_level(args):
         sys.exit(2)
     return numeric_log_level
 
+def init_nvidia_config():
+   # check if nvidiaVM
+    nvArch=os.path.exists ('/dev/nvidiactl')
+    if nvArch:
+        global config
+        global GPU_Mapping
+        global FIELD_LIST
+        FIELD_LIST.append('xid_error')
+        cmd = 'nvidia-smi -L'
+        args = shlex.split(cmd)
+        result = shell_cmd(args, 5)
+        gpuCount=len(result.split('\nGPU'))
+        for gpu in range(gpuCount):
+            cmd ='nvidia-smi -q -g ' + str(gpu) + ' -d ACCOUNTING'
+            args = shlex.split(cmd)
+            result = shell_cmd(args, 5)
+            pci = re.search(r"\w+:\w\w:\w\w\.", result).group().lower()
+            GPU_Mapping[pci.replace('.','')[-10:]] = str(gpu)  # pci mapping
+            config['counter']={pci:{}}
 
 # Copy paste this function, modify if needed
 def main():
@@ -292,10 +323,11 @@ def main():
     jobId = None  # set a default job id of None
     init_config(jobId, args.port)
     init_signal_handler()
-
+    init_nvidia_config()
+        
+    print(GPU_Mapping)
     exporter = NodeExporter(FIELD_LIST, config)
     exporter.loop()
-
 
 if __name__ == '__main__':
     main()
