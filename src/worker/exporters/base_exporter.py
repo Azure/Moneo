@@ -66,8 +66,6 @@ class BaseExporter:
 
     def jobID_update(self):
         '''Updates job id when job update flag has been set'''
-        global job_update
-        job_update=False
         # remove last set of label values        
         for field_name in self.node_fields:
             self.gauges[field_name].remove(self.config['job_id'])                          
@@ -85,11 +83,12 @@ class BaseExporter:
     def loop(self):
         '''Main work loop which should be called in main'''
         global job_update
-        job_update=False
+        job_update = False
         try:
             while True:
                 if(job_update):
                     self.jobID_update()
+                    job_update = False
                 self.process()
                 time.sleep(self.config['update_freq'])
                 if self.config['exit'] == True:
