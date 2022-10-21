@@ -148,8 +148,6 @@ class NodeExporter(BaseExporter):
 
     def jobID_update(self):
         '''Updates job id when job update flag has been set'''
-        global job_update
-        job_update = False
         # Remove last set of label values
         for field_name in self.node_fields:
             if 'cpu' in field_name:
