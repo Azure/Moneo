@@ -25,7 +25,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "iteration": 1666296975522,
+  "iteration": 1666381055863,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -820,35 +820,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "custom": {
-            "axisLabel": "",
-            "axisPlacement": "left",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "align": "auto",
+            "displayMode": "auto",
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -872,19 +849,17 @@
       },
       "id": 29,
       "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull"
+        "footer": {
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
           ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
+          "show": false
         },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
+        "showHeader": true
       },
+      "pluginVersion": "9.0.2",
       "targets": [
         {
           "datasource": {
@@ -892,14 +867,71 @@
             "uid": "P6FAF8666AEFFE3AA"
           },
           "editorMode": "code",
-          "expr": "max by(instance) (node_xid_error{job_id=~\"$job_id\"})",
-          "legendFormat": "__auto",
+          "expr": "node_xid_error{job_id=~\"$job_id\"}",
+          "format": "table",
+          "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
         }
       ],
       "title": "XID Code Present",
-      "type": "timeseries"
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "gpu_id",
+                "Value",
+                "time_stamp",
+                "instance"
+              ]
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "Value": 4,
+              "gpu_id": 2,
+              "instance": 0,
+              "pci_id": 3,
+              "time_stamp": 1
+            },
+            "renameByName": {}
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Value": {
+                "aggregations": [
+                  "last"
+                ],
+                "operation": "aggregate"
+              },
+              "gpu_id": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "instance": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "time_stamp": {
+                "aggregations": [
+                  "last"
+                ],
+                "operation": "aggregate"
+              }
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "collapsed": false,

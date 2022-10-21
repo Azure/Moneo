@@ -36,9 +36,11 @@ FIELD_LIST = [
     'mem_util'  # use /proc/meminfo
 ]
 
-GPU_Mapping={}
+GPU_Mapping = {}
 
 # feel free to copy and paste if os commands are needed
+
+
 def shell_cmd(args, timeout):
     """Helper Function for running subprocess"""
     child = subprocess.Popen(args, stdout=subprocess.PIPE,
@@ -75,14 +77,14 @@ class NodeExporter(BaseExporter):
                 self.gauges[field_name] = prometheus_client.Gauge(
                     'node_{}'.format(field_name),
                     'node_{}'.format(field_name),
-                    ['job_id', 'pci_id','gpu_id','time_stamp']
+                    ['job_id', 'pci_id', 'gpu_id', 'time_stamp']
                 )
             else:
                 self.gauges[field_name] = prometheus_client.Gauge(
                     'node_{}'.format(field_name),
                     'node_{}'.format(field_name),
                     ['job_id']
-                    )
+                )
 
     # example function of how to collect metrics from a command using the
     # shell_cmd helper function the parent class will call this collect
@@ -93,7 +95,8 @@ class NodeExporter(BaseExporter):
         if field_name == self.node_fields[0]:
             cmd = "grep 'eth0' " + self.config['fieldFiles'][field_name]
             args = shlex.split(cmd)
-            value = shell_cmd(args, 5).split()[1]  # 1 is the column for recv bytes
+            # 1 is the column for recv bytes
+            value = shell_cmd(args, 5).split()[1]
             delta = int(value) - int(self.config['counter'][field_name])
             self.config['counter'][field_name] = value
             value = delta / (self.config['update_freq'])  # bandwidth
@@ -101,7 +104,8 @@ class NodeExporter(BaseExporter):
         elif field_name == self.node_fields[1]:
             cmd = "grep 'eth0' " + self.config['fieldFiles'][field_name]
             args = shlex.split(cmd)
-            value = shell_cmd(args, 5).split()[9]  # 9 is the column for tx bytes
+            # 9 is the column for tx bytes
+            value = shell_cmd(args, 5).split()[9]
             delta = int(value) - int(self.config['counter'][field_name])
             self.config['counter'][field_name] = value
             value = delta / (self.config['update_freq'])  # bandwidth
@@ -112,7 +116,8 @@ class NodeExporter(BaseExporter):
                 # If using psutil, times % and util % do not need to be
                 # calculated using the counters
 
-                for id, util_percent in enumerate(psutil.cpu_percent(percpu=True)):
+                for id, util_percent in enumerate(
+                        psutil.cpu_percent(percpu=True)):
                     value[str(id)] = util_percent
 
             elif 'frequency' in field_name:
@@ -134,13 +139,16 @@ class NodeExporter(BaseExporter):
             args = shlex.split(cmd)
             xid_check = shell_cmd(args, 5)
             if xid_check:
-                result = [line for line in xid_check.split('\n') if line.strip() != '']
+                result = [line for line in xid_check.split(
+                    '\n') if line.strip() != '']
                 for line in result:
                     result = re.search(r"\(.+\):\s\d\d", line).group()
-                    results=result.split()
-                    pci =results[0].replace('(PCI:','').replace('):','')[-10:]
-                    timestamp=re.search(r"\w\w\w\s\d\d\s\d\d:\d\d:\d\d",line).group()
-                    value [pci] = { timestamp:int(results[1])}
+                    results = result.split()
+                    pci = results[0].replace(
+                        '(PCI:', '').replace('):', '')[-10:]
+                    timestamp = re.search(
+                        r"\w\w\w\s\d\d\s\d\d:\d\d:\d\d", line).group()
+                    value[pci] = {timestamp: int(results[1])}
             else:
                 value = None
         else:
@@ -153,7 +161,7 @@ class NodeExporter(BaseExporter):
         if 'cpu' in field_name:
             logging.debug(f'Handeling field: {field_name}')
             for id, k in enumerate(value.keys()):
-                numa_domain = str(id//config['numa_domain_size'])
+                numa_domain = str(id // config['numa_domain_size'])
                 logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
                 self.gauges[field_name].labels(
                     job_id=self.config['job_id'],
@@ -163,17 +171,21 @@ class NodeExporter(BaseExporter):
         elif 'xid' in field_name:
             for pci_id in value.keys():
                 for time_stamp in value[pci_id].keys():
-                    logging.debug(f'Handeling key: {pci_id}. Setting value: {value[pci_id]}')
-                    if self.config['counter'][pci_id].has_key(time_stamp): #skip this time stamp is already recorded
+                    logging.debug(
+                        f'Handeling key: {pci_id}. Setting value: {value[pci_id]}')
+                    # skip this time stamp is already recorded
+                    if time_stamp in self.config['counter'][field_name][pci_id]:
                         continue
-                    else: # timestamp does not exist
+                    else:  # timestamp does not exist
+                        # remove old timestamp
+                        self.config['counter'][field_name][pci_id].clear()
                         self.gauges[field_name].labels(
                             job_id=self.config['job_id'],
                             pci_id=pci_id,
                             gpu_id=GPU_Mapping[pci_id],
                             time_stamp=time_stamp
-                        ).set(value[pci_id][time_stamp]) 
-                        config['counter'][pci_id][time_stamp]=value[pci_id][time_stamp]
+                        ).set(value[pci_id][time_stamp])
+                        config['counter'][field_name][pci_id][time_stamp] = value[pci_id][time_stamp]
         else:
             self.gauges[field_name].labels(
                 self.config['job_id'],
@@ -183,20 +195,22 @@ class NodeExporter(BaseExporter):
 
     def jobID_update(self):
         '''Updates job id when job update flag has been set'''
-        global job_update
-        job_update = False
         # Remove last set of label values
         for field_name in self.node_fields:
             if 'cpu' in field_name:
                 for id in range(self.config['num_cores']):
-                    numa_domain = str(id//config['numa_domain_size'])
+                    numa_domain = str(id // config['numa_domain_size'])
                     self.gauges[field_name].remove(self.config['job_id'],
                                                    str(id),
                                                    numa_domain)
-            if 'xid' in field_name:
-                    for pci_id in self.config['counter'][field_name].keys():
-                        for time_stamp in self.config['counter'][pci_id].keys():
-                            self.gauges[field_name].remove(self.config['job_id'],pci_id,GPU_Mapping[pci_id],time_stamp) # remove old
+            elif 'xid' in field_name:
+                for pci_id in self.config['counter'][field_name].keys():
+                    for time_stamp in self.config['counter'][field_name][pci_id].keys(
+                    ):
+                        self.gauges[field_name].remove(
+                            self.config['job_id'], pci_id, GPU_Mapping[pci_id], time_stamp)  # remove old
+                    # remove old time stamp
+                    self.config['counter'][field_name][pci_id].clear()
             else:
                 self.gauges[field_name].remove(self.config['job_id'])
         # Update job id
@@ -230,18 +244,19 @@ def init_config(job_id, port=None):
     }
 
     # get NUMA domain
-    config['num_cores'] = psutil.cpu_count() 
+    config['num_cores'] = psutil.cpu_count()
     cmd = "lscpu"
     args = shlex.split(cmd)
     numa_domains = int(shell_cmd(args, 5).split("\n")[8].split()[-1])
-    domain_size = config['num_cores']//numa_domains
+    domain_size = config['num_cores'] // numa_domains
     config['numa_domain_size'] = domain_size
 
     # initalize field specific config parameters
     for field_name in FIELD_LIST:
         if 'net' in field_name:
             config['fieldFiles'][field_name] = '/proc/net/dev'
-            # initialize counter, this will ensure a initial value is present to calculate bandwidth
+            # initialize counter, this will ensure a initial value is present
+            # to calculate bandwidth
             cmd = "grep 'eth0' " + config['fieldFiles'][field_name]
             args = shlex.split(cmd)
             if field_name == 'net_rx':
@@ -280,32 +295,41 @@ def get_log_level(args):
     elif levelStr == '4' or levelStr == 'DEBUG':
         numeric_log_level = logging.DEBUG
     else:
-        print("Could not understand the specified --log-level '%s'" % (args.loglevel))
+        print(
+            "Could not understand the specified --log-level '%s'" %
+            (args.loglevel))
         args.print_help()
         sys.exit(2)
     return numeric_log_level
 
+
 def init_nvidia_config():
-   # check if nvidiaVM
-    nvArch=os.path.exists ('/dev/nvidiactl')
+    # check if nvidiaVM
+    nvArch = os.path.exists('/dev/nvidiactl')
     if nvArch:
         global config
         global GPU_Mapping
         global FIELD_LIST
         FIELD_LIST.append('xid_error')
+        config['counter']['xid_error'] = {}
         cmd = 'nvidia-smi -L'
         args = shlex.split(cmd)
         result = shell_cmd(args, 5)
-        gpuCount=len(result.split('\nGPU'))
+        gpuCount = len(result.split('\nGPU'))
         for gpu in range(gpuCount):
-            cmd ='nvidia-smi -q -g ' + str(gpu) + ' -d ACCOUNTING'
+            cmd = 'nvidia-smi -q -g ' + str(gpu) + ' -d ACCOUNTING'
             args = shlex.split(cmd)
             result = shell_cmd(args, 5)
             pci = re.search(r"\w+:\w\w:\w\w\.", result).group().lower()
-            GPU_Mapping[pci.replace('.','')[-10:]] = str(gpu)  # pci mapping
-            config['counter']={pci:{}}
+            pci = pci.replace('.', '')[-10:]
+            GPU_Mapping[pci] = str(gpu)  # pci mapping
+            config['counter']['xid_error'][pci] = {}
+        print(config['counter']['xid_error'])
+        print(GPU_Mapping)
 
 # Copy paste this function, modify if needed
+
+
 def main():
     '''main function'''
     parser = argparse.ArgumentParser()
@@ -316,7 +340,12 @@ def main():
                         INFO (3) - Log informational messages about program \
                         execution in addition to warnings and errors DEBUG (4) \
                         - Log debugging information in addition to all')
-    parser.add_argument("-p", "--port", type=int, default=None, help='Port to export metrics from')
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        default=None,
+        help='Port to export metrics from')
     args = parser.parse_args()
 
     logging.basicConfig(level=get_log_level(args))
@@ -324,10 +353,9 @@ def main():
     init_config(jobId, args.port)
     init_signal_handler()
     init_nvidia_config()
-        
-    print(GPU_Mapping)
     exporter = NodeExporter(FIELD_LIST, config)
     exporter.loop()
+
 
 if __name__ == '__main__':
     main()
