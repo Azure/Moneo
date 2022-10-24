@@ -37,7 +37,7 @@ FIELD_LIST = [
 ]
 
 GPU_Mapping = {}
-
+IB_Mapping = {}
 # feel free to copy and paste if os commands are needed
 
 
@@ -79,6 +79,11 @@ class NodeExporter(BaseExporter):
                     'node_{}'.format(field_name),
                     ['job_id', 'pci_id', 'gpu_id', 'time_stamp']
                 )
+            elif 'link_flap' in field_name:
+                self.gauges[field_name] = prometheus_client.Gauge(
+                    'node_{}'.format(field_name),
+                    'node_{}'.format(field_name), 
+                ['job_id', 'ib_port', 'time_stamp'] )    
             else:
                 self.gauges[field_name] = prometheus_client.Gauge(
                     'node_{}'.format(field_name),
@@ -135,22 +140,46 @@ class NodeExporter(BaseExporter):
                 value = getattr(virtual_mem, metric) / 1024
         elif 'xid' in field_name:
             value = {}
-            cmd = "grep 'NVRM: Xid' /var/log/syslog"
+            cmd = "grep 'NVRM: Xid' " + config['fieldFiles'][field_name]
             args = shlex.split(cmd)
             xid_check = shell_cmd(args, 5)
             if xid_check:
-                result = [line for line in xid_check.split(
-                    '\n') if line.strip() != '']
-                for line in result:
-                    result = re.search(r"\(.+\):\s\d\d", line).group()
-                    results = result.split()
-                    pci = results[0].replace(
-                        '(PCI:', '').replace('):', '')[-10:]
-                    timestamp = re.search(
-                        r"\w\w\w\s\d\d\s\d\d:\d\d:\d\d", line).group()
-                    value[pci] = {timestamp: int(results[1])}
+                try:
+                    result = [line for line in xid_check.split(
+                        '\n') if line.strip() != '']
+                    for line in result:
+                        reg = re.search(r"\(.+\):\s\d\d", line).group()
+                        results = reg.split()
+                        pci = results[0].replace(
+                            '(PCI:', '').replace('):', '')[-10:]
+                        timestamp = re.search(
+                            r"\w\w\w\s\d\d\s\d\d:\d\d:\d\d", line).group()
+                        value[pci] = {timestamp: int(results[1])}
+                except Exception as e:
+                    return None
             else:
                 value = None
+        elif "link_flap" in  field_name:
+            value = {}
+            cmd = "grep 'Lost carrier' " + config['fieldFiles'][field_name]
+            args = shlex.split(cmd)
+            flap_check = shell_cmd(args, 5)
+            if flap_check:
+                try:
+                    result = [line for line in flap_check.split(
+                            '\n') if line.strip() != '']
+                    for line in result:
+                        reg = re.search(r"\bib\d:", line)
+                        if not reg:
+                            continue
+                        reg= reg.group().replace(':','')
+                        timestamp = re.search(
+                            r"\w\w\w\s+\d\d\s\d\d:\d\d:\d\d", line).group()
+                        value[reg] = {timestamp: 1}
+                except Exception as e:
+                    return None
+            else:
+                value = None 
         else:
             value = 0
 
@@ -186,6 +215,19 @@ class NodeExporter(BaseExporter):
                             time_stamp=time_stamp
                         ).set(value[pci_id][time_stamp])
                         config['counter'][field_name][pci_id][time_stamp] = value[pci_id][time_stamp]
+        elif "link_flap" in  field_name:
+            for hca in value.keys():
+                for time_stamp in value[hca].keys():
+                    if time_stamp in self.config['counter'][field_name][hca]:
+                        continue
+                    else:  # timestamp does not exist
+                        self.config['counter'][field_name][hca].clear()
+                        self.gauges[field_name].labels(
+                            job_id=self.config['job_id'],
+                            ib_port=IB_Mapping[hca],
+                            time_stamp=time_stamp
+                        ).set(value[hca][time_stamp]) 
+                        config['counter'][field_name][hca][time_stamp] = value[hca][time_stamp]      
         else:
             self.gauges[field_name].labels(
                 self.config['job_id'],
@@ -211,6 +253,14 @@ class NodeExporter(BaseExporter):
                             self.config['job_id'], pci_id, GPU_Mapping[pci_id], time_stamp)  # remove old
                     # remove old time stamp
                     self.config['counter'][field_name][pci_id].clear()
+            elif 'link_flap' in field_name:
+                for hca in self.config['counter'][field_name].keys():
+                    for time_stamp in self.config['counter'][field_name][hca].keys(
+                    ):
+                        self.gauges[field_name].remove(
+                            self.config['job_id'], IB_Mapping[hca], time_stamp)  # remove old
+                    # remove old time stamp
+                    self.config['counter'][field_name][hca].clear()
             else:
                 self.gauges[field_name].remove(self.config['job_id'])
         # Update job id
@@ -303,33 +353,52 @@ def get_log_level(args):
     return numeric_log_level
 
 
-def init_nvidia_config():
+def init_nvidia_ib_config():
+    global config
+    global GPU_Mapping
+    global IB_Mapping
+    global FIELD_LIST
     # check if nvidiaVM
     nvArch = os.path.exists('/dev/nvidiactl')
     if nvArch:
-        global config
-        global GPU_Mapping
-        global FIELD_LIST
-        FIELD_LIST.append('xid_error')
+        config['fieldFiles']['xid_error'] = '/var/log/syslog'      
         config['counter']['xid_error'] = {}
         cmd = 'nvidia-smi -L'
         args = shlex.split(cmd)
         result = shell_cmd(args, 5)
         gpuCount = len(result.split('\nGPU'))
-        for gpu in range(gpuCount):
-            cmd = 'nvidia-smi -q -g ' + str(gpu) + ' -d ACCOUNTING'
-            args = shlex.split(cmd)
-            result = shell_cmd(args, 5)
-            pci = re.search(r"\w+:\w\w:\w\w\.", result).group().lower()
-            pci = pci.replace('.', '')[-10:]
-            GPU_Mapping[pci] = str(gpu)  # pci mapping
-            config['counter']['xid_error'][pci] = {}
-        print(config['counter']['xid_error'])
-        print(GPU_Mapping)
+        try:
+            for gpu in range(gpuCount):
+                cmd = 'nvidia-smi -q -g ' + str(gpu) + ' -d ACCOUNTING'
+                args = shlex.split(cmd)
+                result = shell_cmd(args, 5)
+                pci = re.search(r"\w+:\w\w:\w\w\.", result).group().lower()
+                pci = pci.replace('.', '')[-10:]
+                GPU_Mapping[pci] = str(gpu)  # pci mapping
+                config['counter']['xid_error'][pci] = {}
+            FIELD_LIST.append('xid_error')
+        except Exception as e:
+            pass     
+
+    # IB mapping
+    cmd = 'ibv_devinfo -l'
+    args = shlex.split(cmd)
+    result = shell_cmd(args, 5)
+    if 'HCAs found' in result:
+        config['fieldFiles']['link_flap'] = '/var/log/syslog'
+        try:
+            config['counter']['link_flap'] ={}
+            result = result.split('\n')[1:]
+            for ib in result:
+                if len(ib):                
+                    mapping = re.search(r"ib\d", ib.strip()).group()
+                    config['counter']['link_flap'][mapping] = {}
+                    IB_Mapping[mapping]=ib.strip()+':1'
+            FIELD_LIST.append('link_flap')
+        except Exception as e:
+            pass
 
 # Copy paste this function, modify if needed
-
-
 def main():
     '''main function'''
     parser = argparse.ArgumentParser()
@@ -352,7 +421,7 @@ def main():
     jobId = None  # set a default job id of None
     init_config(jobId, args.port)
     init_signal_handler()
-    init_nvidia_config()
+    init_nvidia_ib_config()
     exporter = NodeExporter(FIELD_LIST, config)
     exporter.loop()
 
