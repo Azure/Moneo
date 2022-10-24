@@ -82,8 +82,8 @@ class NodeExporter(BaseExporter):
             elif 'link_flap' in field_name:
                 self.gauges[field_name] = prometheus_client.Gauge(
                     'node_{}'.format(field_name),
-                    'node_{}'.format(field_name), 
-                ['job_id', 'ib_port', 'time_stamp'] )    
+                    'node_{}'.format(field_name),
+                    ['job_id', 'ib_port', 'time_stamp'])
             else:
                 self.gauges[field_name] = prometheus_client.Gauge(
                     'node_{}'.format(field_name),
@@ -156,10 +156,11 @@ class NodeExporter(BaseExporter):
                             r"\w\w\w\s\d\d\s\d\d:\d\d:\d\d", line).group()
                         value[pci] = {timestamp: int(results[1])}
                 except Exception as e:
+                    print(e)
                     return None
             else:
                 value = None
-        elif "link_flap" in  field_name:
+        elif "link_flap" in field_name:
             value = {}
             cmd = "grep 'Lost carrier' " + config['fieldFiles'][field_name]
             args = shlex.split(cmd)
@@ -167,19 +168,20 @@ class NodeExporter(BaseExporter):
             if flap_check:
                 try:
                     result = [line for line in flap_check.split(
-                            '\n') if line.strip() != '']
+                        '\n') if line.strip() != '']
                     for line in result:
                         reg = re.search(r"\bib\d:", line)
                         if not reg:
                             continue
-                        reg= reg.group().replace(':','')
+                        reg = reg.group().replace(':', '')
                         timestamp = re.search(
                             r"\w\w\w\s+\d\d\s\d\d:\d\d:\d\d", line).group()
                         value[reg] = {timestamp: 1}
                 except Exception as e:
+                    print(e)
                     return None
             else:
-                value = None 
+                value = None
         else:
             value = 0
 
@@ -215,7 +217,7 @@ class NodeExporter(BaseExporter):
                             time_stamp=time_stamp
                         ).set(value[pci_id][time_stamp])
                         config['counter'][field_name][pci_id][time_stamp] = value[pci_id][time_stamp]
-        elif "link_flap" in  field_name:
+        elif "link_flap" in field_name:
             for hca in value.keys():
                 for time_stamp in value[hca].keys():
                     if time_stamp in self.config['counter'][field_name][hca]:
@@ -226,8 +228,8 @@ class NodeExporter(BaseExporter):
                             job_id=self.config['job_id'],
                             ib_port=IB_Mapping[hca],
                             time_stamp=time_stamp
-                        ).set(value[hca][time_stamp]) 
-                        config['counter'][field_name][hca][time_stamp] = value[hca][time_stamp]      
+                        ).set(value[hca][time_stamp])
+                        config['counter'][field_name][hca][time_stamp] = value[hca][time_stamp]
         else:
             self.gauges[field_name].labels(
                 self.config['job_id'],
@@ -361,7 +363,7 @@ def init_nvidia_ib_config():
     # check if nvidiaVM
     nvArch = os.path.exists('/dev/nvidiactl')
     if nvArch:
-        config['fieldFiles']['xid_error'] = '/var/log/syslog'      
+        config['fieldFiles']['xid_error'] = '/var/log/syslog'
         config['counter']['xid_error'] = {}
         cmd = 'nvidia-smi -L'
         args = shlex.split(cmd)
@@ -378,7 +380,8 @@ def init_nvidia_ib_config():
                 config['counter']['xid_error'][pci] = {}
             FIELD_LIST.append('xid_error')
         except Exception as e:
-            pass     
+            print(e)
+            pass
 
     # IB mapping
     cmd = 'ibv_devinfo -l'
@@ -387,22 +390,28 @@ def init_nvidia_ib_config():
     if 'HCAs found' in result:
         config['fieldFiles']['link_flap'] = '/var/log/syslog'
         try:
-            config['counter']['link_flap'] ={}
+            config['counter']['link_flap'] = {}
             result = result.split('\n')[1:]
             for ib in result:
-                if len(ib):                
+                if len(ib):
                     mapping = re.search(r"ib\d", ib.strip()).group()
                     config['counter']['link_flap'][mapping] = {}
-                    IB_Mapping[mapping]=ib.strip()+':1'
+                    IB_Mapping[mapping] = ib.strip() + ':1'
             FIELD_LIST.append('link_flap')
         except Exception as e:
+            print(e)
             pass
 
 # Copy paste this function, modify if needed
+
+
 def main():
     '''main function'''
     parser = argparse.ArgumentParser()
-    parser.add_argument("--log_level", default='INFO', help='Specify a log level to use for logging. CRITICAL (0) - \
+    parser.add_argument(
+        "--log_level",
+        default='INFO',
+        help='Specify a log level to use for logging. CRITICAL (0) - \
                         log only critical errors that drastically affect \
                         execution ERROR (1) - Log any error in execution \
                         WARNING (2) - Log all warnings and errors that occur \
