@@ -80,6 +80,7 @@ class BaseExporter:
             while True is True:
                 if job_update:
                     self.jobID_update()
+                    job_update = False
                 self.process()
                 time.sleep(self.config['update_freq'])
                 if self.config['exit'] is True:
