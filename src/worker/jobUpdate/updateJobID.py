@@ -17,7 +17,7 @@ JobShm = {
     "HCA": {}
 }
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.Info)
 
 job_config = {
     # to synchronixe job multiple job updates
@@ -47,7 +47,6 @@ class JobUpdateMgr:
         self.job_config[device]["lock"].acquire()
         try:
             config, currentSize = self.getCurrentJobConfig(device)
-            print(data)
             for dev_name in data[device]:
                 # device name is not being requested/it is
                 # not in the users config to be updated
