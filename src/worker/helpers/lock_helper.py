@@ -16,7 +16,7 @@ class file_lock_mgr():
         if retry >= 3:
             raise Exception(
                 "Failed to update job. Could not aquire lock for shared memory"
-                )
+            )
 
     def release(self):
         self.lock.release()
