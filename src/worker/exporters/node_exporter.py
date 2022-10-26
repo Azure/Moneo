@@ -259,7 +259,8 @@ def main():
     parser.add_argument("-p", "--port", type=int, default=None, help='Port to export metrics from')
     args = parser.parse_args()
     # set up logging
-    logging.basicConfig(level=get_log_level(args), filename='/tmp/moneo-worker/moneoExporter.log', format='[%(asctime)s] node_exporter-%(levelname)s-%(message)s')
+    logging.basicConfig(level=get_log_level(args), filename='/tmp/moneo-worker/moneoExporter.log',
+                        format='[%(asctime)s] node_exporter-%(levelname)s-%(message)s')
     jobId = None  # set a default job id of None
     try:
         init_config(jobId, args.port)
