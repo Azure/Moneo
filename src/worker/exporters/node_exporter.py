@@ -74,7 +74,7 @@ class NodeExporter(BaseExporter):
                     'node_{}'.format(field_name),
                     'node_{}'.format(field_name),
                     ['job_id']
-                    )
+                )
         print(self.gauges)
 
     # example function of how to collect metrics from a command using the
@@ -132,7 +132,7 @@ class NodeExporter(BaseExporter):
         if 'cpu' in field_name:
             logging.debug(f'Handeling field: {field_name}')
             for id, k in enumerate(value.keys()):
-                numa_domain = str(id//config['numa_domain_size'])
+                numa_domain = str(id // config['numa_domain_size'])
                 logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
                 self.gauges[field_name].labels(
                     job_id=self.config['job_id'],
@@ -152,7 +152,7 @@ class NodeExporter(BaseExporter):
         for field_name in self.node_fields:
             if 'cpu' in field_name:
                 for id in range(self.config['num_cores']):
-                    numa_domain = str(id//config['numa_domain_size'])
+                    numa_domain = str(id // config['numa_domain_size'])
                     self.gauges[field_name].remove(self.config['job_id'],
                                                    str(id),
                                                    numa_domain)
@@ -189,11 +189,11 @@ def init_config(job_id, port=None):
     }
 
     # get NUMA domain
-    config['num_cores'] = psutil.cpu_count() 
+    config['num_cores'] = psutil.cpu_count()
     cmd = "lscpu"
     args = shlex.split(cmd)
     numa_domains = int(shell_cmd(args, 5).split("\n")[8].split()[-1])
-    domain_size = config['num_cores']//numa_domains
+    domain_size = config['num_cores'] // numa_domains
     config['numa_domain_size'] = domain_size
 
     # initalize field specific config parameters

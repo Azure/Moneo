@@ -7,13 +7,15 @@ import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-SAMPLE_RATE = 5 # in seconds
+
+SAMPLE_RATE = 5  # in seconds
+
 
 def main():
     logger.info('Starting up azinsights_main.')
     metric_collector = MetricCollectorFactory.Factory('Prometheus')
     metric_exporter = MetricExporterFactory.Factory('ApplicationInsights')
-    try: 
+    try:
         while True:
             logger.info('Collecting metrics...')
             metric_collector.collect_metrics()

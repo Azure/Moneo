@@ -10,7 +10,7 @@ sudo bash install/nvidia.sh
 # start DCGM daemon
 sudo nv-hostengine &
 # start DCGM exporter (DCGM only supports Python2 currently)
-python2 exporters/nvidia_exporter.py &
+python3 exporters/nvidia_exporter.py &
 # start net exporter
 python3 exporters/net_exporter.py &
 ```

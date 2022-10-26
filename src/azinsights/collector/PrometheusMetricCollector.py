@@ -9,38 +9,39 @@ import logging
 MAX_RETRIES = 3
 
 DCGM_METRICS = [
-                'dcgm_gpu_utilization', 
-                'dcgm_fp64_active', 
-                'dcgm_memory_clock', 
-                'dcgm_ecc_sbe_aggregate_total', 
-                'dcgm_mem_copy_utilization', 
-                'dcgm_ecc_sbe_volatile_total', 
-                'dcgm_fp32_active', 
-                'dcgm_sm_clock',
-                'dcgm_ecc_dbe_volatile_total', 
-                'dcgm_pcie_rx_bytes', 
-                'dcgm_sm_occupancy', 
-                'dcgm_dram_active', 
-                'dcgm_power_usage', 
-                'dcgm_ecc_dbe_aggregate_total', 
-                'dcgm_gpu_temp', 
-                'dcgm_sm_active', 
-                'dcgm_memory_temp', 
-                'dcgm_pcie_tx_bytes', 
-                'dcgm_nvlink_rx_bytes', 
-                'dcgm_tensor_active', 
-                'dcgm_nvlink_tx_bytes', 
-                'dcgm_total_energy_consumption', 
-                'dcgm_fp16_active'
-            ]
+    'dcgm_gpu_utilization',
+    'dcgm_fp64_active',
+    'dcgm_memory_clock',
+    'dcgm_ecc_sbe_aggregate_total',
+    'dcgm_mem_copy_utilization',
+    'dcgm_ecc_sbe_volatile_total',
+    'dcgm_fp32_active',
+    'dcgm_sm_clock',
+    'dcgm_ecc_dbe_volatile_total',
+    'dcgm_pcie_rx_bytes',
+    'dcgm_sm_occupancy',
+    'dcgm_dram_active',
+    'dcgm_power_usage',
+    'dcgm_ecc_dbe_aggregate_total',
+    'dcgm_gpu_temp',
+    'dcgm_sm_active',
+    'dcgm_memory_temp',
+    'dcgm_pcie_tx_bytes',
+    'dcgm_nvlink_rx_bytes',
+    'dcgm_tensor_active',
+    'dcgm_nvlink_tx_bytes',
+    'dcgm_total_energy_consumption',
+    'dcgm_fp16_active'
+]
 IB_METRICS = [
-                'ib_port_rcv_data', 
-                'ib_port_xmit_data'
-            ]
+    'ib_port_rcv_data',
+    'ib_port_xmit_data'
+]
 
 CONFIG_FILE_NAME = 'config.ini'
 
 logger = logging.getLogger(__name__)
+
 
 class PrometheusMetricCollector(MetricCollector):
     '''Class meant to collect metrics internally from a Prometheus DB.'''
@@ -54,7 +55,7 @@ class PrometheusMetricCollector(MetricCollector):
         if (not self.check_connection()):
             logger.error('Unable to check connection to the Prometheus port.')
             raise ConnectionError('Unable to check connection to the Prometheus port.')
-    
+
     def collect_metrics(self):
         logger.debug('collect_metrics')
         dcgm_organizer = MetricOrganizerFactory.Factory("DCGM")
@@ -65,7 +66,7 @@ class PrometheusMetricCollector(MetricCollector):
 
     def collect_metrics_of_type(self, organizer: MetricOrganizer, metric_list: list):
         '''Collects metrics of a specific given type
-        
+
         Parameters
         ----------
         organizer : MetricOrganizer
@@ -83,27 +84,33 @@ class PrometheusMetricCollector(MetricCollector):
                     self.log_to_current_results(job_id, vm_instance, identifier, metric_queried, metric_value)
 
     def query_prometheus(self, metric_name: str):
-        '''Performs an http request to the specified Prometheus DB url in configuration file (i.e. config.ini) for the specific metric.
-        
+        '''Performs an http request to the specified Prometheus DB url
+           in configuration file (i.e. config.ini) for the specific metric.
+
         Parameters
         ----------
         metric_name : str
             Name of the metric being queried for
-        
+
         Returns
         -------
         response : requests.Response
             Http response associated with querying Prometheus for the metric
         '''
         logger.debug('query_prometheus')
-        response = self._session.get('{0}/api/v1/query'.format(self._url), params= {'query': metric_name})
+        response = self._session.get('{0}/api/v1/query'.format(self._url), params={'query': metric_name})
         if (not PrometheusMetricCollector.successful_response(response)):
-            logger.warning('Request received status code {0} with content: {1} when querying for {2}.'.format(response.status_code, response.content, metric_name))
+            logger.warning(
+                'Request received status code {0} with content: {1} when querying for {2}.'.format(
+                    response.status_code,
+                    response.content,
+                    metric_name)
+            )
         return response
-    
-    def log_to_current_results(self, job_id: str, vm_instance: str, identifier: str, metric_queried: str, metric_value: str):
-        '''Logs individual metric to private instance dictionary. 
-        
+
+    def log_to_current_results(self, job_id: str, vm_instance: str, identifier: str, metric_queried: str, metric_value: str):  # noqa: E501
+        '''Logs individual metric to private instance dictionary.
+
         Parameters
         ----------
         job_id : str
@@ -118,14 +125,14 @@ class PrometheusMetricCollector(MetricCollector):
             Value of the metric queried for as a string
         '''
         logger.debug('log_to_current_results')
-        if self._current_results.get(job_id, None) == None:
+        if self._current_results.get(job_id, None) is None:
             self._current_results[job_id] = {}
-        if self._current_results[job_id].get(vm_instance, None) == None:
+        if self._current_results[job_id].get(vm_instance, None) is None:
             self._current_results[job_id][vm_instance] = {}
-        if self._current_results[job_id][vm_instance].get(identifier, None) == None:
+        if self._current_results[job_id][vm_instance].get(identifier, None) is None:
             self._current_results[job_id][vm_instance][identifier] = {}
         self._current_results[job_id][vm_instance][identifier][metric_queried] = metric_value
-    
+
     def check_connection(self):
         ''' Checks whether this can query the Prometheus Port.
         Returns
@@ -134,7 +141,7 @@ class PrometheusMetricCollector(MetricCollector):
             Boolean representing whether the status code was 200
         '''
         logger.debug('check_connection')
-        try: 
+        try:
             response = self._session.get('{0}/'.format(self._url))
         except:
             return False
@@ -143,15 +150,15 @@ class PrometheusMetricCollector(MetricCollector):
     def get_url(self):
         logger.debug('get_url')
         return self._url
-    
+
     def set_url(self, url: str):
         logger.debug('set_url')
         self._url = url
-    
+
     def get_current_results(self):
         logger.debug('get_current_results')
         return self._current_results
-    
+
     @staticmethod
     def get_prometheus_url():
         logger.debug('get_prometheus_url')
@@ -162,10 +169,9 @@ class PrometheusMetricCollector(MetricCollector):
         except KeyError:
             raise KeyError('Missing Prometheus base url in {0}'.format(CONFIG_FILE_NAME))
         return base_url
-    
+
     @staticmethod
     def successful_response(response: Response):
         logger.debug('successful_response')
         SUCCESSFUL_CODES = [200, 201, 202, 203, 204, 205, 206]
         return response.status_code in SUCCESSFUL_CODES
-        
