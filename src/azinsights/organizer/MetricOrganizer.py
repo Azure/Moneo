@@ -3,8 +3,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class MetricOrganizer:
-    '''Abstract class meant to format raw metric data collected by a collector; it is specific to a metric type (i.e. dcgm or ib).'''
+    '''Abstract class meant to format raw metric data collected by a collector;
+       it is specific to a metric type (i.e. dcgm or ib).'''
     def __init__():
         pass
 
@@ -29,4 +31,3 @@ class MetricOrganizer:
         logger.debug('successful_response')
         SUCCESSFUL_CODES = [200, 201, 202, 203, 204, 205, 206]
         return response.status_code in SUCCESSFUL_CODES
-
