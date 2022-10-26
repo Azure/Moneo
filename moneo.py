@@ -18,7 +18,8 @@ class MoneoCLI:
         Deploys Moneo monitoring to hosts listed in the
         specified host ini file
         '''
-        dep_cmd = 'ansible-playbook' + ' -f '+ str(args.fork_processes)  + ' -i ' + args.host_ini + ' src/ansible/deploy.yaml'
+        dep_cmd = 'ansible-playbook' + ' -f ' + str(args.fork_processes) + \
+                  ' -i ' + args.host_ini + ' src/ansible/deploy.yaml'
 
         if self.args.type == 'workers':
             dep_cmd = dep_cmd + ' -e "skip_master=true"'
@@ -36,13 +37,12 @@ class MoneoCLI:
     def stop(self):
         '''Stops Moneo monitoring on hosts listed in the specified host ini file'''
         while True:
-            confirm = input(
-                "Are you sure you would like to perform a '" +
-                self.args.type +
-                "' shutdown of Moneo? (Y/n)\n")
+            confirm = input("Are you sure you would like to perform a '" + self.args.type
+                            + "' shutdown of Moneo? (Y/n)\n")
 
             if confirm.upper() == 'Y':
-                dep_cmd = 'ansible-playbook' + ' -f '+ str(args.fork_processes)  + ' -i ' + args.host_ini + ' src/ansible/shutdown.yaml'
+                dep_cmd = 'ansible-playbook' + ' -f ' + str(args.fork_processes) + \
+                          ' -i ' + args.host_ini + ' src/ansible/shutdown.yaml'
                 if self.args.type == 'workers':
                     dep_cmd = dep_cmd + ' -e "skip_master=true"'
                 elif self.args.type == 'manager':
@@ -61,7 +61,8 @@ class MoneoCLI:
 
     def jobID_update(self):
         '''Updates job id for hosts listed in the specified host ini file'''
-        dep_cmd = 'ansible-playbook' + ' -f '+ str(args.fork_processes)  + ' -i '  + args.host_ini + ' src/ansible/updateJobID.yaml -e job_Id=' + args.job_id
+        dep_cmd = 'ansible-playbook' + ' -f ' + str(args.fork_processes) + ' -i ' + \
+            args.host_ini + ' src/ansible/updateJobID.yaml -e job_Id=' + args.job_id
         print('Job ID update to ' + self.args.job_id)
         logging.info('Job ID update to ' + args.job_id + ". Hostfile: " + args.host_ini)
         os.system(dep_cmd)
@@ -73,9 +74,7 @@ def check_deploy_shutdown(args, parser):
     deploy and shutdwon
     '''
     if (not os.path.isfile(args.host_ini)):
-        print(
-            args.host_ini +
-            " does not exist. Please provide a host file. i.e. host.ini.\n")
+        print(args.host_ini + " does not exist. Please provide a host file. i.e. host.ini.\n")
         parser.print_help()
         exit(1)
     if args.job_id:
@@ -89,17 +88,22 @@ def check_deploy_shutdown(args, parser):
 
 def check_insights_config(args, parser):
     if (args.insights and not os.path.isfile('config.ini')):
-        print('The Application Insights configuration file (config.ini) does not exist. Please provide one to use this feature.')
+        print('The Application Insights configuration file (config.ini) does not exist.'
+              'Please provide one to use this feature.')
         parser.print_helper()
         exit(1)
 
 
 if __name__ == '__main__':
     #   parser options
-    parser = argparse.ArgumentParser(description='Moneo CLI Help Menu', prog='moneo.py', usage='%(prog)s [-d ] [-c HOST_INI] [{manager,workers,full}] \
+    parser = argparse.ArgumentParser(
+        description='Moneo CLI Help Menu',
+        prog='moneo.py',
+        usage='%(prog)s [-d ] [-c HOST_INI] [{manager,workers,full}] \
         \nusage: %(prog)s [-s ] [-c HOST_INI] [{manager,workers,full}] \
         \nusage: %(prog)s [-j JOB_ID ] [-c HOST_INI] \
-        \ni.e. python3 moneo.py -d -c ./host.ini full')
+        \ni.e. python3 moneo.py -d -c ./host.ini full'
+    )
 
     parser.add_argument(
         '-c',
@@ -110,7 +114,8 @@ if __name__ == '__main__':
         '-j',
         '--job_id',
         type=str,
-        help='Job ID for filtering metrics by job group. Host.ini file required. Cannot be specified during deployment and shutdown')
+        help='Job ID for filtering metrics by job group. Host.ini file required.'
+             'Cannot be specified during deployment and shutdown')
     parser.add_argument(
         '-d',
         '--deploy',
@@ -125,7 +130,8 @@ if __name__ == '__main__':
         '-i',
         '--insights',
         action='store_true',
-        help='Experimental feature: Enable exporting of metrics to Azure Insights. Requires a valid instrumentation key and base_url for the Prometheus DB in config.ini')
+        help='Experimental feature: Enable exporting of metrics to Azure Insights.'
+             'Requires a valid instrumentation key and base_url for the Prometheus DB in config.ini')
     parser.add_argument(
         'type',
         metavar='type',
@@ -138,13 +144,21 @@ if __name__ == '__main__':
         '--profiler_metrics',
         action='store_true',
         default=False,
-        help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
+        help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity).'
+             'Addition of profile metrics encurs additional overhead on computer nodes.')
 
-    parser.add_argument('-f', '--fork_processes', default=16, type=int, help='The number of processes used to deploy/shutdown/update Moneo. Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.')
+    parser.add_argument(
+        '-f',
+        '--fork_processes',
+        default=16,
+        type=int,
+        help='The number of processes used to deploy/shutdown/update Moneo.'
+             'Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.')
 
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO, filename='./moneoCLI.log', format='[%(asctime)s] moneoCLI-%(levelname)s-%(message)s')
+    logging.basicConfig(
+        level=logging.INFO, filename='./moneoCLI.log', format='[%(asctime)s] moneoCLI-%(levelname)s-%(message)s')
     try:
         mCLI = MoneoCLI(args)
 
@@ -163,8 +177,7 @@ if __name__ == '__main__':
         elif args.job_id:
             if (not os.path.isfile(args.host_ini)):
                 print(
-                    args.host_ini +
-                    " does not exist. Please provide a host file. i.e. host.ini.\n")
+                    args.host_ini + " does not exist. Please provide a host file. i.e. host.ini.\n")
                 parser.print_help()
                 exit(1)
             mCLI.jobID_update()

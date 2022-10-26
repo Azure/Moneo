@@ -12,10 +12,10 @@ sys.path.extend([
     '/opt/rocm/rocm_smi/bindings',  # ROCm <5.2
     '/opt/rocm/rdc/python_binding',
 ])
+
 from rsmiBindings import rocmsmi, rsmi_status_t
 from RdcReader import RdcReader
-from RdcUtil import RdcUtil
-from rdc_bootstrap import *
+from rdc_bootstrap import *  # noqa: F403
 
 RDC_FIELDS = [
     # PID
@@ -109,7 +109,7 @@ class RdcExporter(RdcReader):
                 self.process()
                 time.sleep(0.1)
 
-                if rdc_config['exit'] == True:
+                if rdc_config['exit'] is True:
                     logging.info('Received exit signal, shutting down ...')
                     break
         except KeyboardInterrupt:

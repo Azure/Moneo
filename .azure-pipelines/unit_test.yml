@@ -25,7 +25,6 @@ steps:
   - script: |
       python3 -m flake8
     displayName: Run Lint Tests
-    continueOnError: true
   - script: |
       cd tests && \ 
       python3 -m unittest test_*.py

@@ -119,7 +119,7 @@ class NetExporter():
                     self.jobID_update()
                 self.process()
                 time.sleep(config['update_freq'])
-                if config['exit'] == True:
+                if config['exit'] is True:
                     logging.info('Received exit signal, shutting down ...')
                     for ib_port in config['ib_port'].keys():
                         for field_name in IB_COUNTERS:
@@ -202,7 +202,8 @@ def get_log_level(loglevel):
 
 def main(args):
     # set up logging
-    logging.basicConfig(level=get_log_level(args.log_level), filename='/tmp/moneo-worker/moneoExporter.log', format='[%(asctime)s] net_exporter-%(levelname)s-%(message)s')
+    logging.basicConfig(level=get_log_level(args.log_level), filename='/tmp/moneo-worker/moneoExporter.log',
+                        format='[%(asctime)s] net_exporter-%(levelname)s-%(message)s')
     jobId = None
     try:
         init_config(jobId)
