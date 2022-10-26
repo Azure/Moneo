@@ -5,11 +5,13 @@ import signal
 import logging
 
 import prometheus_client
+
 sys.path.append('/usr/local/dcgm/bindings/python3')
-# sys.path.append('/usr/local/dcgm/bindings')
 import dcgm_fields
 from DcgmReader import DcgmReader
 from common import dcgm_client_cli_parser
+
+# sys.path.append('/usr/local/dcgm/bindings')
 
 
 DCGM_PROF_FIELDS = [
@@ -92,7 +94,8 @@ DCGM_FIELDS_DESCRIPTION = {
     dcgm_fields.DCGM_FI_PROF_SM_ACTIVE:
     'The fraction of time at least one warp was active on a multiprocessor, averaged over all multiprocessors',
     dcgm_fields.DCGM_FI_PROF_SM_OCCUPANCY:
-    'The fraction of resident warps on a multiprocessor, relative to the maximum number of concurrent warps supported on a multiprocessor',
+    'The fraction of resident warps on a multiprocessor,'
+    ' relative to the maximum number of concurrent warps supported on a multiprocessor',
     dcgm_fields.DCGM_FI_PROF_PIPE_TENSOR_ACTIVE:
     'The fraction of cycles the tensor (HMMA / IMMA) pipe was active',
     dcgm_fields.DCGM_FI_PROF_PIPE_FP64_ACTIVE:
@@ -111,9 +114,11 @@ DCGM_FIELDS_DESCRIPTION = {
     'The rate of data received over NVLink, not including protocol headers, in bytes per second',
     # PCIe
     dcgm_fields.DCGM_FI_PROF_PCIE_TX_BYTES:
-    'The rate of data transmitted over the PCIe bus, including both protocol headers and data payloads, in bytes per second',
+    'The rate of data transmitted over the PCIe bus,'
+    ' including both protocol headers and data payloads, in bytes per second',
     dcgm_fields.DCGM_FI_PROF_PCIE_RX_BYTES:
-    'The rate of data received over the PCIe bus, including both protocol headers and data payloads, in bytes per second',
+    'The rate of data received over the PCIe bus,'
+    ' including both protocol headers and data payloads, in bytes per second',
     dcgm_fields.DCGM_FI_DEV_CLOCK_THROTTLE_REASONS:
     'Current clock throttle reasons (bitmask of DCGM_CLOCKS_THROTTLE_REASON_*)',
     dcgm_fields.DCGM_FI_DEV_POWER_VIOLATION:
@@ -293,7 +298,12 @@ def parse_dcgm_cli():
         publish_port=8000,
         log_level='INFO',
     )
-    parser.add_argument('-m', '--profiler_metrics', action='store_true', help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.')
+    parser.add_argument(
+        '-m',
+        '--profiler_metrics',
+        action='store_true',
+        help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity).'
+             'Addition of profile metrics encurs additional overhead on computer nodes.')
 
     args = dcgm_client_cli_parser.run_parser(parser)
     # add profiling metrics if flag enabled

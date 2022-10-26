@@ -41,8 +41,9 @@ IB_Mapping = {}
 # feel free to copy and paste if os commands are needed
 
 
-def shell_cmd(args, timeout):
+def shell_cmd(cmd, timeout):
     """Helper Function for running subprocess"""
+    args = shlex.split(cmd)
     child = subprocess.Popen(args, stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
     try:
@@ -94,27 +95,19 @@ class NodeExporter(BaseExporter):
     # example function of how to collect metrics from a command using the
     # shell_cmd helper function the parent class will call this collect
     # function to update the Prometheus gauges
-    def collect(self, field_name):
+    def collect(self, field_name):  # noqa: C901
         '''Custom collection Method'''
         value = None
-        if field_name == self.node_fields[0]:
+        if 'net' in field_name:
             cmd = "grep 'eth0' " + self.config['fieldFiles'][field_name]
-            args = shlex.split(cmd)
-            # 1 is the column for recv bytes
-            value = shell_cmd(args, 5).split()[1]
-            delta = int(value) - int(self.config['counter'][field_name])
-            self.config['counter'][field_name] = value
+            val = None
+            if 'net_rx' in field_name:
+                val = shell_cmd(cmd, 5).split()[1]
+            else:  # 'net_tx'
+                val = shell_cmd(cmd, 5).split()[9]
+            delta = int(val) - int(self.config['counter'][field_name])
+            self.config['counter'][field_name] = val
             value = delta / (self.config['update_freq'])  # bandwidth
-
-        elif field_name == self.node_fields[1]:
-            cmd = "grep 'eth0' " + self.config['fieldFiles'][field_name]
-            args = shlex.split(cmd)
-            # 9 is the column for tx bytes
-            value = shell_cmd(args, 5).split()[9]
-            delta = int(value) - int(self.config['counter'][field_name])
-            self.config['counter'][field_name] = value
-            value = delta / (self.config['update_freq'])  # bandwidth
-
         elif 'cpu' in field_name:
             value = {}
             if 'util' in field_name:
@@ -138,54 +131,36 @@ class NodeExporter(BaseExporter):
             else:
                 # psutil returns virtual memory stats in bytes, convert to kB
                 value = getattr(virtual_mem, metric) / 1024
-        elif 'xid' in field_name:
+        elif 'xid' in field_name or "link_flap" in field_name:
             value = {}
-            cmd = "grep 'NVRM: Xid' " + config['fieldFiles'][field_name]
-            args = shlex.split(cmd)
-            xid_check = shell_cmd(args, 5)
-            if xid_check:
-                try:
-                    result = [line for line in xid_check.split(
-                        '\n') if line.strip() != '']
-                    for line in result:
-                        reg = re.search(r"\(.+\):\s\d\d", line).group()
-                        results = reg.split()
-                        pci = results[0].replace(
-                            '(PCI:', '').replace('):', '')[-10:]
-                        timestamp = re.search(
-                            r"\w\w\w\s\d\d\s\d\d:\d\d:\d\d", line).group()
-                        value[pci] = {timestamp: int(results[1])}
-                except Exception as e:
-                    print(e)
-                    return None
-            else:
-                value = None
-        elif "link_flap" in field_name:
-            value = {}
-            cmd = "grep 'Lost carrier' " + config['fieldFiles'][field_name]
-            args = shlex.split(cmd)
-            flap_check = shell_cmd(args, 5)
-            if flap_check:
-                try:
-                    result = [line for line in flap_check.split(
-                        '\n') if line.strip() != '']
-                    for line in result:
-                        reg = re.search(r"\bib\d:", line)
-                        if not reg:
-                            continue
-                        reg = reg.group().replace(':', '')
-                        timestamp = re.search(
-                            r"\w\w\w\s+\d\d\s\d\d:\d\d:\d\d", line).group()
-                        value[reg] = {timestamp: 1}
-                except Exception as e:
-                    print(e)
-                    return None
-            else:
-                value = None
+            cmd = config['command'][field_name]
+            # check if error present in logs
+            field_check = shell_cmd(cmd, 5)
+            # strip empty lines
+            result = [line for line in field_check.split(
+                '\n') if line.strip() != '']
+            for line in result:
+                timestamp = re.search(
+                    r"\w\w\w\s+\d+\s\d\d:\d\d:\d\d", line).group()
+                if 'xid' in field_name:
+                    results = re.search(r"\(.+\):\s\d\d", line).group().split()
+                    pci = results[0].replace(
+                        '(PCI:', '').replace('):', '')[-10:]
+                    value[pci] = {timestamp: int(results[1])}
+                else:  # link flap
+                    results = re.search(r"\bib\d:", line)
+                    if not results:
+                        continue
+                    hca = results.group().replace(':', '')
+                    value[hca] = {timestamp: 1}
         else:
             value = 0
-
         return value
+
+    def update_field(self, field_name, value, *labels):
+        self.gauges[field_name].labels(
+            *labels
+        ).set(value)
 
     def handle_field(self, field_name, value):
         '''Update metric value for gauge'''
@@ -194,46 +169,24 @@ class NodeExporter(BaseExporter):
             for id, k in enumerate(value.keys()):
                 numa_domain = str(id // config['numa_domain_size'])
                 logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
-                self.gauges[field_name].labels(
-                    job_id=self.config['job_id'],
-                    cpu_id=k,
-                    numa_domain=numa_domain
-                ).set(value[k])
-        elif 'xid' in field_name:
-            for pci_id in value.keys():
-                for time_stamp in value[pci_id].keys():
+                self.update_field(field_name, value[k], self.config['job_id'], k, numa_domain)
+        elif 'xid' in field_name or 'link_flap' in field_name:
+            for dev_id in value.keys():
+                for time_stamp in value[dev_id].keys():
+                    if time_stamp in self.config['counter'][field_name][dev_id]:
+                        continue
                     logging.debug(
-                        f'Handeling key: {pci_id}. Setting value: {value[pci_id]}')
-                    # skip this time stamp is already recorded
-                    if time_stamp in self.config['counter'][field_name][pci_id]:
-                        continue
-                    else:  # timestamp does not exist
-                        # remove old timestamp
-                        self.config['counter'][field_name][pci_id].clear()
-                        self.gauges[field_name].labels(
-                            job_id=self.config['job_id'],
-                            pci_id=pci_id,
-                            gpu_id=GPU_Mapping[pci_id],
-                            time_stamp=time_stamp
-                        ).set(value[pci_id][time_stamp])
-                        config['counter'][field_name][pci_id][time_stamp] = value[pci_id][time_stamp]
-        elif "link_flap" in field_name:
-            for hca in value.keys():
-                for time_stamp in value[hca].keys():
-                    if time_stamp in self.config['counter'][field_name][hca]:
-                        continue
-                    else:  # timestamp does not exist
-                        self.config['counter'][field_name][hca].clear()
-                        self.gauges[field_name].labels(
-                            job_id=self.config['job_id'],
-                            ib_port=IB_Mapping[hca],
-                            time_stamp=time_stamp
-                        ).set(value[hca][time_stamp])
-                        config['counter'][field_name][hca][time_stamp] = value[hca][time_stamp]
+                        f'Handeling key: {dev_id}. Setting value: {value[dev_id]}')
+                    self.config['counter'][field_name][dev_id].clear()
+                    if 'xid' in field_name:
+                        self.update_field(field_name, value[dev_id][time_stamp],
+                                          self.config['job_id'], dev_id, GPU_Mapping[dev_id], time_stamp)
+                    else:  # "linkflap"
+                        self.update_field(field_name, value[dev_id][time_stamp],
+                                          self.config['job_id'], IB_Mapping[dev_id], time_stamp)
+                    config['counter'][field_name][dev_id][time_stamp] = value[dev_id][time_stamp]
         else:
-            self.gauges[field_name].labels(
-                self.config['job_id'],
-            ).set(value)
+            self.update_field(field_name, value, self.config['job_id'])
 
         logging.debug('Node exporter field %s: %s', field_name, str(value))
 
@@ -298,8 +251,7 @@ def init_config(job_id, port=None):
     # get NUMA domain
     config['num_cores'] = psutil.cpu_count()
     cmd = "lscpu"
-    args = shlex.split(cmd)
-    numa_domains = int(shell_cmd(args, 5).split("\n")[8].split()[-1])
+    numa_domains = int(shell_cmd(cmd, 5).split("\n")[8].split()[-1])
     domain_size = config['num_cores'] // numa_domains
     config['numa_domain_size'] = domain_size
 
@@ -310,11 +262,10 @@ def init_config(job_id, port=None):
             # initialize counter, this will ensure a initial value is present
             # to calculate bandwidth
             cmd = "grep 'eth0' " + config['fieldFiles'][field_name]
-            args = shlex.split(cmd)
             if field_name == 'net_rx':
-                config['counter'][field_name] = shell_cmd(args, 5).split()[1]
+                config['counter'][field_name] = shell_cmd(cmd, 5).split()[1]
             elif field_name == 'net_tx':
-                config['counter'][field_name] = shell_cmd(args, 5).split()[9]
+                config['counter'][field_name] = shell_cmd(cmd, 5).split()[9]
 
         elif 'cpu' in field_name:
             if 'util' in field_name:
@@ -362,18 +313,17 @@ def init_nvidia_ib_config():
     global FIELD_LIST
     # check if nvidiaVM
     nvArch = os.path.exists('/dev/nvidiactl')
+    config['command'] = {}
     if nvArch:
-        config['fieldFiles']['xid_error'] = '/var/log/syslog'
+        config['command']['xid_error'] = "grep 'NVRM: Xid' /var/log/syslog"
         config['counter']['xid_error'] = {}
         cmd = 'nvidia-smi -L'
-        args = shlex.split(cmd)
-        result = shell_cmd(args, 5)
+        result = shell_cmd(cmd, 5)
         gpuCount = len(result.split('\nGPU'))
         try:
             for gpu in range(gpuCount):
                 cmd = 'nvidia-smi -q -g ' + str(gpu) + ' -d ACCOUNTING'
-                args = shlex.split(cmd)
-                result = shell_cmd(args, 5)
+                result = shell_cmd(cmd, 5)
                 pci = re.search(r"\w+:\w\w:\w\w\.", result).group().lower()
                 pci = pci.replace('.', '')[-10:]
                 GPU_Mapping[pci] = str(gpu)  # pci mapping
@@ -385,10 +335,9 @@ def init_nvidia_ib_config():
 
     # IB mapping
     cmd = 'ibv_devinfo -l'
-    args = shlex.split(cmd)
-    result = shell_cmd(args, 5)
+    result = shell_cmd(cmd, 5)
     if 'HCAs found' in result:
-        config['fieldFiles']['link_flap'] = '/var/log/syslog'
+        config['command']['link_flap'] = "grep 'Lost carrier' /var/log/syslog"
         try:
             config['counter']['link_flap'] = {}
             result = result.split('\n')[1:]

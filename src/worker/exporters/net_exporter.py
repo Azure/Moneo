@@ -17,10 +17,11 @@ IB_COUNTERS = [
     'port_physical_state',
 ]
 
-PORT_STATE={
-    'Polling':0,
-    'LinkUp':1
+PORT_STATE = {
+    'Polling': 0,
+    'LinkUp': 1
 }
+
 
 def watch(f):
     while True:
@@ -32,8 +33,9 @@ def watch(f):
 class NetExporter():
     def __init__(self):
         self.init_connection()
-        self.init_gauges()           
-        signal.signal(signal.SIGUSR1,self.jobID_update_flag)
+        self.init_gauges()
+
+        signal.signal(signal.SIGUSR1, self.jobID_update_flag)
 
     def init_connection(self):
         prometheus_client.start_http_server(config['listen_port'])
@@ -49,21 +51,20 @@ class NetExporter():
             self.guages[field_name] = prometheus_client.Gauge(
                 'ib_{}'.format(field_name),
                 'ib_{}'.format(field_name),
-                ['ib_port', 'ib_sys_guid','job_id']
+                ['ib_port', 'ib_sys_guid', 'job_id']
             )
-
 
     def process(self):
         for ib_port in config['ib_port'].keys():
             ib_port_config = config['ib_port'][ib_port]
             for field_name in IB_COUNTERS:
                 ib_port_config['counter_file'][field_name].seek(0)
-                counter=0;
-                if field_name == 'port_physical_state' :
+                counter = 0
+                if field_name == 'port_physical_state':
                     counter = PORT_STATE[ib_port_config['counter_file'][field_name].readline().split()[1].strip()]
                 else:
                     counter = int(ib_port_config['counter_file']
-                              [field_name].readline().strip())
+                                  [field_name].readline().strip())
                 if field_name.endswith('_data'):
                     counter_delta = counter - ib_port_config['counters'][field_name]
                     if counter_delta >= 0:
@@ -95,31 +96,31 @@ class NetExporter():
     def jobID_update_flag(self, signum, stack):
         '''Sets job update flag when user defined signal comes in'''
         global job_update
-        job_update=True
-            
+        job_update = True
+
     def jobID_update(self):
         '''Updates job id when job update flag has been set'''
         global job_update
-        job_update=False
-        #remove last set of label values        
+        job_update = False
+        # remove last set of label values
         for ib_port in config['ib_port'].keys():
             for field_name in IB_COUNTERS:
-                self.guages[field_name].remove(ib_port,config['ib_port'][ib_port]['sys_image_guid'],config['job_id'])                          
-        #update job id
+                self.guages[field_name].remove(ib_port, config['ib_port'][ib_port]['sys_image_guid'], config['job_id'])
+        # update job id
         with open('curr_jobID') as f:
             config['job_id'] = f.readline().strip()
-        logging.debug('Job ID updated to %s',config['job_id'])      
+        logging.debug('Job ID updated to %s', config['job_id'])
 
     def loop(self):
         global job_update
-        job_update=False
+        job_update = False
         try:
             while True:
-                if(job_update):
+                if job_update:
                     self.jobID_update()
                 self.process()
                 time.sleep(config['update_freq'])
-                if config['exit'] == True:
+                if config['exit'] is True:
                     logging.info('Received exit signal, shutting down ...')
                     for ib_port in config['ib_port'].keys():
                         for field_name in IB_COUNTERS:
@@ -151,13 +152,12 @@ def init_infiniband(args):
             sys_image_guid = f.readline().strip().replace(':', '')
         for port in os.listdir(os.path.join(sysfs_path, hca, 'ports')):
 
-            counter_path = os.path.join(sysfs_path, hca, 'ports', port,
-                                        'counters')                                    
+            counter_path = os.path.join(sysfs_path, hca, 'ports', port, 'counters')
             counter_file = {}
             counters = {}
-            
+
             for field_name in IB_COUNTERS:
-                if field_name == 'port_physical_state' :
+                if field_name == 'port_physical_state':
                     state_path = os.path.join(sysfs_path, hca, 'ports', port)
                     counter_file[field_name] = open(os.path.join(state_path, 'phys_state'), 'r')
                     counters[field_name] = PORT_STATE[counter_file[field_name].readline().split()[1].strip()]
@@ -180,6 +180,7 @@ def init_signal_handler():
     signal.signal(signal.SIGINT, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)
 
+
 def get_log_level(loglevel):
     levelStr = loglevel.upper()
     if levelStr == '0' or levelStr == 'CRITICAL':
@@ -193,14 +194,15 @@ def get_log_level(loglevel):
     elif levelStr == '4' or levelStr == 'DEBUG':
         numeric_log_level = logging.DEBUG
     else:
-        print ("Could not understand the specified --log-level '%s'" % (args.loglevel))
+        print("Could not understand the specified --log-level '%s'" % (args.loglevel))
         args.print_help()
         sys.exit(2)
     return numeric_log_level
 
+
 def main(args):
     logging.basicConfig(level=get_log_level(args.log_level))
-    jobId=None
+    jobId = None
     init_config(jobId)
     init_infiniband(args)
     init_signal_handler()
