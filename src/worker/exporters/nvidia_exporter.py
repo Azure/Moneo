@@ -230,6 +230,7 @@ class DcgmExporter(DcgmReader):
             newJobID = f.readline().strip()
         fvs = self.m_dcgmGroup.samples.GetAllSinceLastCall(None, self.m_fieldGroup).values
 
+        # remove last set of label values
         for gpuId in fvs.keys():
             gpuUuid = self.m_gpuIdToUUId[gpuId]
             gpuBusId = self.m_gpuIdToBusId[gpuId]
@@ -311,7 +312,10 @@ def parse_dcgm_cli():
         args.field_ids.extend(DCGM_PROF_FIELDS)
     field_ids = dcgm_client_cli_parser.get_field_ids(args)
     numeric_log_level = dcgm_client_cli_parser.get_log_level(args)
-
+    filemode = 'w+'
+    if not args.logfile:
+        args.logfile = '/tmp/moneo-worker/moneoExporter.log'
+        filemode = 'a'
     # Defaults to localhost, so we need to set it to None.
     if args.embedded:
         dcgm_config['dcgmHostName'] = None
@@ -325,8 +329,9 @@ def parse_dcgm_cli():
     dcgm_config['profilerMetrics'] = args.profiler_metrics
     logging.basicConfig(
         level=numeric_log_level,
-        filemode='w+',
-        format='%(asctime)s %(levelname)s: %(message)s',
+        filemode=filemode,
+        filename=args.logfile,
+        format='[%(asctime)s] nvidia_exporter-%(levelname)s-%(message)s',
     )
 
 
@@ -334,10 +339,12 @@ def main():
     init_config()
     init_signal_handler()
     parse_dcgm_cli()
-
-    exporter = DcgmExporter()
-    exporter.Loop()
-    exporter.Shutdown()
+    try:
+        exporter = DcgmExporter()
+        exporter.Loop()
+        exporter.Shutdown()
+    except Exception as e:
+        logging.error('Raised exception. Message: %s', e)
 
 
 if __name__ == '__main__':
