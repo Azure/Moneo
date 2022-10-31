@@ -34,7 +34,6 @@ class NetExporter():
     def __init__(self):
         self.init_connection()
         self.init_gauges()
-
         signal.signal(signal.SIGUSR1, self.jobID_update_flag)
 
     def init_connection(self):
@@ -116,7 +115,7 @@ class NetExporter():
         job_update = False
         try:
             while True:
-                if job_update:
+                if (job_update):
                     self.jobID_update()
                 self.process()
                 time.sleep(config['update_freq'])
@@ -152,7 +151,8 @@ def init_infiniband(args):
             sys_image_guid = f.readline().strip().replace(':', '')
         for port in os.listdir(os.path.join(sysfs_path, hca, 'ports')):
 
-            counter_path = os.path.join(sysfs_path, hca, 'ports', port, 'counters')
+            counter_path = os.path.join(sysfs_path, hca, 'ports', port,
+                                        'counters')
             counter_file = {}
             counters = {}
 
@@ -201,14 +201,19 @@ def get_log_level(loglevel):
 
 
 def main(args):
-    logging.basicConfig(level=get_log_level(args.log_level))
+    # set up logging
+    logging.basicConfig(level=get_log_level(args.log_level), filename='/tmp/moneo-worker/moneoExporter.log',
+                        format='[%(asctime)s] net_exporter-%(levelname)s-%(message)s')
     jobId = None
-    init_config(jobId)
-    init_infiniband(args)
-    init_signal_handler()
+    try:
+        init_config(jobId)
+        init_infiniband(args)
+        init_signal_handler()
 
-    exporter = NetExporter()
-    exporter.loop()
+        exporter = NetExporter()
+        exporter.loop()
+    except Exception as e:
+        logging.error('Raised exception. Message: %s', e)
 
 
 if __name__ == '__main__':
@@ -223,4 +228,5 @@ if __name__ == '__main__':
     parser.add_argument("--inifiband_sysfs", default='/sys/class/infiniband', help='The sysfs path of infiniband')
 
     args = parser.parse_args()
+
     main(args)

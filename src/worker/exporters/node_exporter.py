@@ -374,14 +374,18 @@ def main():
         default=None,
         help='Port to export metrics from')
     args = parser.parse_args()
-
-    logging.basicConfig(level=get_log_level(args))
+    # set up logging
+    logging.basicConfig(level=get_log_level(args), filename='/tmp/moneo-worker/moneoExporter.log',
+                        format='[%(asctime)s] node_exporter-%(levelname)s-%(message)s')
     jobId = None  # set a default job id of None
-    init_config(jobId, args.port)
-    init_signal_handler()
-    init_nvidia_ib_config()
-    exporter = NodeExporter(FIELD_LIST, config)
-    exporter.loop()
+    try:
+        init_config(jobId, args.port)
+        init_signal_handler()
+        init_nvidia_ib_config()
+        exporter = NodeExporter(FIELD_LIST, config)
+        exporter.loop()
+    except Exception as e:
+        logging.error('Raised exception. Message: %s', e)
 
 
 if __name__ == '__main__':
