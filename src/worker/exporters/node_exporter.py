@@ -306,7 +306,31 @@ def get_log_level(args):
     return numeric_log_level
 
 
-def init_nvidia_ib_config():
+def init_ib_config():
+    global config
+    global GPU_Mapping
+    global IB_Mapping
+    global FIELD_LIST
+    # IB mapping
+    cmd = 'ibv_devinfo -l'
+    result = shell_cmd(cmd, 5)
+    if 'HCAs found' in result:
+        config['command']['link_flap'] = "grep 'Lost carrier' /var/log/syslog"
+        try:
+            config['counter']['link_flap'] = {}
+            result = result.split('\n')[1:]
+            for ib in result:
+                if len(ib):
+                    mapping = re.search(r"ib\d", ib.strip()).group()
+                    config['counter']['link_flap'][mapping] = {}
+                    IB_Mapping[mapping] = ib.strip() + ':1'
+            FIELD_LIST.append('link_flap')
+        except Exception as e:
+            print(e)
+            pass
+
+
+def init_nvidia_config():
     global config
     global GPU_Mapping
     global IB_Mapping
@@ -333,27 +357,8 @@ def init_nvidia_ib_config():
             print(e)
             pass
 
-    # IB mapping
-    cmd = 'ibv_devinfo -l'
-    result = shell_cmd(cmd, 5)
-    if 'HCAs found' in result:
-        config['command']['link_flap'] = "grep 'Lost carrier' /var/log/syslog"
-        try:
-            config['counter']['link_flap'] = {}
-            result = result.split('\n')[1:]
-            for ib in result:
-                if len(ib):
-                    mapping = re.search(r"ib\d", ib.strip()).group()
-                    config['counter']['link_flap'][mapping] = {}
-                    IB_Mapping[mapping] = ib.strip() + ':1'
-            FIELD_LIST.append('link_flap')
-        except Exception as e:
-            print(e)
-            pass
 
 # Copy paste this function, modify if needed
-
-
 def main():
     '''main function'''
     parser = argparse.ArgumentParser()
@@ -381,7 +386,8 @@ def main():
     try:
         init_config(jobId, args.port)
         init_signal_handler()
-        init_nvidia_ib_config()
+        init_nvidia_config()
+        init_ib_config()
         exporter = NodeExporter(FIELD_LIST, config)
         exporter.loop()
     except Exception as e:
