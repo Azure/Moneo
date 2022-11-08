@@ -91,6 +91,7 @@ class NodeExporter(BaseExporter):
                     'node_{}'.format(field_name),
                     ['job_id']
                 )
+ 
 
     # example function of how to collect metrics from a command using the
     # shell_cmd helper function the parent class will call this collect
@@ -247,7 +248,23 @@ def init_config(job_id, port=None):
         'fieldFiles': {},
         'counter': {},
     }
-
+    # for xid and link flaps
+    config['command'] = {}
+    
+    cmd ="awk -F= '/^NAME/{print $2}' /etc/os-release"
+    result = shell_cmd(cmd, 5)
+    if "Ubuntu" in result:
+        config['command']['link_flap'] = "grep 'Lost carrier' /var/log/syslog"
+        config['command']['xid_error'] = "grep 'NVRM: Xid' /var/log/syslog"
+        init_nvidia_config()
+        init_ib_config()
+    elif "AlmaLinux" in result:
+        config['command']['link_flap'] = "sudo grep 'Lost carrier' /var/log/messages"
+        config['command']['xid_error'] = "sudo grep 'NVRM: Xid' /var/log/messages"
+        init_nvidia_config()
+        init_ib_config()
+    else:
+        logging.info('OS not supported attempting to continue...')
     # get NUMA domain
     config['num_cores'] = psutil.cpu_count()
     cmd = "lscpu"
@@ -315,7 +332,7 @@ def init_ib_config():
     cmd = 'ibv_devinfo -l'
     result = shell_cmd(cmd, 5)
     if 'HCAs found' in result:
-        config['command']['link_flap'] = "grep 'Lost carrier' /var/log/syslog"
+        #config['command']['link_flap'] = "grep 'Lost carrier' /var/log/syslog"
         try:
             config['counter']['link_flap'] = {}
             result = result.split('\n')[1:]
@@ -337,9 +354,8 @@ def init_nvidia_config():
     global FIELD_LIST
     # check if nvidiaVM
     nvArch = os.path.exists('/dev/nvidiactl')
-    config['command'] = {}
     if nvArch:
-        config['command']['xid_error'] = "grep 'NVRM: Xid' /var/log/syslog"
+        #config['command']['xid_error'] = "grep 'NVRM: Xid' /var/log/syslog"
         config['counter']['xid_error'] = {}
         cmd = 'nvidia-smi -L'
         result = shell_cmd(cmd, 5)
@@ -358,7 +374,7 @@ def init_nvidia_config():
             pass
 
 
-# Copy paste this function, modify if needed
+# Copy paste this function, modify if neededgit
 def main():
     '''main function'''
     parser = argparse.ArgumentParser()
@@ -386,8 +402,6 @@ def main():
     try:
         init_config(jobId, args.port)
         init_signal_handler()
-        init_nvidia_config()
-        init_ib_config()
         exporter = NodeExporter(FIELD_LIST, config)
         exporter.loop()
     except Exception as e:
