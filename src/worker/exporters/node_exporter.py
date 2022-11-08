@@ -91,7 +91,6 @@ class NodeExporter(BaseExporter):
                     'node_{}'.format(field_name),
                     ['job_id']
                 )
- 
 
     # example function of how to collect metrics from a command using the
     # shell_cmd helper function the parent class will call this collect
@@ -250,8 +249,7 @@ def init_config(job_id, port=None):
     }
     # for xid and link flaps
     config['command'] = {}
-    
-    cmd ="awk -F= '/^NAME/{print $2}' /etc/os-release"
+    cmd = "awk -F= '/^NAME/{print $2}' /etc/os-release"
     result = shell_cmd(cmd, 5)
     if "Ubuntu" in result:
         config['command']['link_flap'] = "grep 'Lost carrier' /var/log/syslog"
@@ -332,7 +330,6 @@ def init_ib_config():
     cmd = 'ibv_devinfo -l'
     result = shell_cmd(cmd, 5)
     if 'HCAs found' in result:
-        #config['command']['link_flap'] = "grep 'Lost carrier' /var/log/syslog"
         try:
             config['counter']['link_flap'] = {}
             result = result.split('\n')[1:]
@@ -355,7 +352,6 @@ def init_nvidia_config():
     # check if nvidiaVM
     nvArch = os.path.exists('/dev/nvidiactl')
     if nvArch:
-        #config['command']['xid_error'] = "grep 'NVRM: Xid' /var/log/syslog"
         config['counter']['xid_error'] = {}
         cmd = 'nvidia-smi -L'
         result = shell_cmd(cmd, 5)

@@ -34,7 +34,7 @@ if [[ $distro =~ "Ubuntu" ]]; then
 		rm -f datacenter-gpu-manager_${DCGM_VERSION}_amd64.deb
 	fi
 elif [[ $distro =~ "AlmaLinux" ]]; then
-	dcgm_check=`yum list --installed`
+	dcgm_check=`rpm -qa`
 	if [[ $dcgm_check =~ "datacenter-gpu-manager" ]]; then
 		echo "Dcgm already installed"
 	else
