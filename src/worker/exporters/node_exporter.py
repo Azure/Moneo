@@ -370,7 +370,7 @@ def init_nvidia_config():
             pass
 
 
-# Copy paste this function, modify if neededgit
+# Copy paste this function, modify if needed
 def main():
     '''main function'''
     parser = argparse.ArgumentParser()
