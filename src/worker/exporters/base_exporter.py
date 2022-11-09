@@ -1,7 +1,6 @@
 import time
 import signal
 import logging
-
 import prometheus_client
 
 
@@ -21,10 +20,14 @@ class BaseExporter:
         '''Set up connection for the port specified on the config dict'''
         prometheus_client.start_http_server(self.config['listen_port'])
         logging.info('Started prometheus client')
-        logging.info('Publishing fields: {}'.format(','.join(self.node_fields)))
+        logging.info(
+            'Publishing fields: {}'.format(
+                ','.join(
+                    self.node_fields)))
 
     def init_gauges(self):
-        '''Initialization of Prometheus parameters. Override in Child Class if needed'''
+        '''Initialization of Prometheus parameters.
+        Override in Child Class if needed'''
         self.gauges = {}
         for field_name in self.node_fields:
             self.gauges[field_name] = prometheus_client.Gauge(
@@ -36,12 +39,13 @@ class BaseExporter:
     def collect(self, field_name):
         '''Default collection method meant to be overiden for child class'''
         raise NotImplementedError('Must implement this method')
-        return field_name
 
     def process(self):
         '''Perform metric collection'''
         for field_name in self.node_fields:
             value = self.collect(field_name)
+            if not value:
+                continue
             self.handle_field(field_name, value)
 
     def handle_field(self, field_name, value):
@@ -58,8 +62,6 @@ class BaseExporter:
 
     def jobID_update(self):
         '''Updates job id when job update flag has been set'''
-        global job_update
-        job_update = False
         # remove last set of label values
         for field_name in self.node_fields:
             self.gauges[field_name].remove(self.config['job_id'])
@@ -77,13 +79,13 @@ class BaseExporter:
         global job_update
         job_update = False
         try:
-            while True is True:
-                if job_update:
+            while True:
+                if (job_update):
                     self.jobID_update()
                     job_update = False
                 self.process()
                 time.sleep(self.config['update_freq'])
-                if self.config['exit'] is True:
+                if self.config['exit']:
                     logging.info('Received exit signal, shutting down ...')
                     self.cleanup()
                     break

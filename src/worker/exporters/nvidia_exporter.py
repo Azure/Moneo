@@ -55,7 +55,7 @@ DCGM_FIELDS = [
     # throttling and violations
     dcgm_fields.DCGM_FI_DEV_CLOCK_THROTTLE_REASONS,
     dcgm_fields.DCGM_FI_DEV_POWER_VIOLATION,
-    dcgm_fields.DCGM_FI_DEV_THERMAL_VIOLATION,
+    dcgm_fields.DCGM_FI_DEV_THERMAL_VIOLATION
 ]
 
 DCGM_FIELDS_DESCRIPTION = {
