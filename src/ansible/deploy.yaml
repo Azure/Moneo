@@ -14,7 +14,10 @@
     skip_worker_play: '{{ skip_worker | default(false) }}'
     profiling: '{{ enable_profiling | default(false) }}'
     job_group: '{{ job_Id | default(-999) }}'
+    container: '{{ enable_container | default(false) }}'
     remote_worker_path: '/tmp/moneo-worker'
+    moneo-exporter-nvidia: azmoneo/moneo-exporter-nvidia:latest
+    container_name: moneo-exporter-nvidia
   tasks:
   - when: not skip_worker_play
     block:
@@ -32,36 +35,52 @@
     - name: Print GPU Checking Result
       debug:
         msg: Detected {{ 'NVIDIA' if nvidia_gpu_exist else 'AMD' if amd_gpu_exist else 'N/A' }} GPU
+    - name: Pulling Container Image
+      when: nvidia_gpu_exist | bool and container | bool
+      shell: |
+        docker pull {{ moneo-exporter-nvidia }}
+      become: yes
+      throttle: 32
+    - name: Starting Container
+      when: nvidia_gpu_exist | bool and container | bool
+      shell: |
+        docker rm --force {{ container_name }} && \
+        docker run --name={{ container_name }} --net=host \
+          -e PROFILING={{ profiling }} --rm --runtime=nvidia \
+          --cap-add SYS_ADMIN -v /sys:/hostsys/ -itd {{ moneo-exporter-nvidia }}
+      become: yes
     - name: Copy Source
       synchronize:
         src: ../worker/
         dest: '{{ remote_worker_path }}'
         archive: yes
         recursive: yes
+      when: not container | bool
     - name: Installation
       shell: |
         cd {{ remote_worker_path }}
         bash install/{{ 'nvidia' if nvidia_gpu_exist else 'amd' if amd_gpu_exist else 'common' }}.sh
       become: yes
+      when: not container | bool
     - name: Stop Prior Instances of NVIDIA DCGM Daemon and Exporter
       shell: |
         cd {{ remote_worker_path }} && bash shutdown.sh nvidia
-      when: nvidia_gpu_exist
+      when: nvidia_gpu_exist | bool and not container | bool
       become: yes
     - name: Stop Prior Instances of AMD RDC Daemon and Exporter
       shell: |
         cd {{ remote_worker_path }} && bash shutdown.sh amd
-      when: amd_gpu_exist
+      when: amd_gpu_exist | bool and not container | bool
       become: yes
     - name: Start NVIDIA DCGM Daemon
       shell: |
         nohup nv-hostengine </dev/null >/dev/null 2>&1 &
-      when: nvidia_gpu_exist
+      when: nvidia_gpu_exist | bool and not container | bool
       become: yes
     - name: Start AMD RDC Daemon
       shell: |
         nohup /opt/rocm/rdc/bin/rdcd -u </dev/null >/dev/null 2>&1 &
-      when: amd_gpu_exist
+      when: amd_gpu_exist | bool and not container | bool
       become: yes
     - name: Start NVIDIA Exporter
       shell: |
@@ -72,20 +91,22 @@
         else
             nohup python3 exporters/nvidia_exporter.py  </dev/null >/dev/null 2>&1 &
         fi     
-      when: nvidia_gpu_exist
+      when: nvidia_gpu_exist | bool and not container | bool
     - name: Start AMD Exporter
       shell: |
         cd {{ remote_worker_path }}
         nohup python3 exporters/amd_exporter.py </dev/null >/dev/null 2>&1 &
-      when: amd_gpu_exist
+      when: amd_gpu_exist | bool and not container | bool
     - name: Start Net Exporter
       shell: |
         cd {{ remote_worker_path }}
         nohup python3 exporters/net_exporter.py </dev/null >/dev/null 2>&1 &
+      when: not container | bool
     - name: Start Node Exporter
       shell: |
         cd {{ remote_worker_path }}
         nohup python3 exporters/node_exporter.py </dev/null >/dev/null 2>&1 &
+      when: not container | bool
 - name: === Deploy Master ===
   tags: master
   hosts: master

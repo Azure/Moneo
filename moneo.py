@@ -29,6 +29,8 @@ class MoneoCLI:
             ('false' if self.args.insights else 'true') + '"'
         dep_cmd = dep_cmd + ' -e "enable_profiling=' + \
             ('true' if self.args.profiler_metrics else 'false') + '"'
+        dep_cmd = dep_cmd + ' -e "enable_container=' + \
+            ('true' if self.args.container else 'false') + '"'
 
         print('Deployment type: ' + self.args.type)
         logging.info('Moneo starting, Deployment type: ' + args.type)
@@ -146,7 +148,12 @@ if __name__ == '__main__':
         default=False,
         help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity).'
              'Addition of profile metrics encurs additional overhead on computer nodes.')
-
+    parser.add_argument(
+        '-r',
+        '--container',
+        action='store_true',
+        default=False,
+        help='Deploy Moneo-worker inside the container.')
     parser.add_argument(
         '-f',
         '--fork_processes',
