@@ -252,8 +252,8 @@ def init_config(job_id, port=None):
     cmd = "awk -F= '/^NAME/{print $2}' /etc/os-release"
     result = shell_cmd(cmd, 5)
     if "Ubuntu" in result:
-        config['command']['link_flap'] = "grep 'Lost carrier' /var/log/syslog"
-        config['command']['xid_error'] = "grep 'NVRM: Xid' /var/log/syslog"
+        config['command']['link_flap'] = "sudo grep 'Lost carrier' /var/log/syslog"
+        config['command']['xid_error'] = "sudo grep 'NVRM: Xid' /var/log/syslog"
         init_nvidia_config()
         init_ib_config()
     elif "AlmaLinux" in result:
