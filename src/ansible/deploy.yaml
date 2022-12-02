@@ -16,7 +16,7 @@
     job_group: '{{ job_Id | default(-999) }}'
     container: '{{ enable_container | default(false) }}'
     remote_worker_path: '/tmp/moneo-worker'
-    moneo-exporter-nvidia: azmoneo/moneo-exporter-nvidia:latest
+    moneo_exporter_nvidia: ryoyang/moneo:v0.2.3
     container_name: moneo-exporter-nvidia
   tasks:
   - when: not skip_worker_play
@@ -38,7 +38,7 @@
     - name: Pulling Container Image
       when: nvidia_gpu_exist | bool and container | bool
       shell: |
-        docker pull {{ moneo-exporter-nvidia }}
+        docker pull {{ moneo_exporter_nvidia }}
       become: yes
       throttle: 32
     - name: Starting Container
@@ -47,7 +47,7 @@
         docker rm --force {{ container_name }} && \
         docker run --name={{ container_name }} --net=host \
           -e PROFILING={{ profiling }} --rm --runtime=nvidia \
-          --cap-add SYS_ADMIN -v /sys:/hostsys/ -itd {{ moneo-exporter-nvidia }}
+          --cap-add SYS_ADMIN -v /sys:/hostsys/ -itd {{ moneo_exporter_nvidia }}
       become: yes
     - name: Copy Source
       synchronize:
