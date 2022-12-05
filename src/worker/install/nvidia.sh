@@ -5,17 +5,12 @@ set -e
 # install dependencies
 source ./$(dirname "${BASH_SOURCE[0]}")/common.sh
 
-# install DCGM
+
 distro=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 echo $distro
 
-
-if [[ $distro =~ "Ubuntu" ]]; then
-	dcgm_check=`sudo dpkg-query -l`
-	if [[ $dcgm_check =~ "datacenter-gpu-manager" ]]; then
-		echo "Dcgm already installed"
-	else
-		echo "Installing Dcgm"
+ubuntu_dcgm_install () {
+  		echo "Installing Dcgm"
 		DCGM_VERSION=2.4.4
 		DCGM_GPUMNGR_URL=https://azhpcstor.blob.core.windows.net/azhpc-images-store/datacenter-gpu-manager_${DCGM_VERSION}_amd64.deb
 		wget --retry-connrefused --tries=3 --waitretry=5 $DCGM_GPUMNGR_URL
@@ -32,12 +27,9 @@ if [[ $distro =~ "Ubuntu" ]]; then
 
 		dpkg -i datacenter-gpu-manager_${DCGM_VERSION}_amd64.deb && \
 		rm -f datacenter-gpu-manager_${DCGM_VERSION}_amd64.deb
-	fi
-elif [[ $distro =~ "AlmaLinux" ]]; then
-	dcgm_check=`rpm -qa`
-	if [[ $dcgm_check =~ "datacenter-gpu-manager" ]]; then
-		echo "Dcgm already installed"
-	else
+}
+
+alma_dcgm_install () {
 		echo "Installing Dcgm"
 		DCGM_VERSION=2.4.4
 		DCGM_URL=https://azhpcstor.blob.core.windows.net/azhpc-images-store/datacenter-gpu-manager-${DCGM_VERSION}-1-x86_64.rpm
@@ -54,6 +46,23 @@ elif [[ $distro =~ "AlmaLinux" ]]; then
 		fi
 		rpm -i datacenter-gpu-manager-${DCGM_VERSION}-1-x86_64.rpm
 		rm -f datacenter-gpu-manager-${DCGM_VERSION}-1-x86_64.rpm
+}
+
+
+# install DCGM
+if [[ $distro =~ "Ubuntu" ]]; then
+	dcgm_check=`sudo dpkg-query -l`
+	if [[ $dcgm_check =~ "datacenter-gpu-manager" ]]; then
+		echo "Dcgm already installed"
+	else
+		ubuntu_dcgm_install
+	fi
+elif [[ $distro =~ "AlmaLinux" ]]; then
+	dcgm_check=`rpm -qa`
+	if [[ $dcgm_check =~ "datacenter-gpu-manager" ]]; then
+		echo "Dcgm already installed"
+	else
+		alma_dcgm_install
 	fi
 else
 	echo "OS version is not supported"
