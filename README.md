@@ -63,6 +63,12 @@ Minimum Requirements
 - python >=3.7 installed
 - docker installed
 - ansible installed (python module)
+- OS Support:
+    - Ubuntu 18.04, 20.04
+    - AlmaLinux 8.6
+- Nvidia Architecture supported (only for Nvidai GPU nmonitoring):
+    - Volta
+    - Ampere
 
 Setup
 -----
@@ -169,6 +175,22 @@ Known Issues
   It's recommended to start DCGM in standalone mode in a daemon, so that multiple clients like exporter and DCGMI can interact with DCGM at the same time, according to [NVIDIA](https://docs.nvidia.com/datacenter/dcgm/latest/dcgm-user-guide/getting-started.html#standalone-mode).
 
   > Generally, NVIDIA prefers this mode of operation, as it provides the most flexibility and lowest maintenance cost to users.
+
+* Moneo will attempt to install a tested version of DCGM if it is not present on the worker nodes. However, this step is skipped if DCGM is already installed. In instances DCGM installed may be to old. 
+
+  This may cause the Nvidia exporter to fail. In this case it is recommended that DCGM be upgrade to atleast version 2.4.4.
+  To view which exporters are running on a worker just run ```ps -eaf | grep python3```
+
+Troubleshooting 
+------------
+- Verifying Grafana and Prometheus containers are running:
+    - Check browser http://master-ip-or-domain:3000 (Grafana), http://master-ip-or-domain:9090 (Prometheus)
+    - On Manager node terminal run ```sudo docker container ls```
+        ![image](https://user-images.githubusercontent.com/70273488/205715440-9f994c84-b115-4a98-9535-fdce8a4adf7d.png)
+- Verifying exporters on worker node:
+    - ```ps -eaf | grep python3``` 
+    
+    ![image](https://user-images.githubusercontent.com/70273488/205716391-d0144085-8948-4269-a25c-51bc68448e1e.png)
 
 
 ## Contributing
