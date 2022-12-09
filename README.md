@@ -14,8 +14,9 @@ There five categories of metrics that Moneo monitors:
     - SM and Memory Clock frequency
     - Temperature
     - Power
-    - ECC Counts
-    - GPU Throttling
+    - ECC Counts (Nvidia)
+    - GPU Throttling (Nvidia)
+    - XID code (Nvidia)
 2.	GPU Profiling Counters
     - SM Activity
     - Memory Dram Activity
@@ -24,6 +25,7 @@ There five categories of metrics that Moneo monitors:
 3.	InfiniBand Network Counters
     - IB TX/RX rate
     - IB Port errors
+    - IB Link FLap
 4. CPU Counters
     - Utilization
     - Clock frequency
