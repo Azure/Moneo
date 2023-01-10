@@ -33,6 +33,6 @@ WORKDIR Moneo/src/worker
 RUN sudo bash install/nvidia.sh
 
 # Set EntryPoint
-COPY moneo-exporter-nvidia_entrypoint.sh .
+COPY dockerfile/moneo-exporter-nvidia_entrypoint.sh .
 RUN chmod +x moneo-exporter-nvidia_entrypoint.sh
 CMD /bin/bash moneo-exporter-nvidia_entrypoint.sh ${PROFILING}

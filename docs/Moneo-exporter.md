@@ -2,12 +2,12 @@ Moneo Exporter
 =====
 Description
 -----
-If you want to run Moneo in k8s cluster environment, moneo supports a way to only run moneo-worker inside the container to export metrics. In this doc, you can know how to build images and start container.
+If you want to run Moneo in k8s cluster environment, moneo supports a way to only run moneo-worker inside the container to export metrics. In this doc, you can know how to build images and deploy moneo-exporter manually.
 
 Steps
 -----
 ### Build image
-we need to build a moneo-exporter docker image.
+We need to build a moneo-exporter docker image firstly.
 1. checkout the code from github.
 ```bash
 rm -rf ./Moneo

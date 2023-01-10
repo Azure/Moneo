@@ -19,9 +19,9 @@ jobs:
     strategy:
       matrix:
         include:
-        - name: moneo-exporter-nvidia
+        - name: moneo-exporter
           dockerfile: moneo-exporter-nvidia
-          tags: azmoneo/moneo-exporter-nvidia:latest
+          tags: azmoneo/moneo-exporter:nvidia
     steps:
       - name: Checkout
         uses: actions/checkout@v2

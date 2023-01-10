@@ -16,7 +16,7 @@
     job_group: '{{ job_Id | default(-999) }}'
     container: '{{ enable_container | default(false) }}'
     remote_worker_path: '/tmp/moneo-worker'
-    moneo_exporter_nvidia: ryoyang/moneo:v0.2.3
+    moneo_exporter_nvidia: azmoneo/moneo-exporter:nvidia
     container_name: moneo-exporter-nvidia
   tasks:
   - when: not skip_worker_play

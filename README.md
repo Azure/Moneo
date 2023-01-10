@@ -127,7 +127,7 @@ Which can be accessed as such:
 |-j , --job_id | Job ID |Job ID for filtering metrics by job group. Host.ini file required. Cannot be specified during deployment and shutdown.|
 |-p, --profiler_metrics | None|Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.|
 |-f, --fork_processes | number of processes | The number of processes used to deploy/shutdown/update Moneo. Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.|
-|-r, --container | None|Deploy Moneo-worker inside the container. |
+|-r, --container | None|Deploy Moneo-worker inside the container. Supported Platform: {nvidia} |
 | | {manager,workers,full} | Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full. |
 
 ### _Access the Portal_
@@ -156,6 +156,7 @@ There are several cases based on the networking configuration:
 - To get started with job level filtering see: [Job Level Filtering](./docs/JobFiltering.md)
 - Slurm epilog/prolog integration: [Slurm example](./examples/slurm/README.md)
 - To add your own metrics see: [Adding custom Metrics](./docs/CustomMetrics.md)
+- To deploy moneo-worker inside container: [Moneo-exporter](./docs/Moneo-exporter.md)
 - To integrate Moneo with Azure Insights dashboard see: [Azure Application Insights for Metric Visualization](src/azinsights/README.md)
 
 Known Issues
