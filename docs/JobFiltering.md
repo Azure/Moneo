@@ -6,7 +6,7 @@ Moneo provides a way to designate a job name/Id for nodes participating in a job
 
 Steps
 -----
-Moneo must be already deployed and running on the cluster where job grouping will be designated.
+Moneo must be already deployed and running on the cluster where job grouping will be designated.(Please note that this feature is not supported if Moneo-worker is deployed inside docker, will support it in the future.)
 1. To set a job Id to a subset of nodes a config.ini file with the desired hosts must be passed in:
 *  ```python3 moneo.py -j 4 -c host.ini```
 * The 'host.ini' file will be the same format as the config file used to deploy Moneo for the exception that the worker list will only include the hosts for the job group.
