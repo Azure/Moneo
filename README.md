@@ -68,7 +68,7 @@ Minimum Requirements
 - OS Support:
     - Ubuntu 18.04, 20.04
     - AlmaLinux 8.6
-- Nvidia Architecture supported (only for Nvidai GPU nmonitoring):
+- Nvidia Architecture supported (only for Nvidai GPU monitoring):
     - Volta
     - Ampere
 
@@ -180,7 +180,7 @@ Known Issues
 
   > Generally, NVIDIA prefers this mode of operation, as it provides the most flexibility and lowest maintenance cost to users.
 
-* Moneo will attempt to install a tested version of DCGM if it is not present on the worker nodes. However, this step is skipped if DCGM is already installed. In instances DCGM installed may be to old. 
+* Moneo will attempt to install a tested version of DCGM if it is not present on the worker nodes. However, this step is skipped if DCGM is already installed. In instances DCGM installed may be too old. 
 
   This may cause the Nvidia exporter to fail. In this case it is recommended that DCGM be upgrade to atleast version 2.4.4.
   To view which exporters are running on a worker just run ```ps -eaf | grep python3```
