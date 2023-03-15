@@ -14,8 +14,9 @@ There five categories of metrics that Moneo monitors:
     - SM and Memory Clock frequency
     - Temperature
     - Power
-    - ECC Counts
-    - GPU Throttling
+    - ECC Counts (Nvidia)
+    - GPU Throttling (Nvidia)
+    - XID code (Nvidia)
 2.	GPU Profiling Counters
     - SM Activity
     - Memory Dram Activity
@@ -24,6 +25,7 @@ There five categories of metrics that Moneo monitors:
 3.	InfiniBand Network Counters
     - IB TX/RX rate
     - IB Port errors
+    - IB Link FLap
 4. CPU Counters
     - Utilization
     - Clock frequency
@@ -63,6 +65,12 @@ Minimum Requirements
 - python >=3.7 installed
 - docker installed
 - ansible installed (python module)
+- OS Support:
+    - Ubuntu 18.04, 20.04
+    - AlmaLinux 8.6
+- Nvidia Architecture supported (only for Nvidai GPU monitoring):
+    - Volta
+    - Ampere
 
 Setup
 -----
@@ -127,6 +135,7 @@ Which can be accessed as such:
 |-j , --job_id | Job ID |Job ID for filtering metrics by job group. Host.ini file required. Cannot be specified during deployment and shutdown.|
 |-p, --profiler_metrics | None|Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.|
 |-f, --fork_processes | number of processes | The number of processes used to deploy/shutdown/update Moneo. Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.|
+|-r, --container | None|Deploy Moneo-worker inside the container. Supported Platform: {nvidia} |
 | | {manager,workers,full} | Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full. |
 
 ### _Access the Portal_
@@ -155,6 +164,7 @@ There are several cases based on the networking configuration:
 - To get started with job level filtering see: [Job Level Filtering](./docs/JobFiltering.md)
 - Slurm epilog/prolog integration: [Slurm example](./examples/slurm/README.md)
 - To add your own metrics see: [Adding custom Metrics](./docs/CustomMetrics.md)
+- To deploy moneo-worker inside container: [Moneo-exporter](./docs/Moneo-exporter.md)
 - To integrate Moneo with Azure Insights dashboard see: [Azure Application Insights for Metric Visualization](src/azinsights/README.md)
 
 Known Issues
@@ -169,6 +179,22 @@ Known Issues
   It's recommended to start DCGM in standalone mode in a daemon, so that multiple clients like exporter and DCGMI can interact with DCGM at the same time, according to [NVIDIA](https://docs.nvidia.com/datacenter/dcgm/latest/dcgm-user-guide/getting-started.html#standalone-mode).
 
   > Generally, NVIDIA prefers this mode of operation, as it provides the most flexibility and lowest maintenance cost to users.
+
+* Moneo will attempt to install a tested version of DCGM if it is not present on the worker nodes. However, this step is skipped if DCGM is already installed. In instances DCGM installed may be too old. 
+
+  This may cause the Nvidia exporter to fail. In this case it is recommended that DCGM be upgrade to atleast version 2.4.4.
+  To view which exporters are running on a worker just run ```ps -eaf | grep python3```
+
+Troubleshooting 
+------------
+- Verifying Grafana and Prometheus containers are running:
+    - Check browser http://master-ip-or-domain:3000 (Grafana), http://master-ip-or-domain:9090 (Prometheus)
+    - On Manager node terminal run ```sudo docker container ls```
+        ![image](https://user-images.githubusercontent.com/70273488/205715440-9f994c84-b115-4a98-9535-fdce8a4adf7d.png)
+- Verifying exporters on worker node:
+    - ```ps -eaf | grep python3``` 
+    
+    ![image](https://user-images.githubusercontent.com/70273488/205716391-d0144085-8948-4269-a25c-51bc68448e1e.png)
 
 
 ## Contributing

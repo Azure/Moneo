@@ -3,6 +3,7 @@
 
 import argparse
 import os
+import logging
 
 
 class MoneoCLI:
@@ -28,8 +29,11 @@ class MoneoCLI:
             ('false' if self.args.insights else 'true') + '"'
         dep_cmd = dep_cmd + ' -e "enable_profiling=' + \
             ('true' if self.args.profiler_metrics else 'false') + '"'
+        dep_cmd = dep_cmd + ' -e "enable_container=' + \
+            ('true' if self.args.container else 'false') + '"'
 
         print('Deployment type: ' + self.args.type)
+        logging.info('Moneo starting, Deployment type: ' + args.type)
         os.system(dep_cmd)
 
     def stop(self):
@@ -47,10 +51,12 @@ class MoneoCLI:
                     dep_cmd = dep_cmd + ' -e "skip_worker=true"'
                 os.system(dep_cmd)
                 print("Moneo is Shutting down \n")
+                logging.info('Moneo is Shutting down')
                 return 0
 
             elif confirm.upper() == 'N':
                 print("Canceling request to shutdown Moneo \n")
+                logging.info('Canceling request to shutdown Moneo')
                 return 0
             else:
                 print("Input not recognized\n")
@@ -60,6 +66,7 @@ class MoneoCLI:
         dep_cmd = 'ansible-playbook' + ' -f ' + str(args.fork_processes) + ' -i ' + \
             args.host_ini + ' src/ansible/updateJobID.yaml -e job_Id=' + args.job_id
         print('Job ID update to ' + self.args.job_id)
+        logging.info('Job ID update to ' + args.job_id + ". Hostfile: " + args.host_ini)
         os.system(dep_cmd)
 
 
@@ -141,7 +148,12 @@ if __name__ == '__main__':
         default=False,
         help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity).'
              'Addition of profile metrics encurs additional overhead on computer nodes.')
-
+    parser.add_argument(
+        '-r',
+        '--container',
+        action='store_true',
+        default=False,
+        help='Deploy Moneo-worker inside the container.')
     parser.add_argument(
         '-f',
         '--fork_processes',
@@ -152,27 +164,33 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    mCLI = MoneoCLI(args)
+    logging.basicConfig(
+        level=logging.INFO, filename='./moneoCLI.log', format='[%(asctime)s] moneoCLI-%(levelname)s-%(message)s')
+    try:
+        mCLI = MoneoCLI(args)
 
-    #   Workflow selection
-    if (args.deploy and args.shutdown):
-        print("deploy and shutdown are exclusive arguments. Please only provide one.\n")
-        parser.print_help()
-        exit(1)
-    elif args.deploy:
-        check_deploy_shutdown(args, parser)
-        check_insights_config(args, parser)
-        mCLI.deploy()
-    elif args.shutdown:
-        check_deploy_shutdown(args, parser)
-        mCLI.stop()
-    elif args.job_id:
-        if (not os.path.isfile(args.host_ini)):
-            print(args.host_ini + " does not exist. Please provide a host file. i.e. host.ini.\n")
+        #   Workflow selection
+        if (args.deploy and args.shutdown):
+            print("deploy and shutdown are exclusive arguments. Please only provide one.\n")
             parser.print_help()
             exit(1)
-        mCLI.jobID_update()
-    else:
-        parser.print_help()
+        elif args.deploy:
+            check_deploy_shutdown(args, parser)
+            check_insights_config(args, parser)
+            mCLI.deploy()
+        elif args.shutdown:
+            check_deploy_shutdown(args, parser)
+            mCLI.stop()
+        elif args.job_id:
+            if (not os.path.isfile(args.host_ini)):
+                print(
+                    args.host_ini + " does not exist. Please provide a host file. i.e. host.ini.\n")
+                parser.print_help()
+                exit(1)
+            mCLI.jobID_update()
+        else:
+            parser.print_help()
+    except Exception as e:
+        logging.error('Raised exception. Message: %s', e)
 
     exit(0)
