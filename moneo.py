@@ -4,6 +4,77 @@
 import argparse
 import os
 import logging
+import subprocess
+import shlex
+
+def shell_cmd(cmd, timeout):
+    """Helper Function for running subprocess"""
+    args = shlex.split(cmd)
+    child = subprocess.Popen(args, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+    try:
+        result, errs = child.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        child.kill()
+        print("Command " + " ".join(args) + ", Failed on timeout")
+        result = 'TimeOut'
+        return result
+    return result.decode()
+
+def parallel_ssh_check():
+    """check parallel ssh installed"""
+
+    os_type = shell_cmd( 'awk -F= \'/^NAME/{print $2}\' /etc/os-release', 45)
+    
+    if 'Ubuntu' in os_type:
+        pkg_check_results = shell_cmd( 'dpkg -s pssh', 45)
+    else:
+        pkg_check_results = shell_cmd( 'rpm -q pssh', 45)
+
+    if 'not installed' in pkg_check_results:
+        logging.error('pssh is not installed, please install pssh to continue')
+        print('pssh is not installed, please install pssh to continue')
+        exit(1)
+    return True
+
+def pssh(cmd, hosts_file, timeout=300, max_threads=16):
+    pssh_cmd = 'pssh'
+    os_type = shell_cmd( 'awk -F= \'/^NAME/{print $2}\' /etc/os-release', 45)
+    if 'Ubuntu' in os_type:
+        pssh_cmd = 'parallel-ssh'
+    pssh_cmd =  pssh_cmd + " -i -t 0 -p {} -h {} 'sudo {}' ".format(max_threads, hosts_file, cmd)
+
+    out = shell_cmd(pssh_cmd, timeout)
+    print(out)
+
+
+def pscp(copy_path, destination_dir, hosts_file, timeout=300, max_threads=16):
+    pscp_cmd = 'pscp.pssh'
+    os_type = shell_cmd( 'awk -F= \'/^NAME/{print $2}\' /etc/os-release', 45)
+    if 'Ubuntu' in os_type:
+        pscp_cmd = 'parallel-scp'
+
+    pscp_cmd =  pscp_cmd + " -r -t 0 -p {} -h {} {} {}".format(max_threads, hosts_file, copy_path, destination_dir)
+
+    out = shell_cmd(pscp_cmd, timeout)
+    print(out)
+
+
+def deploy_worker(hosts_file,max_threads=16):
+    pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file)
+    moneo_dir = os.path.dirname(os.path.realpath(__file__))
+    copy_path='./src/worker/'
+    destination_dir='/tmp/moneo-worker'
+    print('-Copying files to workers-')
+    out = pscp(copy_path, destination_dir, hosts_file)
+    print(out)
+    print('--------------------------')
+    print('-Running install on workers-')
+    out = pssh(cmd='/tmp/moneo-worker/install/install.sh', hosts_file=hosts_file, max_threads=max_threads)
+    print(out)
+    print('--------------------------')
+
+
 
 
 class MoneoCLI:
@@ -97,6 +168,12 @@ def check_insights_config(args, parser):
 
 
 if __name__ == '__main__':
+    if parallel_ssh_check():
+        print('pssh installed')
+    hosts_file='/home/rafsalas/Moneo/hosts.ini'
+    pssh(cmd='hostname',hosts_file=hosts_file)
+    deploy_worker(hosts_file=hosts_file)
+    exit()
     #   parser options
     parser = argparse.ArgumentParser(
         description='Moneo CLI Help Menu',

@@ -1,6 +1,14 @@
-#!/bin/bash/
+#!/bin/bash
 
-arch=$1
+arch="nvidia"
+
+if [ -e '/dev/nvidiactl' ]; then
+    arch="nvidia"
+elif [ -e '/dev/kfd' ];then
+    arch="amd"
+else
+	arch='cpu'
+fi
 
 kill_exporters() {
     pkill -f "${1}_exporter.py*"
@@ -19,6 +27,6 @@ elif [ $arch == "amd" ]; then
 	sleep 3
         exit 0
 else
-	echo "Proper architecture not provided. Choices are nvidia and amd."
+	echo "No GPU architecture detected"
 fi
 	exit 0
