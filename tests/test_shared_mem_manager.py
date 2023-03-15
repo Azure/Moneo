@@ -10,16 +10,21 @@ from shmem_helper import Shared_Mem_Mngr
 """Moneo Shared Memory test"""
 
 
+def cleanUp(shm_name):
+    """clean up rogue shared memory"""
+    try:
+        # in the event of a previous unclean exit. Clean up leaked resouces
+        clean_Leaked_shm(shm_name)
+    except FileNotFoundError:
+        pass
+
+
 class SharedMemTestCase(unittest.TestCase):
     """Shared Mem unit test Class."""
 
     def test_client_class(self):
         """test if client access read memory"""
-        try:
-            # in the event of a previous unclean exit. Clean up leaked resouces
-            clean_Leaked_shm("psm_moneoSM")
-        except FileNotFoundError:
-            pass
+        cleanUp("psm_moneoSM")
         serverMgr = Shared_Mem_Mngr("psm_moneoSM", isClient=False)
         clientMgr = Shared_Mem_Mngr("psm_moneoSM", isClient=True)
         # try to access non-existent shared mem
@@ -36,11 +41,7 @@ class SharedMemTestCase(unittest.TestCase):
 
     def test_server_class(self):
         """test if server access read memory"""
-        try:
-            # in the event of a previous unclean exit. Clean up leaked resouces
-            clean_Leaked_shm("psm_moneoSM")
-        except FileNotFoundError:
-            pass
+        cleanUp("psm_moneoSM")
         serverMgr = Shared_Mem_Mngr("psm_moneoSM", isClient=False)
         # try to access non-existent shared mem
         shm = serverMgr.get_shm()
@@ -52,6 +53,29 @@ class SharedMemTestCase(unittest.TestCase):
         assert ("psm_moneoSM" in shm._name)  # the stored name has a slash
         msg = bytes(shm.buf[:shm._size]).decode('utf-8')  # bytes to string
         assert (msg == "hello world")
+        serverMgr.delete_shm()
+
+    def test_resize(self):
+        """Test resize of shared memory"""
+        cleanUp("psm_moneoSM")
+        serverMgr = Shared_Mem_Mngr("psm_moneoSM", isClient=False)
+        clientMgr = Shared_Mem_Mngr("psm_moneoSM", isClient=True)
+        msg1 = 'Not Resized'
+        serverMgr.create_shm(msg1)  # create mem and assign it data
+        shm = clientMgr.get_shm()
+        msg = bytes(shm.buf[:shm._size]).decode('utf-8')
+        initial_size = shm._size
+        assert (msg == msg1)  # check contents
+        msg2 = msg1 + " more size"
+        clientMgr.resize_shm(data=msg2)
+        shm = clientMgr.get_shm()
+        shm_server = serverMgr.get_shm()
+        assert (shm._size == shm_server._size)  # check resize
+        assert (shm._size > initial_size)  # check resize
+        msg = bytes(shm.buf[:shm._size]).decode('utf-8')
+        assert (msg == msg2)  # check contents
+        msg = bytes(shm_server.buf[:shm._size]).decode('utf-8')
+        assert (msg == msg2)  # check contents
         serverMgr.delete_shm()
 
 

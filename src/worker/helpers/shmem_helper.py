@@ -16,13 +16,21 @@ class Shared_Mem_Mngr:
 
     def __init__(self, shm_name, isClient=False):
         '''Init, set shm name and type of Access type Client/Server.'''
+        try:
+            if not isClient:
+                clean_Leaked_shm(shm_name)
+        except Exception:
+            pass
         self.isClient = isClient
         self.name = shm_name
         self.shmCreated = False
 
     def create_shm(self, data=None, size=1024):
-        '''Create memory of data size or of specified size. If data assign data.'''
-        if self.isClient:  # client does not need to create shared mem just retrieve
+        '''
+        Create memory of data size or of specified size. If data assign data.
+        '''
+        # client does not need to create shared mem just retrieve
+        if self.isClient:
             shm = self.get_shm()
         else:
             if self.shmCreated:
@@ -38,6 +46,24 @@ class Shared_Mem_Mngr:
         self.shmCreated = True
         return shm
 
+    def resize_shm(self, data=None, size=None):
+        '''
+        Allow the client or server to resize the memory space
+        '''
+        # Return nothing if shared mem has not been created
+        if not self.shmCreated:
+            return None
+        if self.isClient:
+            # allow client to switch to server mode, creating shmem is only
+            # allowed in server mode
+            self.isClient = False
+            # resource_tracker.register(self.name, "shared_memory")
+            shm = self.create_shm(data, size)
+            resource_tracker.unregister(shm._name, "shared_memory")
+            self.isClient = True  # switch back to client mode
+        else:
+            return self.create_shm(data, size)
+
     def delete_shm(self):
         '''Delete shmem'''
         if self.isClient:  # the client should not be destroying memory
@@ -51,6 +77,8 @@ class Shared_Mem_Mngr:
                 shm = shared_memory.SharedMemory(name=self.name)
                 # we need to tell the client process to not destroy memory
                 resource_tracker.unregister(shm._name, "shared_memory")
+                # client now knows the memory was created
+                self.shmCreated = True
                 return shm
             except BaseException:
                 return None
