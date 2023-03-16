@@ -45,7 +45,7 @@ def pssh(cmd, hosts_file, timeout=300, max_threads=16):
     pssh_cmd =  pssh_cmd + " -i -t 0 -p {} -h {} 'sudo {}' ".format(max_threads, hosts_file, cmd)
 
     out = shell_cmd(pssh_cmd, timeout)
-    print(out)
+    return out
 
 
 def pscp(copy_path, destination_dir, hosts_file, timeout=300, max_threads=16):
@@ -57,22 +57,8 @@ def pscp(copy_path, destination_dir, hosts_file, timeout=300, max_threads=16):
     pscp_cmd =  pscp_cmd + " -r -t 0 -p {} -h {} {} {}".format(max_threads, hosts_file, copy_path, destination_dir)
 
     out = shell_cmd(pscp_cmd, timeout)
-    print(out)
+    return out
 
-
-def deploy_worker(hosts_file,max_threads=16):
-    pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file)
-    moneo_dir = os.path.dirname(os.path.realpath(__file__))
-    copy_path='./src/worker/'
-    destination_dir='/tmp/moneo-worker'
-    print('-Copying files to workers-')
-    out = pscp(copy_path, destination_dir, hosts_file)
-    print(out)
-    print('--------------------------')
-    print('-Running install on workers-')
-    out = pssh(cmd='/tmp/moneo-worker/install/install.sh', hosts_file=hosts_file, max_threads=max_threads)
-    print(out)
-    print('--------------------------')
 
 
 
@@ -92,16 +78,17 @@ class MoneoCLI:
         dep_cmd = 'ansible-playbook' + ' -f ' + str(args.fork_processes) + \
                   ' -i ' + args.host_ini + ' src/ansible/deploy.yaml'
 
-        if self.args.type == 'workers':
-            dep_cmd = dep_cmd + ' -e "skip_master=true"'
-        elif self.args.type == 'manager':
-            dep_cmd = dep_cmd + ' -e "skip_worker=true"'
+        if self.args.type == 'workers' or self.args.type == 'full':
+            if self.args.container:
+                deploy_work_docker(self.args.host_file,self.args.fork_processes)
+            else:
+                self.deploy_worker(self.args.host_file,self.args.fork_processes,skip_install=self.args.skip_install, prof_metrics=False)
+
+        if self.args.type == 'manager'  or self.args.type == 'full':
+            deploy_manager(self, work_host_file,user=None,manager_host='localhost')
+
         dep_cmd = dep_cmd + ' -e "skip_insights=' + \
             ('false' if self.args.insights else 'true') + '"'
-        dep_cmd = dep_cmd + ' -e "enable_profiling=' + \
-            ('true' if self.args.profiler_metrics else 'false') + '"'
-        dep_cmd = dep_cmd + ' -e "enable_container=' + \
-            ('true' if self.args.container else 'false') + '"'
 
         print('Deployment type: ' + self.args.type)
         logging.info('Moneo starting, Deployment type: ' + args.type)
@@ -140,6 +127,78 @@ class MoneoCLI:
         logging.info('Job ID update to ' + args.job_id + ". Hostfile: " + args.host_ini)
         os.system(dep_cmd)
 
+    def deploy_worker(self, hosts_file,max_threads=16,skip_install=False, prof_metrics=self.args.profiler_metrics):
+        pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file)
+        copy_path='./src/worker/'
+        destination_dir='/tmp/moneo-worker'
+        print('-Copying files to workers-')
+        logging.info('Copying files to workers')
+        out = pscp(copy_path, destination_dir, hosts_file)
+        #print(out)
+        print('--------------------------')
+        if skip_install:
+            pass
+        else:
+            print('-Running install on workers-')
+            logging.info('Running install on workers')
+            out = pssh(cmd='/tmp/moneo-worker/install/install.sh', hosts_file=hosts_file, max_threads=max_threads)
+            #print(out)
+            
+            print('--------------------------')
+        print('-Starting metric exporters on workers-')
+        logging.info('Starting metric exporters on workers')
+        cmd = '/tmp/moneo-worker/start.sh'
+        if prof_metrics:
+            cmd = cmd + ' true'
+        else:
+            cmd = cmd + ' false'
+        out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads)
+        #print(out)
+        print('--------------------------')
+        print('-Deploying Complete')
+
+    def deploy_work_docker(self, hosts_file,max_threads=16):
+        copy_path='./src/worker/deploy_docker.sh'
+        destination_dir='/tmp/moneo-worker'
+        print('-Deploying docker containers to Nvidia support workers)-')
+        logging.info('Deploying docker container to workers')
+        out = pscp(copy_path, destination_dir, hosts_file)   
+        out = pssh(cmd='/tmp/moneo-worker/deploy_docker.sh', hosts_file=hosts_file, max_threads=max_threads)
+        print('-Deploying Complete')
+
+    def deploy_manager(self, work_host_file,user=None,manager_host='localhost', export_AzInsight=False):
+        ssh_host=manager_host
+        if user:
+            ssh_host= "{}@{}".format(user,manager_host)
+        copy_path="src/master/"
+        destination_dir='/tmp/moneo-master'
+        print('-Copying files to manager-')
+        logging.info('Copying files to manager')
+        cmd = "ssh {} 'rm -rf {}'".format(ssh_host,destination_dir)
+        shell_cmd(cmd, 30)
+        cmd = "scp -r {} {}:{}".format(copy_path, ssh_host, '/tmp/')
+        shell_cmd(cmd, 30)
+        cmd = "ssh {} 'mv {} {}'".format(ssh_host,'/tmp/master',destination_dir)
+        shell_cmd(cmd, 30)
+        print('--------------------------')
+        print('-Deploying Grafana and Prometheus docker containers to manager-')
+        logging.info('Deploying Grafana and Prometheus docker containers to manager')
+        cmd = "ssh {} 'sudo /tmp/moneo-master/managerLaunch.sh {} {}' ".format(ssh_host,work_host_file,manager_host)
+        shell_cmd(cmd, 60)
+        print('--------------------------')
+        if export_AzInsight:
+            print-')
+            logging.info('Copying files to manager')
+            copy_path="src/azinsights"
+            cmd = "scp -r {} {}:{}".format(copy_path, ssh_host, destination_dir)
+            shell_cmd(cmd, 30)
+            copy_path="./config.ini"
+            cmd = "scp -r {} {}:{}//azinsights".format(copy_path, ssh_host, destination_dir)
+            shell_cmd(cmd, 30)
+         print('-Deploying Complete-')
+
+
+    
 
 def check_deploy_shutdown(args, parser):
     '''
@@ -170,10 +229,6 @@ def check_insights_config(args, parser):
 if __name__ == '__main__':
     if parallel_ssh_check():
         print('pssh installed')
-    hosts_file='/home/rafsalas/Moneo/hosts.ini'
-    pssh(cmd='hostname',hosts_file=hosts_file)
-    deploy_worker(hosts_file=hosts_file)
-    exit()
     #   parser options
     parser = argparse.ArgumentParser(
         description='Moneo CLI Help Menu',
@@ -186,9 +241,9 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '-c',
-        '--host_ini',
-        default='./host.ini',
-        help='Provide filepath and name of ansible config file. The default is host.ini in the Moneo directory.')
+        '--host_file',
+        default='./hostfile',
+        help='Provide filepath and name to hostfile. The default is hostfile in the Moneo directory.')
     parser.add_argument(
         '-j',
         '--job_id',
@@ -238,7 +293,13 @@ if __name__ == '__main__':
         type=int,
         help='The number of processes used to deploy/shutdown/update Moneo.'
              'Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.')
-
+    parser.add_argument(
+        '-w',
+        '--skip_install',
+        action='store_false',
+        default=False,
+        help='Skip worker install')
+    
     args = parser.parse_args()
 
     logging.basicConfig(
