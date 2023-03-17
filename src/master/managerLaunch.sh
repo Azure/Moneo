@@ -49,3 +49,4 @@ docker rm -f grafana || true
 
 sudo bash run.sh
 popd
+
