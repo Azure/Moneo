@@ -226,7 +226,7 @@ class DcgmExporter(DcgmReader):
         job_update = False
         newJobID = None
         # get new job id
-        with open('curr_jobID') as f:
+        with open('/tmp/moneo-worker/curr_jobID') as f:
             newJobID = f.readline().strip()
         fvs = self.m_dcgmGroup.samples.GetAllSinceLastCall(None, self.m_fieldGroup).values
 

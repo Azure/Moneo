@@ -219,7 +219,7 @@ class NodeExporter(BaseExporter):
             else:
                 self.gauges[field_name].remove(self.config['job_id'])
         # Update job id
-        with open('curr_jobID') as f:
+        with open('/tmp/moneo-worker/curr_jobID') as f:
             self.config['job_id'] = f.readline().strip()
         logging.debug('Job ID updated to %s', self.config['job_id'])
 
