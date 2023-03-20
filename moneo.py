@@ -27,10 +27,12 @@ def shell_cmd(cmd, timeout):
 def pssh(cmd, hosts_file, timeout=300, max_threads=16):
     pssh_cmd = 'pssh'
     os_type = shell_cmd('awk -F= \'/^NAME/{print $2}\' /etc/os-release', 45)
-    if 'Ubuntu' in os_type:
+    if 'Ubuntu' in os_type:  # Ubuntu uses parallel-ssh while centos/AlmaLinux use pssh
         pssh_cmd = 'parallel-ssh'
     pssh_cmd = pssh_cmd + " -i -t 0 -p {} -h {} 'sudo {}' ".format(max_threads, hosts_file, cmd)
     out = shell_cmd(pssh_cmd, timeout)
+    if 'FAILURE' in out:
+        raise Exception("Pssh command failed on one or more hosts with command {}, Output: {}".format(pssh_cmd, out))
     return out
 
 
@@ -41,6 +43,8 @@ def pscp(copy_path, destination_dir, hosts_file, timeout=300, max_threads=16):
         pscp_cmd = 'parallel-scp'
     pscp_cmd = pscp_cmd + " -r -t 0 -p {} -h {} {} {}".format(max_threads, hosts_file, copy_path, destination_dir)
     out = shell_cmd(pscp_cmd, timeout)
+    if 'FAILURE' in out:
+        raise Exception("Pscp command failed on one or more hosts with command {}, Output: {}".format(pscp_cmd, out))
     return out
 
 
@@ -329,6 +333,7 @@ if __name__ == '__main__':
         else:
             parser.print_help()
     except Exception as e:
+        print('An exception was raised. Please see moneoCLI.log')
         logging.error('Raised exception. Message: %s', e)
 
     exit(0)
