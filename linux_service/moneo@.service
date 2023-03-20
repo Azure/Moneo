@@ -1,0 +1,16 @@
+[Unit]
+Description=Moneo exporter service for %I
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStartPre=/home/rafsalas/Moneo/linux_service/moneo_prestart.sh /home/rafsalas/Moneo/ %i.py
+ExecStart=/usr/bin/python3 /tmp/moneo-worker/exporters/%i.py
+User=root
+
+
+[Install]
+WantedBy=multi-user.target
+
+moneo.service: Service has more than one ExecStart= setting, which is only allowed for Type=oneshot services. Refusing
