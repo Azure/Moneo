@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 Restart=always
-ExecStartPre=/home/rafsalas/Moneo/linux_service/moneo_prestart.sh /home/rafsalas/Moneo/ %i.py
+ExecStartPre=<Moneo_Path>/linux_service/moneo_prestart.sh <Moneo_Path> %i.py
 ExecStart=/usr/bin/python3 /tmp/moneo-worker/exporters/%i.py
 User=root
 
