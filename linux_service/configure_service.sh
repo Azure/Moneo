@@ -9,7 +9,7 @@ then
 fi
 
 # replace the moneo path place holder with actaul moneo path
-sed -i "s/<Moneo_Path>/$MONEO_PATH/g" $MONEO_PATH/linux_service/moneo@.service  
+sed -i "s#<Moneo_Path>#$MONEO_PATH#g" $MONEO_PATH/linux_service/moneo@.service  
 
 # Move service file to systemd directory
 cp $MONEO_PATH/linux_service/moneo@.service  /etc/systemd/system/ 
