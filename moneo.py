@@ -24,11 +24,13 @@ def shell_cmd(cmd, timeout):
     return result.decode()
 
 
-def pssh(cmd, hosts_file, timeout=300, max_threads=16):
+def pssh(cmd, hosts_file, timeout=300, max_threads=16, user=None):
     pssh_cmd = 'pssh'
     os_type = shell_cmd('awk -F= \'/^NAME/{print $2}\' /etc/os-release', 45)
     if 'Ubuntu' in os_type:  # Ubuntu uses parallel-ssh while centos/AlmaLinux use pssh
         pssh_cmd = 'parallel-ssh'
+    if user:
+        pssh_cmd = pssh_cmd + " --user={}".format(user)
     pssh_cmd = pssh_cmd + " -i -t 0 -p {} -h {} 'sudo {}' ".format(max_threads, hosts_file, cmd)
     out = shell_cmd(pssh_cmd, timeout)
     if 'FAILURE' in out:
@@ -36,11 +38,13 @@ def pssh(cmd, hosts_file, timeout=300, max_threads=16):
     return out
 
 
-def pscp(copy_path, destination_dir, hosts_file, timeout=300, max_threads=16):
+def pscp(copy_path, destination_dir, hosts_file, timeout=300, max_threads=16, user=None):
     pscp_cmd = 'pscp.pssh'
     os_type = shell_cmd('awk -F= \'/^NAME/{print $2}\' /etc/os-release', 45)
     if 'Ubuntu' in os_type:
         pscp_cmd = 'parallel-scp'
+    if user:
+        pscp_cmd = pscp_cmd + " --user={}".format(user)
     pscp_cmd = pscp_cmd + " -r -t 0 -p {} -h {} {} {}".format(max_threads, hosts_file, copy_path, destination_dir)
     out = shell_cmd(pscp_cmd, timeout)
     if 'FAILURE' in out:
@@ -75,7 +79,7 @@ class MoneoCLI:
                     prof_metrics=self.args.profiler_metrics)
 
         if self.args.type == 'manager' or self.args.type == 'full':
-            self.deploy_manager(self.args.host_file, user=None, manager_host='localhost')
+            self.deploy_manager(self.args.host_file, user=self.args.user, manager_host=self.args.manager_host)
         logging.info('Moneo starting, Deployment type: ' + self.args.type)
 
     def stop(self):
@@ -88,7 +92,7 @@ class MoneoCLI:
                     self.shutdown_worker(self.args.host_file, self.args.fork_processes)
                     print("Moneo workers is Shutting down \n")
                 if self.args.type == 'manager' or self.args.type == 'full':
-                    self.shutdown_manager(user=None, manager_host='localhost')
+                    self.shutdown_manager(user=self.args.user, manager_host=self.args.manager_host)
                     print("Moneo manager is Shutting down \n")
                 logging.info('Moneo is Shutting down')
                 return 0
@@ -103,16 +107,16 @@ class MoneoCLI:
         '''Updates job id for hosts listed in the specified host ini file'''
         print('Updating job ID to ' + self.args.job_id)
         cmd = '/tmp/moneo-worker/jobIdUpdate.sh ' + self.args.job_id
-        pssh(cmd=cmd, hosts_file=self.args.host_file)
+        pssh(cmd=cmd, hosts_file=self.args.host_file, user=self.args.user)
         logging.info('Job ID updated to ' + self.args.job_id + ". Hostfile: " + self.args.host_file)
 
     def deploy_worker(self, hosts_file, max_threads=16, skip_install=False, prof_metrics=False):
-        pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file)
+        pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file, user=self.args.user)
         copy_path = './src/worker/'
         destination_dir = '/tmp/moneo-worker'
         print('-Copying files to workers-')
         logging.info('Copying files to workers')
-        out = pscp(copy_path, destination_dir, hosts_file)
+        out = pscp(copy_path, destination_dir, hosts_file, user=self.args.user)
         logging.info(out)
         print('--------------------------')
         if self.args.skip_install:
@@ -120,7 +124,8 @@ class MoneoCLI:
         else:
             print('-Running install on workers-')
             logging.info('Running install on workers')
-            out = pssh(cmd='/tmp/moneo-worker/install/install.sh', hosts_file=hosts_file, max_threads=max_threads)
+            out = pssh(cmd='/tmp/moneo-worker/install/install.sh',
+                       hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
             logging.info(out)
             print('--------------------------')
         print('-Starting metric exporters on workers-')
@@ -130,7 +135,7 @@ class MoneoCLI:
             cmd = cmd + ' true'
         else:
             cmd = cmd + ' false'
-        out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads)
+        out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
         logging.info(out)
         print('--------------------------')
         print('-Deploying Complete')
@@ -140,9 +145,10 @@ class MoneoCLI:
         destination_dir = '/tmp/moneo-worker'
         print('-Deploying docker containers to Nvidia support workers)-')
         logging.info('Deploying docker container to workers')
-        out = pscp(copy_path, destination_dir, hosts_file)
+        out = pscp(copy_path, destination_dir, hosts_file, user=self.args.user)
         logging.info(out)
-        out = pssh(cmd='/tmp/moneo-worker/deploy_docker.sh', hosts_file=hosts_file, max_threads=max_threads)
+        out = pssh(cmd='/tmp/moneo-worker/deploy_docker.sh',
+                   hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
         logging.info(out)
         print('-Deploying Complete')
 
@@ -190,7 +196,7 @@ class MoneoCLI:
 
     def shutdown_worker(self, hosts_file, max_threads=16,):
         cmd = '/tmp/moneo-worker/shutdown.sh'
-        pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads)
+        pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
 
     def shutdown_manager(self, user=None, manager_host='localhost'):
         ssh_host = manager_host
@@ -316,7 +322,16 @@ if __name__ == '__main__':
         action='store_true',
         default=False,
         help='Skip worker software install')
-
+    parser.add_argument(
+        '-u',
+        '--user',
+        default=None,
+        help='Provide username to use on remote VMs if not the same as current machine. Default is none')
+    parser.add_argument(
+        '-m',
+        '--manager_host',
+        default='localhost',
+        help='Manager hostname or IP. Default localhost.')
     args = parser.parse_args()
 
     logging.basicConfig(
