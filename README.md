@@ -61,16 +61,25 @@ There five categories of metrics that Moneo monitors:
 
 Minimum Requirements
 -----
-
 - python >=3.7 installed
-- docker installed
-- ansible installed (python module)
+
 - OS Support:
     - Ubuntu 18.04, 20.04
     - AlmaLinux 8.6
+### Manager node requirements
+- docker
+- parallel-ssh
+
+### Worker node requirements
 - Nvidia Architecture supported (only for Nvidai GPU monitoring):
     - Volta
     - Ampere
+ - Installed with install script at time of deployment (if not installed):
+    - DCGM 2.4.4
+    - pip3
+    - prometheus_client
+    - psutil
+    - filelock
 
 Setup
 -----
@@ -83,32 +92,25 @@ git clone https://github.com/Azure/Moneo.git
 cd Moneo
 
 # install dependencies
-python3 -m pip install ansible
+sudo apt-get install pssh
 ```
 
 Configuration
 -------------
 
-Prepare a config file `host.ini` for all master/worker nodes, here's an example:
+Prepare a hostfile that lists all worker node hostnames/ip
 
-```ini
-[master]
-192.168.0.100
-
-[worker]
+```hostfile
 192.168.0.100
 192.168.0.101
 192.168.0.110
-
-[all:vars]
-ansible_user=username
-ansible_ssh_private_key_file=/path/to/key
-ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 ```
 
-If you have configured passwordless SSH already, `[all:vars]` section can be skipped.
+If the remote worker machines use a different username use the Moneo cli "--user" flag to indicate username to use.
 
-Please refer to [Ansible Inventory docs](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html) for more complex cases.
+If the manager is not local host use the "--manager_host" flag to specify hostname/IP.
+
+i.e. ```python3 moneo.py -d manager -c hostfile --user <username> --manager_host <host IP>```
 
 Usage
 -----
