@@ -112,15 +112,16 @@ class MoneoCLI:
         destination_dir = '/tmp/moneo-worker'
         print('-Copying files to workers-')
         logging.info('Copying files to workers')
-        pscp(copy_path, destination_dir, hosts_file)
-
+        out = pscp(copy_path, destination_dir, hosts_file)
+        logging.info(out)
         print('--------------------------')
         if self.args.skip_install:
             pass
         else:
             print('-Running install on workers-')
             logging.info('Running install on workers')
-            pssh(cmd='/tmp/moneo-worker/install/install.sh', hosts_file=hosts_file, max_threads=max_threads)
+            out = pssh(cmd='/tmp/moneo-worker/install/install.sh', hosts_file=hosts_file, max_threads=max_threads)
+            logging.info(out)
             print('--------------------------')
         print('-Starting metric exporters on workers-')
         logging.info('Starting metric exporters on workers')
@@ -129,7 +130,8 @@ class MoneoCLI:
             cmd = cmd + ' true'
         else:
             cmd = cmd + ' false'
-        pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads)
+        out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads)
+        logging.info(out)
         print('--------------------------')
         print('-Deploying Complete')
 
@@ -138,9 +140,21 @@ class MoneoCLI:
         destination_dir = '/tmp/moneo-worker'
         print('-Deploying docker containers to Nvidia support workers)-')
         logging.info('Deploying docker container to workers')
-        pscp(copy_path, destination_dir, hosts_file)
-        pssh(cmd='/tmp/moneo-worker/deploy_docker.sh', hosts_file=hosts_file, max_threads=max_threads)
+        out = pscp(copy_path, destination_dir, hosts_file)
+        logging.info(out)
+        out = pssh(cmd='/tmp/moneo-worker/deploy_docker.sh', hosts_file=hosts_file, max_threads=max_threads)
+        logging.info(out)
         print('-Deploying Complete')
+
+    def check_command_result(self, result):
+        if 'Permission denied' in result:
+            logging.error("SSH permission denied issue with output:{}".format(result))
+            raise Exception('SSH permission issue')
+        elif 'failure in name resolution' in result:
+            logging.error("Host resolution issue with output:{}".format(result))
+            raise Exception('Host resolution issue')
+        else:
+            logging.info(result)
 
     def deploy_manager(self, work_host_file, user=None, manager_host='localhost', export_AzInsight=False):
         ssh_host = manager_host
@@ -151,26 +165,26 @@ class MoneoCLI:
         print('-Copying files to manager-')
         logging.info('Copying files to manager')
         cmd = "ssh {} 'rm -rf {}'".format(ssh_host, destination_dir)
-        shell_cmd(cmd, 30)
+        self.check_command_result(shell_cmd(cmd, 30))
         cmd = "scp -r {} {}:{}".format(copy_path, ssh_host, '/tmp/')
-        shell_cmd(cmd, 30)
+        self.check_command_result(shell_cmd(cmd, 30))
         cmd = "ssh {} 'mv {} {}'".format(ssh_host, '/tmp/master', destination_dir)
-        shell_cmd(cmd, 30)
+        self.check_command_result(shell_cmd(cmd, 30))
         print('--------------------------')
         print('-Deploying Grafana and Prometheus docker containers to manager-')
         logging.info('Deploying Grafana and Prometheus docker containers to manager')
         cmd = "ssh {} 'sudo /tmp/moneo-master/managerLaunch.sh {} {}' ".format(ssh_host, work_host_file, manager_host)
-        shell_cmd(cmd, 60)
+        self.check_command_result(shell_cmd(cmd, 60))
         print('--------------------------')
         if export_AzInsight:
             print('-Starting Azure insights collector-')
             logging.info('Starting Azure insights collector')
             copy_path = "src/azinsights"
             cmd = "scp -r {} {}:{}".format(copy_path, ssh_host, destination_dir)
-            shell_cmd(cmd, 30)
+            self.check_command_result(shell_cmd(cmd, 30))
             copy_path = "./config.ini"
             cmd = "scp -r {} {}:{}//azinsights".format(copy_path, ssh_host, destination_dir)
-            shell_cmd(cmd, 30)
+            self.check_command_result(shell_cmd(cmd, 30))
             print('--------------------------')
         print('-Deploying Complete-')
 
