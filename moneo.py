@@ -335,7 +335,7 @@ if __name__ == '__main__':
         '-m',
         '--manager_host',
         default='localhost',
-        help='Manager hostname or IP. Default localhost.')
+        help='Manager hostname or IP. Default is localhost.')
     args = parser.parse_args()
 
     logging.basicConfig(
