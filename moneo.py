@@ -106,12 +106,15 @@ class MoneoCLI:
     def jobID_update(self):
         '''Updates job id for hosts listed in the specified host ini file'''
         print('Updating job ID to ' + self.args.job_id)
+        logging.info('Updating job ID to ' + self.args.job_id)
         cmd = '/tmp/moneo-worker/jobIdUpdate.sh ' + self.args.job_id
-        pssh(cmd=cmd, hosts_file=self.args.host_file, user=self.args.user)
+        out = pssh(cmd=cmd, hosts_file=self.args.host_file, user=self.args.user)
+        logging.info(out)
         logging.info('Job ID updated to ' + self.args.job_id + ". Hostfile: " + self.args.host_file)
 
     def deploy_worker(self, hosts_file, max_threads=16, skip_install=False, prof_metrics=False):
-        pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file, user=self.args.user)
+        out = pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file, user=self.args.user)
+        logging.info(out)
         copy_path = './src/worker/'
         destination_dir = '/tmp/moneo-worker'
         print('-Copying files to workers-')
@@ -196,14 +199,15 @@ class MoneoCLI:
 
     def shutdown_worker(self, hosts_file, max_threads=16,):
         cmd = '/tmp/moneo-worker/shutdown.sh'
-        pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
+        out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
+        logging.info(out)
 
     def shutdown_manager(self, user=None, manager_host='localhost'):
         ssh_host = manager_host
         if user:
             ssh_host = "{}@{}".format(user, manager_host)
         cmd = "ssh {} 'sudo /tmp/moneo-master/shutdown.sh'".format(ssh_host)
-        shell_cmd(cmd, 60)
+        self.check_command_result(shell_cmd(cmd, 60))
 
 
 def check_deploy_shutdown(args, parser):
