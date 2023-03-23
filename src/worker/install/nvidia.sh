@@ -3,7 +3,7 @@
 set -e
 
 # install dependencies
-source ./$(dirname "${BASH_SOURCE[0]}")/common.sh
+source $(dirname "${BASH_SOURCE[0]}")/common.sh
 
 
 distro=`awk -F= '/^NAME/{print $2}' /etc/os-release`

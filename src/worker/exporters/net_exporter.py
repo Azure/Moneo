@@ -106,7 +106,7 @@ class NetExporter():
             for field_name in IB_COUNTERS:
                 self.guages[field_name].remove(ib_port, config['ib_port'][ib_port]['sys_image_guid'], config['job_id'])
         # update job id
-        with open('curr_jobID') as f:
+        with open('/tmp/moneo-worker/curr_jobID') as f:
             config['job_id'] = f.readline().strip()
         logging.debug('Job ID updated to %s', config['job_id'])
 
