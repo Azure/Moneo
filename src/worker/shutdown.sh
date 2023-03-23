@@ -18,11 +18,13 @@ kill_exporters() {
 
 if [ $arch == "nvidia" ]; then
 	kill_exporters $arch
+	pkill -f "metrics_publisher.py*"
 	pkill -f "^nv-hostengine"
 	sleep 3
 	exit 0
 elif [ $arch == "amd" ]; then
         kill_exporters $arch
+	pkill -f "metrics_publisher.py*"
 	pkill -f "^/opt/rocm/rdc/bin/rdcd"
 	sleep 3
         exit 0

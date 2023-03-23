@@ -74,9 +74,7 @@ class MoneoCLI:
             else:
                 self.deploy_worker(
                     self.args.host_file,
-                    self.args.fork_processes,
-                    skip_install=self.args.skip_install,
-                    prof_metrics=self.args.profiler_metrics)
+                    self.args.fork_processes)
 
         if self.args.type == 'manager' or self.args.type == 'full':
             self.deploy_manager(self.args.host_file, user=self.args.user, manager_host=self.args.manager_host)
@@ -112,7 +110,7 @@ class MoneoCLI:
         logging.info(out)
         logging.info('Job ID updated to ' + self.args.job_id + ". Hostfile: " + self.args.host_file)
 
-    def deploy_worker(self, hosts_file, max_threads=16, skip_install=False, prof_metrics=False):
+    def deploy_worker(self, hosts_file, max_threads=16):
         out = pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file, user=self.args.user)
         logging.info(out)
         copy_path = './src/worker/'
@@ -134,10 +132,16 @@ class MoneoCLI:
         print('-Starting metric exporters on workers-')
         logging.info('Starting metric exporters on workers')
         cmd = '/tmp/moneo-worker/start.sh'
-        if prof_metrics:
+        if self.args.profiler_metrics:
+            logging.info('Profiling enabled')
             cmd = cmd + ' true'
         else:
             cmd = cmd + ' false'
+        if self.args.launch_publisher:
+            logging.info('Geneva agent enabled')
+            cmd = cmd + ' true'
+        else:
+            cmd = cmd + ' false'       
         out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
         logging.info(out)
         print('--------------------------')
@@ -336,6 +340,12 @@ if __name__ == '__main__':
         '--manager_host',
         default='localhost',
         help='Manager hostname or IP. Default is localhost.')
+    parser.add_argument(
+        '-g',
+        '--launch_publisher',
+        action='store_true',
+        default=False,
+        help='This launches the Geneva publisher which will share exporter data with Azure. Default false.')
     args = parser.parse_args()
 
     logging.basicConfig(
