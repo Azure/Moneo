@@ -1,5 +1,5 @@
 {
     "AccountName": "<account name>",
-    "MDMEndPoint": "endpoint",
+    "MDMEndPoint": "<endpoint>",
     "UmiObjectId": "<object ID>"
 }
