@@ -141,7 +141,7 @@ class MoneoCLI:
             logging.info('Geneva agent enabled')
             cmd = cmd + ' true'
         else:
-            cmd = cmd + ' false'       
+            cmd = cmd + ' false'
         out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
         logging.info(out)
         print('--------------------------')
