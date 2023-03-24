@@ -26,7 +26,7 @@ Steps
   - Full deployment ```python3 moneo.py -d full -g -c ~/hostfile --manager_host localhost```
   - Worker deployment ```python3 moneo.py -d workers -g -c ~/hostfile```
   Note: if install step has already been performed you can use the -w flag to skip it.
-3. Verify that the exporters andpublisher are running with ```ps -eaf | grep python3```
+3. Verify that the exporters and publisher are running with ```ps -eaf | grep python3```
     ![image](https://user-images.githubusercontent.com/70273488/227356884-df1fbc1d-40d1-445c-95c8-756c93df5c10.png)
 4. At this point the exporters and publisher shoud be working.
 5. Check with Geneva dashboards to verify that the metrics are being ingested.
