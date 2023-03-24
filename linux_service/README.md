@@ -19,7 +19,7 @@ Bellow are the dependencies needed (installed by the the install script):
 Instructions
 -----
 1. Install dependencies using install script (not needed if dependencies already installed)
-  - ```sudo ../src/worker/install/install.sh```
+  - ```sudo ../src/worker/install/install.sh true```
 2. Run the [configure_service.sh](./configure_service.sh) with the full Moneo path as an argument
   - ```sudo ./configure_service.sh <Moneo_PATH>```
   - If an argument isn't provide it will use the default directory: i.e. /opt/azurehpc/tools/Moneo

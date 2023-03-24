@@ -3,11 +3,12 @@
 MONEO_PATH=$1
 EXE_TYPE=$2
 
-if [[ -e "/tmp/moneo-worker/$EXE_TYPE" ]];
+if [[ -e "/tmp/moneo-worker/exporters/$EXE_TYPE" ]];
 then
     echo "no set up needed"
     exit 0
 fi
+elif []
 # executable does not exist
 
 

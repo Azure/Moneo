@@ -17,3 +17,4 @@ systemctl daemon-reload
 systemctl enable moneo@node_exporter.service
 systemctl enable moneo@net_exporter.service
 systemctl enable moneo@nvidia_exporter.service
+systemctl enable moneo@metrics_publisher.service
