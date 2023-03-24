@@ -51,7 +51,7 @@ def shell_cmd(cmd, timeout):
     """
     args = shlex.split(cmd)
     child = subprocess.Popen(args, start_new_session=True,
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     try:
         result, _ = child.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:
@@ -84,6 +84,7 @@ def get_vm_id():
     vm_id = shell_cmd(cmd, 15).splitlines()[5]
     return vm_id
 
+
 def get_scaleset_name():
     """
     Get the scaleset name
@@ -94,6 +95,7 @@ def get_scaleset_name():
     "http://169.254.169.254/metadata/instance/compute/name?api-version=2021-02-01&format=text"'
     scaleset_name = shell_cmd(cmd, 15).splitlines()[5]
     return scaleset_name.split("_")[0]
+
 
 class MetricsPublisher():
     """ MetricsPublisher is a class that using optl_exporter publishes metrics to Geneva"""
@@ -129,7 +131,8 @@ class MetricsPublisher():
                     metric_name = sample.name
                     metric_value = sample.value
                     metric_labels = sample.labels
-                    metrics.append({'name': metric_name, 'value': metric_value, 'labels': metric_labels, 'type': metric_type})
+                    metrics.append({'name': metric_name, 'value': metric_value,
+                                    'labels': metric_labels, 'type': metric_type})
         return metrics
 
     def publish_metrics(self, metrics):
