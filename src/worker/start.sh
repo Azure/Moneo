@@ -4,6 +4,8 @@ WORK_DIR=$(dirname "${BASH_SOURCE[0]}")
 
 PROF_METRICS=$1
 
+START_PUBLISHER=$2
+
 #shutdown previous instances
 $WORK_DIR/shutdown.sh
 
@@ -25,3 +27,13 @@ fi
 
 nohup python3  $WORK_DIR/exporters/net_exporter.py </dev/null >/dev/null 2>&1 &
 nohup python3  $WORK_DIR/exporters/node_exporter.py </dev/null >/dev/null 2>&1 &
+
+
+if [ -n "$START_PUBLISHER" ];
+then
+    if [ $START_PUBLISHER = true ];
+    then
+        sleep 5
+        nohup python3  $WORK_DIR/publisher/metrics_publisher.py  </dev/null >/dev/null 2>&1 &
+    fi
+fi

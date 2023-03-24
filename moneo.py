@@ -24,11 +24,20 @@ def shell_cmd(cmd, timeout):
     return result.decode()
 
 
+<<<<<<< HEAD
 def pssh(cmd, hosts_file, timeout=300, max_threads=16):
+=======
+def pssh(cmd, hosts_file, timeout=300, max_threads=16, user=None):
+>>>>>>> upstream/main
     pssh_cmd = 'pssh'
     os_type = shell_cmd('awk -F= \'/^NAME/{print $2}\' /etc/os-release', 45)
     if 'Ubuntu' in os_type:  # Ubuntu uses parallel-ssh while centos/AlmaLinux use pssh
         pssh_cmd = 'parallel-ssh'
+<<<<<<< HEAD
+=======
+    if user:
+        pssh_cmd = pssh_cmd + " --user={}".format(user)
+>>>>>>> upstream/main
     pssh_cmd = pssh_cmd + " -i -t 0 -p {} -h {} 'sudo {}' ".format(max_threads, hosts_file, cmd)
     out = shell_cmd(pssh_cmd, timeout)
     if 'FAILURE' in out:
@@ -36,11 +45,20 @@ def pssh(cmd, hosts_file, timeout=300, max_threads=16):
     return out
 
 
+<<<<<<< HEAD
 def pscp(copy_path, destination_dir, hosts_file, timeout=300, max_threads=16):
+=======
+def pscp(copy_path, destination_dir, hosts_file, timeout=300, max_threads=16, user=None):
+>>>>>>> upstream/main
     pscp_cmd = 'pscp.pssh'
     os_type = shell_cmd('awk -F= \'/^NAME/{print $2}\' /etc/os-release', 45)
     if 'Ubuntu' in os_type:
         pscp_cmd = 'parallel-scp'
+<<<<<<< HEAD
+=======
+    if user:
+        pscp_cmd = pscp_cmd + " --user={}".format(user)
+>>>>>>> upstream/main
     pscp_cmd = pscp_cmd + " -r -t 0 -p {} -h {} {} {}".format(max_threads, hosts_file, copy_path, destination_dir)
     out = shell_cmd(pscp_cmd, timeout)
     if 'FAILURE' in out:
@@ -70,12 +88,19 @@ class MoneoCLI:
             else:
                 self.deploy_worker(
                     self.args.host_file,
+<<<<<<< HEAD
                     self.args.fork_processes,
                     skip_install=self.args.skip_install,
                     prof_metrics=self.args.profiler_metrics)
 
         if self.args.type == 'manager' or self.args.type == 'full':
             self.deploy_manager(self.args.host_file, user=None, manager_host='localhost')
+=======
+                    self.args.fork_processes)
+
+        if self.args.type == 'manager' or self.args.type == 'full':
+            self.deploy_manager(self.args.host_file, user=self.args.user, manager_host=self.args.manager_host)
+>>>>>>> upstream/main
         logging.info('Moneo starting, Deployment type: ' + self.args.type)
 
     def stop(self):
@@ -88,7 +113,11 @@ class MoneoCLI:
                     self.shutdown_worker(self.args.host_file, self.args.fork_processes)
                     print("Moneo workers is Shutting down \n")
                 if self.args.type == 'manager' or self.args.type == 'full':
+<<<<<<< HEAD
                     self.shutdown_manager(user=None, manager_host='localhost')
+=======
+                    self.shutdown_manager(user=self.args.user, manager_host=self.args.manager_host)
+>>>>>>> upstream/main
                     print("Moneo manager is Shutting down \n")
                 logging.info('Moneo is Shutting down')
                 return 0
@@ -102,34 +131,80 @@ class MoneoCLI:
     def jobID_update(self):
         '''Updates job id for hosts listed in the specified host ini file'''
         print('Updating job ID to ' + self.args.job_id)
+<<<<<<< HEAD
         cmd = '/tmp/moneo-worker/jobIdUpdate.sh ' + self.args.job_id
         pssh(cmd=cmd, hosts_file=self.args.host_file)
         logging.info('Job ID updated to ' + self.args.job_id + ". Hostfile: " + self.args.host_file)
 
     def deploy_worker(self, hosts_file, max_threads=16, skip_install=False, prof_metrics=False):
         pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file)
+=======
+        logging.info('Updating job ID to ' + self.args.job_id)
+        cmd = '/tmp/moneo-worker/jobIdUpdate.sh ' + self.args.job_id
+        out = pssh(cmd=cmd, hosts_file=self.args.host_file, user=self.args.user)
+        logging.info(out)
+        logging.info('Job ID updated to ' + self.args.job_id + ". Hostfile: " + self.args.host_file)
+
+    def deploy_worker(self, hosts_file, max_threads=16):
+        out = pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file, user=self.args.user)
+        logging.info(out)
+>>>>>>> upstream/main
         copy_path = './src/worker/'
         destination_dir = '/tmp/moneo-worker'
         print('-Copying files to workers-')
         logging.info('Copying files to workers')
+<<<<<<< HEAD
         pscp(copy_path, destination_dir, hosts_file)
 
+=======
+        out = pscp(copy_path, destination_dir, hosts_file, user=self.args.user)
+        logging.info(out)
+>>>>>>> upstream/main
         print('--------------------------')
         if self.args.skip_install:
             pass
         else:
+<<<<<<< HEAD
             print('-Running install on workers-')
             logging.info('Running install on workers')
             pssh(cmd='/tmp/moneo-worker/install/install.sh', hosts_file=hosts_file, max_threads=max_threads)
+=======
+            cmd = '/tmp/moneo-worker/install/install.sh'
+            if self.args.launch_publisher:
+                print('-Install Geneva agent-')
+                logging.info('Install Geneva agent')
+                cmd = cmd + ' true'
+            else:
+                cmd = cmd + ' false'
+            out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
+            logging.info(out)
+>>>>>>> upstream/main
             print('--------------------------')
         print('-Starting metric exporters on workers-')
         logging.info('Starting metric exporters on workers')
         cmd = '/tmp/moneo-worker/start.sh'
+<<<<<<< HEAD
         if prof_metrics:
             cmd = cmd + ' true'
         else:
             cmd = cmd + ' false'
         pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads)
+=======
+        if self.args.profiler_metrics:
+            print('-Profiling enabled-')
+            logging.info('Profiling enabled')
+            cmd = cmd + ' true'
+        else:
+            cmd = cmd + ' false'
+        if self.args.launch_publisher:
+            print('-Geneva agent enabled-')
+            logging.info('Geneva agent enabled')
+            cmd = cmd + ' true'
+        else:
+            cmd = cmd + ' false'
+        out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
+        logging.info(out)
+>>>>>>> upstream/main
         print('--------------------------')
         print('-Deploying Complete')
 
@@ -138,10 +213,30 @@ class MoneoCLI:
         destination_dir = '/tmp/moneo-worker'
         print('-Deploying docker containers to Nvidia support workers)-')
         logging.info('Deploying docker container to workers')
+<<<<<<< HEAD
         pscp(copy_path, destination_dir, hosts_file)
         pssh(cmd='/tmp/moneo-worker/deploy_docker.sh', hosts_file=hosts_file, max_threads=max_threads)
         print('-Deploying Complete')
 
+=======
+        out = pscp(copy_path, destination_dir, hosts_file, user=self.args.user)
+        logging.info(out)
+        out = pssh(cmd='/tmp/moneo-worker/deploy_docker.sh',
+                   hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
+        logging.info(out)
+        print('-Deploying Complete')
+
+    def check_command_result(self, result):
+        if 'Permission denied' in result:
+            logging.error("SSH permission denied issue with output:{}".format(result))
+            raise Exception('SSH permission issue')
+        elif 'failure in name resolution' in result:
+            logging.error("Host resolution issue with output:{}".format(result))
+            raise Exception('Host resolution issue')
+        else:
+            logging.info(result)
+
+>>>>>>> upstream/main
     def deploy_manager(self, work_host_file, user=None, manager_host='localhost', export_AzInsight=False):
         ssh_host = manager_host
         if user:
@@ -151,39 +246,67 @@ class MoneoCLI:
         print('-Copying files to manager-')
         logging.info('Copying files to manager')
         cmd = "ssh {} 'rm -rf {}'".format(ssh_host, destination_dir)
+<<<<<<< HEAD
         shell_cmd(cmd, 30)
         cmd = "scp -r {} {}:{}".format(copy_path, ssh_host, '/tmp/')
         shell_cmd(cmd, 30)
         cmd = "ssh {} 'mv {} {}'".format(ssh_host, '/tmp/master', destination_dir)
         shell_cmd(cmd, 30)
+=======
+        self.check_command_result(shell_cmd(cmd, 30))
+        cmd = "scp -r {} {}:{}".format(copy_path, ssh_host, '/tmp/')
+        self.check_command_result(shell_cmd(cmd, 30))
+        cmd = "ssh {} 'mv {} {}'".format(ssh_host, '/tmp/master', destination_dir)
+        self.check_command_result(shell_cmd(cmd, 30))
+>>>>>>> upstream/main
         print('--------------------------')
         print('-Deploying Grafana and Prometheus docker containers to manager-')
         logging.info('Deploying Grafana and Prometheus docker containers to manager')
         cmd = "ssh {} 'sudo /tmp/moneo-master/managerLaunch.sh {} {}' ".format(ssh_host, work_host_file, manager_host)
+<<<<<<< HEAD
         shell_cmd(cmd, 60)
+=======
+        self.check_command_result(shell_cmd(cmd, 60))
+>>>>>>> upstream/main
         print('--------------------------')
         if export_AzInsight:
             print('-Starting Azure insights collector-')
             logging.info('Starting Azure insights collector')
             copy_path = "src/azinsights"
             cmd = "scp -r {} {}:{}".format(copy_path, ssh_host, destination_dir)
+<<<<<<< HEAD
             shell_cmd(cmd, 30)
             copy_path = "./config.ini"
             cmd = "scp -r {} {}:{}//azinsights".format(copy_path, ssh_host, destination_dir)
             shell_cmd(cmd, 30)
+=======
+            self.check_command_result(shell_cmd(cmd, 30))
+            copy_path = "./config.ini"
+            cmd = "scp -r {} {}:{}//azinsights".format(copy_path, ssh_host, destination_dir)
+            self.check_command_result(shell_cmd(cmd, 30))
+>>>>>>> upstream/main
             print('--------------------------')
         print('-Deploying Complete-')
 
     def shutdown_worker(self, hosts_file, max_threads=16,):
         cmd = '/tmp/moneo-worker/shutdown.sh'
+<<<<<<< HEAD
         pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads)
+=======
+        out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
+        logging.info(out)
+>>>>>>> upstream/main
 
     def shutdown_manager(self, user=None, manager_host='localhost'):
         ssh_host = manager_host
         if user:
             ssh_host = "{}@{}".format(user, manager_host)
         cmd = "ssh {} 'sudo /tmp/moneo-master/shutdown.sh'".format(ssh_host)
+<<<<<<< HEAD
         shell_cmd(cmd, 60)
+=======
+        self.check_command_result(shell_cmd(cmd, 60))
+>>>>>>> upstream/main
 
 
 def check_deploy_shutdown(args, parser):
@@ -302,7 +425,26 @@ if __name__ == '__main__':
         action='store_true',
         default=False,
         help='Skip worker software install')
+<<<<<<< HEAD
 
+=======
+    parser.add_argument(
+        '-u',
+        '--user',
+        default=None,
+        help='Provide username to use on remote VMs if not the same as current machine. Default is none')
+    parser.add_argument(
+        '-m',
+        '--manager_host',
+        default='localhost',
+        help='Manager hostname or IP. Default is localhost.')
+    parser.add_argument(
+        '-g',
+        '--launch_publisher',
+        action='store_true',
+        default=False,
+        help='This launches the Geneva publisher which will share exporter data with Azure. Default false.')
+>>>>>>> upstream/main
     args = parser.parse_args()
 
     logging.basicConfig(

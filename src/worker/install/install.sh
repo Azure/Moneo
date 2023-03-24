@@ -1,6 +1,15 @@
 #!/bin/bash
-
 arch="nvidia"
+
+PUBLISHER_INSTALL=$1
+
+if [ -n "$PUBLISHER_INSTALL" ];
+then
+    if [ $PUBLISHER_INSTALL = true ];
+    then
+        $(dirname "${BASH_SOURCE[0]}")/geneva.sh  $(dirname "${BASH_SOURCE[0]}")/config/geneva_config.json
+    fi
+fi
 
 if [ -e '/dev/nvidiactl' ]; then
 # Nvidia
