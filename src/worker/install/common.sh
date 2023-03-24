@@ -4,6 +4,7 @@ set -e
 
 # install dependencies
 # install DCGM
+distro=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 if [[ $distro =~ "Ubuntu" ]]; then
     apt-get install -y python3-dev
 elif [[ $distro =~ "AlmaLinux" ]]; then
