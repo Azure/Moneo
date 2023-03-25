@@ -2,6 +2,8 @@
 
 ConfigFile="${1}"
 
+python3 -m pip install opentelemetry-sdk opentelemetry-exporter-otlp
+
 # Ensure that https transport for apt and gnupg are installed
 sudo apt-get update
 sudo apt-get install -y apt-transport-https gnupg

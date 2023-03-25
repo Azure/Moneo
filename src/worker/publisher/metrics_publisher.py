@@ -4,25 +4,34 @@ import json
 import time
 import shlex
 import subprocess
-
+import sys
 from prometheus_client.parser import text_string_to_metric_families
 
+
+publisher_agent = sys.argv[1]
+
+if publisher_agent == 'geneva':
+    from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+    from opentelemetry.sdk.metrics import MeterProvider
+    from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader, AggregationTemporality
+    from opentelemetry.sdk.resources import Resource
+elif publisher_agent == 'azure_monitor':
+    from azure.monitor.opentelemetry import configure_azure_monitor
+else:
+    raise Exception('##[ERROR]Invalid publisher agent')
+
 from opentelemetry import metrics
-from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
-from opentelemetry.sdk.metrics import MeterProvider, Counter, Histogram
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader, AggregationTemporality
-from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.metrics import Counter, Histogram
 
-
-def get_optl_exporter_meter(metrics_account, metrics_namespace):
+def get_geneva_exporter_meter(metrics_auth, metrics_namespace):
     """
     Returns a meter that uses the OTLP exporter to send metrics to the collector
     Args:
-        metrics_account (str): The metrics account
+        metrics_auth (str): The metrics auth
         metrics_namespace (str): The metrics namespace
     """
     resource = Resource(attributes={
-        "microsoft_metrics_account": metrics_account,
+        "microsoft_metrics_account": metrics_auth,
         "microsoft_metrics_namespace": metrics_namespace
     })
 
@@ -37,6 +46,19 @@ def get_optl_exporter_meter(metrics_account, metrics_namespace):
     provider = MeterProvider(resource=resource, metric_readers=[reader])
     metrics.set_meter_provider(provider)
     meter = metrics.get_meter(__name__)
+    return meter
+
+
+def get_azure_monitor_exporter_meter(metrics_auth, metrics_namespace):
+    """
+    Returns a meter that uses the Azure Monitor exporter to send metrics to the collector
+    Args:
+        metrics_auth (str): The metrics auth
+        metrics_namespace (str): The metrics namespace
+    """
+    configure_azure_monitor(connection_string=metrics_auth)
+
+    meter = metrics.get_meter_provider().get_meter(metrics_namespace)
     return meter
 
 
@@ -62,13 +84,13 @@ def shell_cmd(cmd, timeout):
     return result.decode()
 
 
-def get_geneva_metrics_config():
+def get_publisher_metrics_config():
     """
     Get the geneva metrics config
     Returns:
         config(dict): The geneva metrics configuration
     """
-    with open('../install/config/geneva_config.json') as f:
+    with open('/tmp/moneo-worker/publisher/config/publisher_config.json') as f:
         config = json.load(f)
     return config
 
@@ -99,14 +121,19 @@ def get_scaleset_name():
 
 class MetricsPublisher():
     """ MetricsPublisher is a class that using optl_exporter publishes metrics to Geneva"""
-    def __init__(self, metrics_ports=None, metrics_account=None, metrics_namespace=None):
+    def __init__(self, metrics_ports=None, metrics_auth=None, metrics_namespace=None):
         self.metrics_ports = metrics_ports
-        self.metrics_account = metrics_account
+        self.metrics_auth = metrics_auth
         self.metrics_namespace = metrics_namespace
         self.node_name = socket.gethostname()
         self.vm_id = get_vm_id()
         self.scaleset_name = get_scaleset_name()
-        self.meter = get_optl_exporter_meter(self.metrics_account, self.metrics_namespace)
+        if publisher_agent == 'geneva':
+            self.meter = get_geneva_exporter_meter(self.metrics_auth, self.metrics_namespace)
+        elif publisher_agent == 'azure_monitor':
+            self.meter = get_azure_monitor_exporter_meter(self.metrics_auth, self.metrics_namespace)
+        else:
+            print("##[ERROR]Invalid publisher agent")
         self.metricNametoCounter = dict()
         self.metricNametoHistogram = dict()
         self.metricKeytoPreviousValue = dict()
@@ -225,14 +252,30 @@ class MetricsPublisher():
 
 
 if __name__ == '__main__':
-    metrics_ports = '8000,8001,8002'
-    metrics_account = 'moneo'
-    metrics_namespace = 'MetricsPublisherV1'
+    # Get the publisher agent config
+    agent_config = get_publisher_metrics_config()
+
+    # Get common config
+    metrics_ports = agent_config['common_config']['metrics_ports']
+    metrics_namespace = agent_config['common_config']['metrics_namespace']
+    interval = int(agent_config['common_config']['interval'])
+
+    # Get publisher agent config
+    if publisher_agent == 'geneva':
+        metrics_auth = agent_config['geneva_agent_config']['metrics_account']
+    elif publisher_agent == 'azure_monitor':
+        metrics_auth = agent_config['azure_monitor_agent_config']['connection_string']
+    else:
+        raise Exception('##[ERROR]The publisher agent is not supported')
+
+    # Start the publisher agent to publish metrics
     metricsPublisher = MetricsPublisher(
         metrics_ports=metrics_ports,
-        metrics_account=metrics_account,
+        metrics_auth=metrics_auth,
         metrics_namespace=metrics_namespace)
+
+    # Publish metrics every 20 seconds
     while True:
         raw_metrics = metricsPublisher.get_metrics()
         metricsPublisher.publish_metrics(raw_metrics)
-        time.sleep(20)
+        time.sleep(interval)
