@@ -4,6 +4,7 @@ import json
 import time
 import shlex
 import subprocess
+import os
 
 from prometheus_client.parser import text_string_to_metric_families
 
@@ -225,9 +226,12 @@ class MetricsPublisher():
 
 
 if __name__ == '__main__':
+    namespace = os.getenv("METRIC_NAMESPACE")
+    if not namespace:
+        namespace = 'MetricsPublisher_dev'
     metrics_ports = '8000,8001,8002'
     metrics_account = 'moneo'
-    metrics_namespace = 'MetricsPublisherV1'
+    metrics_namespace = namespace
     metricsPublisher = MetricsPublisher(
         metrics_ports=metrics_ports,
         metrics_account=metrics_account,
