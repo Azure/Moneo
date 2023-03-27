@@ -29,7 +29,7 @@ Note: The configure script will modify the moneo@.service file to point to the e
 3. To start the services run the following commands:
   - With start script:
   ``` sudo ./start_moneo_services.sh```
-  - With publisher using start script (experimental, do not use unless advized to):
+  - With publisher using start script (experimental, do not use unless advised to):
   ```sudo ./start_moneo_services.sh true```
   - Manually:
   ```
@@ -37,7 +37,7 @@ Note: The configure script will modify the moneo@.service file to point to the e
   sudo systemctl start moneo@net_exporter.service
   sudo systemctl start moneo@nvidia_exporter.service
   ```
-  - Manually with publisher(experimental, do not use unless advized to):
+  - Manually with publisher(experimental, do not use unless advised to):
   ```
   sudo systemctl start moneo@node_exporter.service
   sudo systemctl start moneo@net_exporter.service
