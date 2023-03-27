@@ -3,40 +3,54 @@
 MONEO_PATH=$1
 EXE_TYPE=$2
 
-if [[ -e "/tmp/moneo-worker/exporters/$EXE_TYPE" ]];
-then
-    echo "no set up needed"
-    exit 0
-fi
-elif []
-# executable does not exist
-
-
+# check MONEO_PATH variable is set if not set to default
 if [[ -z "$MONEO_PATH" ]];
 then
     MONEO_PATH=/opt/azurehpc/tools/Moneo
     echo 'default Moneo path used'
 fi
-
 echo "Moneo path=$MONEO_PATH"
 
+if [[ ! -z "$EXE_TYPE" ]];
+then
+    :
+else
+    echo 'No executable passed in'
+    exit 1
+fi
+
+# check that the path provided exists
 if [[ -d "$MONEO_PATH" ]];
 then
     :
 else
-    echo "Moneo path does not exist. Please insatll Moneo or provide path to this script."
+    echo "Moneo path does not exist. Please install Moneo or provide path to this script."
+    exit 1
 fi
 
-if [ -d "/tmp/moneo-worker" ];
+# check/create the working director exists
+mkdir -p /tmp/moneo-worker/exporters
+mkdir -p /tmp/moneo-worker/publisher
+
+# copy exporters or publisher
+if [[ "metrics_publisher.py" == "$EXE_TYPE"  ]];
 then
-    echo 'Moneo worker directory exists'
-
+    if [[ ! -e "$MONEO_PATH/src/worker/publisher/$EXE_TYPE" ]];
+    then
+        echo "$MONEO_PATH/src/worker/publisher/$EXE_TYPE Does not exist"
+        exit 1
+    fi
+    cp $MONEO_PATH/src/worker/publisher/$EXE_TYPE  /tmp/moneo-worker/publisher/
 else
-    mkdir -p /tmp/moneo-worker/exporters
+    if [[ ! -e "$MONEO_PATH/src/worker/exporters/$EXE_TYPE" ]];
+    then
+        echo "$MONEO_PATH/src/worker/exporters/$EXE_TYPE Does not exist"
+        exit 1
+    fi
+    cp $MONEO_PATH/src/worker/exporters/$EXE_TYPE  /tmp/moneo-worker/exporters/
 fi
 
-cp $MONEO_PATH/src/worker/exporters/$EXE_TYPE  /tmp/moneo-worker/exporters/
-
+# needed for node exporter
 if [[ "node_exporter.py" == "$EXE_TYPE"  ]];
 then
     cp $MONEO_PATH/src/worker/exporters/base_exporter.py  /tmp/moneo-worker/exporters/
