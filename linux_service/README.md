@@ -14,7 +14,7 @@ Bellow are the dependencies needed (installed by the the install script):
   - prometheus-client==0.16.0
   - psutil==5.9.4
   - filelock==3.10.0
-2. DCGM 2.4.4
+2. DCGM 3.1.6
 
 Instructions
 -----
