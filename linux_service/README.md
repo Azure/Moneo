@@ -27,16 +27,33 @@ Instructions
 Note: The configure script will modify the moneo@.service file to point to the exporter scripts.
 
 3. To start the services run the following commands:
-```
-sudo systemctl start moneo@node_exporter.service
-sudo systemctl start moneo@net_exporter.service
-sudo systemctl start moneo@nvidia_exporter.service
-```
+  - With start script:
+  ``` sudo ./start_moneo_services.sh```
+  - With publisher using start script (experimental, do not use unless advized to):
+  ```sudo ./start_moneo_services.sh true```
+  - Manually:
+  ```
+  sudo systemctl start moneo@node_exporter.service
+  sudo systemctl start moneo@net_exporter.service
+  sudo systemctl start moneo@nvidia_exporter.service
+  ```
+  - Manually with publisher(experimental, do not use unless advized to):
+  ```
+  sudo systemctl start moneo@node_exporter.service
+  sudo systemctl start moneo@net_exporter.service
+  sudo systemctl start moneo@nvidia_exporter.service
+  sleep 5
+  systemctl start moneo_publisher.service 
+  ```
 4. To stop the services run:
-```
-sudo systemctl stop moneo@node_exporter.service
-sudo systemctl stop moneo@net_exporter.service
-sudo systemctl stop moneo@nvidia_exporter.service
-```
+- With stop script:
+  ``` sudo ./stop_moneo_services.sh ```
+- Manually:
+  ```
+  sudo systemctl stop moneo@node_exporter.service
+  sudo systemctl stop moneo@net_exporter.service
+  sudo systemctl stop moneo@nvidia_exporter.service
+  sudo systemctl stop moneo_publisher.service
+  ```
 5. To run these commands on multiple VMs in parallel you can use a tool like parallel-ssh:
 ```parallel-ssh -i -t 0 -h hostfile "<command>"```
