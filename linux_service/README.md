@@ -57,3 +57,12 @@ Note: The configure script will modify the moneo@.service file to point to the e
   ```
 5. To run these commands on multiple VMs in parallel you can use a tool like parallel-ssh:
 ```parallel-ssh -i -t 0 -h hostfile "<command>"```
+
+Updating job ID
+-----
+To update job name/ID we can use the [job ID update script](../src/worker/jobIdUpdate.sh):
+
+```sudo ../src/worker/jobIdUpdate.sh <jobname/ID>```
+
+Note: use parallel-ssh to distribute this command to a cluster (i.e. step 5 of the instructions)
+
