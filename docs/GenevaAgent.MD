@@ -17,7 +17,6 @@ Prequisites:
 3. python3-dev installed on all nodes.
 4. PSSH installed on manager nodes.
 5. Ensure passwordless ssh is installed in you environment.
-6. 
 
 Steps
 -----

@@ -120,6 +120,18 @@ def get_scaleset_name():
     return scaleset_name.split("_")[0]
 
 
+def get_subcription_id():
+    """
+    Get the subscription id
+    Returns:
+        subscription_id(str): The subscription id
+    """
+    cmd = 'curl -H Metadata:true \
+    "http://169.254.169.254/metadata/instance/compute/subscriptionId?api-version=2021-02-01&format=text"'
+    subscription_id = shell_cmd(cmd, 15).splitlines()[5]
+    return subscription_id
+
+
 class MetricsPublisher():
     """ MetricsPublisher is a class that using optl_exporter publishes metrics to Geneva"""
     def __init__(self, metrics_ports=None, metrics_auth=None, metrics_namespace=None):
