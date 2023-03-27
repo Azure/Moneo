@@ -23,6 +23,7 @@ else:
 from opentelemetry import metrics
 from opentelemetry.sdk.metrics import Counter, Histogram
 
+
 def get_geneva_exporter_meter(metrics_auth, metrics_namespace):
     """
     Returns a meter that uses the OTLP exporter to send metrics to the collector
