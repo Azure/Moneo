@@ -11,20 +11,16 @@ then
 fi
 echo "Moneo path=$MONEO_PATH"
 
-if [[ ! -z "$EXE_TYPE" ]];
+if [[ -z "$EXE_TYPE" ]];
 then
-    :
-else
-    echo 'No executable passed in'
+    echo 'Error: No executable passed in. Exiting prestart script.'
     exit 1
 fi
 
 # check that the path provided exists
-if [[ -d "$MONEO_PATH" ]];
+if [[ ! -d "$MONEO_PATH" ]];
 then
-    :
-else
-    echo "Moneo path does not exist. Please install Moneo or provide path to this script."
+    echo "Error: Moneo path does not exist. Please install Moneo or provide path to this script. Exiting prestart script"
     exit 1
 fi
 
@@ -44,7 +40,7 @@ then
 else
     if [[ ! -e "$MONEO_PATH/src/worker/exporters/$EXE_TYPE" ]];
     then
-        echo "$MONEO_PATH/src/worker/exporters/$EXE_TYPE Does not exist"
+        echo "Error: $MONEO_PATH/src/worker/exporters/$EXE_TYPE Does not exist. Exiting prestart script"
         exit 1
     fi
     cp $MONEO_PATH/src/worker/exporters/$EXE_TYPE  /tmp/moneo-worker/exporters/
