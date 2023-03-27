@@ -43,7 +43,7 @@ Note: The configure script will modify the moneo@.service file to point to the e
   sudo systemctl start moneo@net_exporter.service
   sudo systemctl start moneo@nvidia_exporter.service
   sleep 5
-  systemctl start moneo_publisher.service 
+  sudo systemctl start moneo_publisher.service 
   ```
 4. To stop the services run:
 - With stop script:
