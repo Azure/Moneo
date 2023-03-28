@@ -202,6 +202,7 @@ def get_log_level(loglevel):
 
 def main(args):
     # set up logging
+    os.makedirs('/tmp/moneo-worker', exist_ok=True)
     logging.basicConfig(level=get_log_level(args.log_level), filename='/tmp/moneo-worker/moneoExporter.log',
                         format='[%(asctime)s] net_exporter-%(levelname)s-%(message)s')
     jobId = None
