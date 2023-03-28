@@ -3,7 +3,7 @@ Geneva Agent User Guide
 Description
 -----
 This guide will walk you through how to share your exporter metrics with Azure using the Geneva Agent.
-Note: Currently this feature is private preview and is turned off by default. As of now only internal Microsoft Azure subscriptions are whitelisted, amd we recommand you use azure monitor instead, Detailed please refer to this doc: [Azure Monitor Agent](AzureMonitorAgent.md)
+Note: Currently this feature is private preview and is turned off by default. As of now only internal Microsoft Azure subscriptions are whitelisted, and we recommend you use azure monitor instead, Detailed please refer to this doc: [Azure Monitor Agent](AzureMonitorAgent.md)
 
 Prequisites:
 1. Add the Moneo service princple to the VM/VMSS

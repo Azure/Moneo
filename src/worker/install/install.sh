@@ -13,6 +13,8 @@ else
 	source $(dirname "${BASH_SOURCE[0]}")/common.sh
 fi
 
+python3 -m pip uninstall opentelemetry-sdk azure-monitor-opentelemetry opentelemetry-exporter-otlp -y
+
 if [ -n "$PUBLISHER_INSTALL" ];
 then
     if [ $PUBLISHER_INSTALL == 'geneva' ];
