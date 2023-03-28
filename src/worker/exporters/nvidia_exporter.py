@@ -314,6 +314,7 @@ def parse_dcgm_cli():
     numeric_log_level = dcgm_client_cli_parser.get_log_level(args)
     filemode = 'w+'
     if not args.logfile:
+        os.makedirs('/tmp/moneo-worker', exist_ok=True)
         args.logfile = '/tmp/moneo-worker/moneoExporter.log'
         filemode = 'a'
     # Defaults to localhost, so we need to set it to None.
