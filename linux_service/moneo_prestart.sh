@@ -36,7 +36,7 @@ then
         echo "$MONEO_PATH/src/worker/publisher/$EXE_TYPE Does not exist"
         exit 1
     fi
-    cp $MONEO_PATH/src/worker/publisher/$EXE_TYPE  /tmp/moneo-worker/publisher/
+    cp -rf $MONEO_PATH/src/worker/publisher/*  /tmp/moneo-worker/publisher/
 else
     if [[ ! -e "$MONEO_PATH/src/worker/exporters/$EXE_TYPE" ]];
     then
