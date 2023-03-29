@@ -7,7 +7,7 @@ This guide will walk you through how to set up Linux services for Moneo exporter
 
 Prerequisites
 -----
-If using [Azure's Ubuntu HPC AI VM image](https://ms.portal.azure.com/#view/Microsoft_Azure_Marketplace/GalleryItemDetailsBladeNopdl/id/microsoft-dsvm.ubuntu-hpc/selectionMode~/false/resourceGroupId//resourceGroupLocation//dontDiscardJourney~/false/selectedMenuId/home/launchingContext~/%7B%22galleryItemId%22%3A%22microsoft-dsvm.ubuntu-hpc2004%22%2C%22source%22%3A%5B%22GalleryFeaturedMenuItemPart%22%2C%22VirtualizedTileDetails%22%5D%2C%22menuItemId%22%3A%22home%22%2C%22subMenuItemId%22%3A%22Search%20results%22%2C%22telemetryId%22%3A%2262513c30-f61d-4cd6-905f-78a3b6869651%22%7D/searchTelemetryId/faaf2f52-2750-4243-b9a1-19f43797cbd3/isLiteSearchFlowEnabled~/false) all dependencies will already be installed. Dependencies can be installed on workers using this script [Install Script](../src/worker/install/install.sh).
+If using [Azure's Ubuntu HPC AI VM image](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/microsoft-dsvm.ubuntu-hpc?tab=overview) all dependencies will already be installed. Dependencies can be installed on workers using this script [Install Script](../src/worker/install/install.sh).
 
 Bellow are the dependencies needed (installed by the the install script):
 1. Python Packages:
