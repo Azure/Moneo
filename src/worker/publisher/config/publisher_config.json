@@ -1,11 +1,11 @@
 {
     "common_config": {
         "metrics_ports": "8000,8001,8002",
-        "metrics_namespace": "<metrics_namespace>",
+        "metrics_namespace": "Moneo_dev",
         "interval": "20"
     },
     "geneva_agent_config": {
-        "metrics_account": "<metrics_account>"
+        "metrics_account": "moneo"
     },
     "azure_monitor_agent_config": {
         "connection_string": "<connectionString>"
