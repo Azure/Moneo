@@ -29,11 +29,13 @@ nohup python3  $WORK_DIR/exporters/net_exporter.py </dev/null >/dev/null 2>&1 &
 nohup python3  $WORK_DIR/exporters/node_exporter.py </dev/null >/dev/null 2>&1 &
 
 
-if [ -n "$START_PUBLISHER" ];
+if [ -n "$START_PUBLISHER" ]
 then
-    if [ $START_PUBLISHER = true ];
+    if [[ $START_PUBLISHER == "geneva" || $START_PUBLISHER == "azure_monitor" ]]
     then
         sleep 5
-        nohup python3  $WORK_DIR/publisher/metrics_publisher.py  </dev/null >/dev/null 2>&1 &
+        nohup python3  $WORK_DIR/publisher/metrics_publisher.py $START_PUBLISHER </dev/null >/dev/null 2>&1 &
+    else
+        echo "Publisher not supported"
     fi
 fi

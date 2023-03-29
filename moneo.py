@@ -123,11 +123,13 @@ class MoneoCLI:
         if self.args.skip_install:
             pass
         else:
+            print('-Installing Moneo on workers-')
             cmd = '/tmp/moneo-worker/install/install.sh'
             if self.args.launch_publisher:
-                print('-Install Geneva agent-')
-                logging.info('Install Geneva agent')
-                cmd = cmd + ' true'
+                agent = self.args.launch_publisher
+                print('-Install ' + agent + ' agent-')
+                logging.info('Install ' + agent + ' agent')
+                cmd = cmd + ' ' + agent
             else:
                 cmd = cmd + ' false'
             out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
@@ -143,9 +145,10 @@ class MoneoCLI:
         else:
             cmd = cmd + ' false'
         if self.args.launch_publisher:
-            print('-Geneva agent enabled-')
-            logging.info('Geneva agent enabled')
-            cmd = cmd + ' true'
+            agent = self.args.launch_publisher
+            print('-Enable ' + agent + ' agent-')
+            logging.info('Enable ' + agent + ' agent')
+            cmd = cmd + ' ' + agent
         else:
             cmd = cmd + ' false'
         out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
@@ -349,9 +352,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '-g',
         '--launch_publisher',
-        action='store_true',
-        default=False,
-        help='This launches the Geneva publisher which will share exporter data with Azure. Default false.')
+        type=str,
+        help='This launches the publisher which will share exporter data with Azure. Choices: {geneva, azure_monitor}.')
     args = parser.parse_args()
 
     logging.basicConfig(
