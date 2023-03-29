@@ -211,7 +211,7 @@ class MoneoCLI:
         print('-Deploying Complete-')
 
     def shutdown_worker(self, hosts_file, max_threads=16,):
-        cmd = '/tmp/moneo-worker/shutdown.sh true'
+        cmd = '/tmp/moneo-worker/shutdown.sh'
         out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
         logging.info(out)
 

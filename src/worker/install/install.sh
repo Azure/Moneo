@@ -19,13 +19,7 @@ if [ -n "$PUBLISHER_INSTALL" ];
 then
     if [ $PUBLISHER_INSTALL == 'geneva' ];
     then
-        # Install open telemetry related packages
-        python3 -m pip install opentelemetry-sdk opentelemetry-exporter-otlp
-        
-        # Pull Geneva Metrics Extension(MA) docker image
-        docker pull linuxgeneva-microsoft.azurecr.io/genevamdm:2.2023.316.006-5d91fa-20230316t1622
-        docker tag linuxgeneva-microsoft.azurecr.io/genevamdm:2.2023.316.006-5d91fa-20230316t1622 genevamdm
-        docker rmi linuxgeneva-microsoft.azurecr.io/genevamdm:2.2023.316.006-5d91fa-20230316t1622
+        $(dirname "${BASH_SOURCE[0]}")/geneva.sh  $(dirname "${BASH_SOURCE[0]}")/config/geneva_config.json
     elif [ $PUBLISHER_INSTALL == 'azure_monitor' ];
     then
         $(dirname "${BASH_SOURCE[0]}")/azure_monitor.sh
