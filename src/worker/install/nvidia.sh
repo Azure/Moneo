@@ -13,6 +13,8 @@ ubuntu_dcgm_install () {
   		echo "Installing Dcgm"
 		apt-get update \
     		&& sudo apt-get install -y datacenter-gpu-manager
+		systemctl --now enable nvidia-dcgm
+		systemctl start nvidia-dcgm
 }
 
 alma_dcgm_install () {
@@ -32,6 +34,8 @@ alma_dcgm_install () {
 		fi
 		rpm -i datacenter-gpu-manager-${DCGM_VERSION}-1-x86_64.rpm
 		rm -f datacenter-gpu-manager-${DCGM_VERSION}-1-x86_64.rpm
+		systemctl --now enable nvidia-dcgm
+		systemctl start nvidia-dcgm
 }
 
 check_min_dcgm_ver(){
@@ -58,9 +62,10 @@ if [[ $distro =~ "Ubuntu" ]]; then
 	dcgm_check=`sudo dpkg-query -l`
 	if [[ $dcgm_check =~ "datacenter-gpu-manager" ]]; then
 		check_min_dcgm_ver ubuntu_dcgm_install "3.1.6"
-
 	else
 		ubuntu_dcgm_install
+		systemctl --now enable nvidia-dcgm
+		systemctl start nvidia-dcgm
 	fi
 elif [[ $distro =~ "AlmaLinux" ]]; then
 	dcgm_check=`rpm -qa`
@@ -68,6 +73,8 @@ elif [[ $distro =~ "AlmaLinux" ]]; then
 		check_min_dcgm_ver alma_dcgm_install "2.4.4"
 	else
 		alma_dcgm_install
+		systemctl --now enable nvidia-dcgm
+		systemctl start nvidia-dcgm
 	fi
 else
 	echo "OS version is not supported"
