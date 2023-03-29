@@ -7,7 +7,7 @@ PROF_METRICS=$1
 START_PUBLISHER=$2
 
 #shutdown previous instances
-$WORK_DIR/shutdown.sh
+$WORK_DIR/shutdown.sh false
 
 # start exporters
 if [ -e "/dev/nvidiactl" ];
@@ -33,6 +33,11 @@ if [ -n "$START_PUBLISHER" ]
 then
     if [[ $START_PUBLISHER == "geneva" || $START_PUBLISHER == "azure_monitor" ]]
     then
+        if [[ $START_PUBLISHER == "geneva" ]];
+        then
+            # check/start geneva docker
+            $WORK_DIR/start_geneva.sh $WORK_DIR/publisher/config/geneva_config.json
+        fi
         sleep 5
         nohup python3  $WORK_DIR/publisher/metrics_publisher.py $START_PUBLISHER </dev/null >/dev/null 2>&1 &
     else
