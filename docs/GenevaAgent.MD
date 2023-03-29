@@ -3,7 +3,7 @@ Geneva Agent User Guide
 Description
 -----
 This guide will walk you through how to share your exporter metrics with Azure using the Geneva Agent.
-Note: Currently this feature is private preview and is turned off by default. As of now only internal Microsoft Azure subscriptions are whitelisted.
+Note: Currently this feature is private preview and is turned off by default. As of now only internal Microsoft Azure subscriptions are whitelisted, and we recommend you use azure monitor instead, Detailed please refer to this doc: [Azure Monitor Agent](AzureMonitorAgent.md)
 
 Prequisites:
 1. Add the Moneo service princple to the VM/VMSS
@@ -17,14 +17,13 @@ Prequisites:
 3. python3-dev installed on all nodes.
 4. PSSH installed on manager nodes.
 5. Ensure passwordless ssh is installed in you environment.
-6. 
 
 Steps
 -----
 1. Ensure that all prequisites are met.
 2. deploy Moneo:
-  - Full deployment ```python3 moneo.py -d full -g -c ~/hostfile --manager_host localhost```
-  - Worker deployment ```python3 moneo.py -d workers -g -c ~/hostfile```
+  - Full deployment ```python3 moneo.py -d full -g geneva -c ~/hostfile --manager_host localhost```
+  - Worker deployment ```python3 moneo.py -d workers -g geneva -c ~/hostfile```
   Note: if install step has already been performed you can use the -w flag to skip it.
 3. Verify that the exporters and publisher are running with ```ps -eaf | grep python3```
     ![image](https://user-images.githubusercontent.com/70273488/227356884-df1fbc1d-40d1-445c-95c8-756c93df5c10.png)
