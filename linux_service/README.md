@@ -16,6 +16,12 @@ Bellow are the dependencies needed (installed by the the install script):
   - filelock==3.10.0
 2. DCGM 3.1.6
 
+Configure (only if using experimental publisher service)
+-----
+To use the geneva or monitor service you must first modify the configuration files.
+1. Moneo/src/worker/install/config/geneva_config.json
+2. Moneo/src/worker/publisher/config/publisher_config.json
+
 Instructions
 -----
 1. Install dependencies using install script (not needed if dependencies already installed)
