@@ -19,7 +19,8 @@ then
         sleep 5 # wait a bit for the exporters to start
         systemctl start moneo_publisher.service 
     else
-        echo "Error: Publisher type $PUBLISHER and/or Moneo path $MONEO_PATH not recognized "
+        if 
+        echo "Either PUBLISHER OR MONEO_PATH unrecognized. PUBLISHER can be geneva or azure_monitor. If publisher is geneva MONEO_PATH must be defined."
         echo "Some services may have started use the stop_moneo_services script to perform a clean stop"
     fi
 fi
