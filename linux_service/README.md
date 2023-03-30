@@ -16,53 +16,61 @@ Bellow are the dependencies needed (installed by the the install script):
   - filelock==3.10.0
 2. DCGM 3.1.6
 
-Configure (only if using experimental publisher service)
------
-To use the geneva or monitor service you must first modify the configuration files.
-1. Moneo/src/worker/install/config/geneva_config.json
-2. Moneo/src/worker/publisher/config/publisher_config.json
-
-Instructions
+Instructions without Publisher service
 -----
 1. Install dependencies using install script (not needed if dependencies already installed)
-  - ```sudo ../src/worker/install/install.sh true```
+   - ```sudo ../src/worker/install/install.sh```
+
 2. Run the [configure_service.sh](./configure_service.sh) with the full Moneo path as an argument
-  - ```sudo ./configure_service.sh <Moneo_PATH>```
-  - If an argument isn't provide it will use the default directory: i.e. /opt/azurehpc/tools/Moneo
+   - ```sudo ./configure_service.sh <Moneo_PATH>```
+   - If an argument isn't provide it will use the default directory: i.e. /opt/azurehpc/tools/Moneo
 
 Note: The configure script will modify the moneo@.service file to point to the exporter scripts.
 
 3. To start the services run the following commands:
-  - With start script:
+   - With start script:
   ``` sudo ./start_moneo_services.sh```
-  - With publisher using start script (experimental, do not use unless advised to):
-  ```sudo ./start_moneo_services.sh true```
-  - Manually:
+   - Manually:
   ```
   sudo systemctl start moneo@node_exporter.service
   sudo systemctl start moneo@net_exporter.service
   sudo systemctl start moneo@nvidia_exporter.service
-  ```
-  - Manually with publisher(experimental, do not use unless advised to):
-  ```
-  sudo systemctl start moneo@node_exporter.service
-  sudo systemctl start moneo@net_exporter.service
-  sudo systemctl start moneo@nvidia_exporter.service
-  sleep 5
-  sudo systemctl start moneo_publisher.service 
   ```
 4. To stop the services run:
-- With stop script:
+   - With stop script:
   ``` sudo ./stop_moneo_services.sh ```
-- Manually:
+   - Manually:
   ```
   sudo systemctl stop moneo@node_exporter.service
   sudo systemctl stop moneo@net_exporter.service
   sudo systemctl stop moneo@nvidia_exporter.service
-  sudo systemctl stop moneo_publisher.service
   ```
 5. To run these commands on multiple VMs in parallel you can use a tool like parallel-ssh:
-```parallel-ssh -i -t 0 -h hostfile "<command>"```
+   - ```parallel-ssh -i -t 0 -h hostfile "<command>"```
+
+Instructions for Moneo services with Publisher service
+-----
+The publisher service is experimental and requires additional set up to use.
+1. Modify publisher config files
+   - Moneo/src/worker/install/config/geneva_config.json
+   - Moneo/src/worker/publisher/config/publisher_config.json
+
+2. Install dependencies using install script (not needed if dependencies already installed)
+   - Include Geneva agent install: ```sudo ../src/worker/install/install.sh geneva```
+   - Include Azure monitor install: ```sudo ../src/worker/install/install.sh azure_monitor```
+
+3. Run the [configure_service.sh](./configure_service.sh) with the full Moneo path as an argument
+   - ```sudo ./configure_service.sh <Moneo_PATH> <publisher type>```
+   - Publisher types: "geneva" and "azure_monitor"
+
+4. To start the services run the following commands based on the publisher type:
+   - ```sudo ./start_moneo_services.sh geneva <moneo path>```
+   - ```sudo ./start_moneo_services.sh azure_monitor```
+5. To stop the services run:
+   - ```sudo ./stop_moneo_services.sh ```
+6. To run these commands on multiple VMs in parallel you can use a tool like parallel-ssh:
+   - ```parallel-ssh -i -t 0 -h hostfile "<command>"```
+
 
 Updating job ID
 -----
