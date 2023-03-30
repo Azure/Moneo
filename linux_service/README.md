@@ -50,7 +50,7 @@ Note: The configure script will modify the moneo@.service file to point to the e
 
 Instructions for Moneo services with Publisher service
 -----
-The publisher service is experimental and requires additional set up to use.
+The publisher service is experimental and requires additional setup to use.
 1. Modify publisher config files
    - Moneo/src/worker/install/config/geneva_config.json
    - Moneo/src/worker/publisher/config/publisher_config.json
