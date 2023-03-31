@@ -64,7 +64,7 @@ Minimum Requirements
 - python >=3.7 installed
 
 - OS Support:
-    - Ubuntu 18.04, 20.04
+    - Ubuntu 18.04, 20.04, 22.04
     - AlmaLinux 8.6
 ### Manager node requirements
 - docker
@@ -74,8 +74,9 @@ Minimum Requirements
 - Nvidia Architecture supported (only for Nvidai GPU monitoring):
     - Volta
     - Ampere
+    - Hopper
  - Installed with install script at time of deployment (if not installed):
-    - DCGM 2.4.4
+    - DCGM 3.1.6
     - pip3
     - prometheus_client
     - psutil
@@ -142,6 +143,7 @@ Which can be accessed as such:
 -w, --skip_install | None |   Skip worker software install|
 -u, --user | Username for remote machine | Provide username to use on remote VMs if not the same as current machine. Default is none.|
 -m, --manager_host | Manager Hostname/IP | Manager hostname or IP. Default is localhost.|
+--g , --launch_publisher | {geneva, azure_monitor} | his launches the publisher which will share exporter data with Azure.|
 
 ### _Access the Portal_
 
