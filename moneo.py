@@ -4,6 +4,52 @@
 import argparse
 import os
 import logging
+import subprocess
+import shlex
+
+
+def shell_cmd(cmd, timeout):
+    """Helper Function for running subprocess"""
+
+    args = shlex.split(cmd)
+    child = subprocess.Popen(args, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+    try:
+        result, errs = child.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        child.kill()
+        print("Command " + " ".join(args) + ", Failed on timeout")
+        result = 'TimeOut'
+        return result
+    return result.decode()
+
+
+def pssh(cmd, hosts_file, timeout=300, max_threads=16, user=None):
+    pssh_cmd = 'pssh'
+    os_type = shell_cmd('awk -F= \'/^NAME/{print $2}\' /etc/os-release', 45)
+    if 'Ubuntu' in os_type:  # Ubuntu uses parallel-ssh while centos/AlmaLinux use pssh
+        pssh_cmd = 'parallel-ssh'
+    if user:
+        pssh_cmd = pssh_cmd + " --user={}".format(user)
+    pssh_cmd = pssh_cmd + " -i -t 0 -p {} -h {} 'sudo {}' ".format(max_threads, hosts_file, cmd)
+    out = shell_cmd(pssh_cmd, timeout)
+    if 'FAILURE' in out:
+        raise Exception("Pssh command failed on one or more hosts with command {}, Output: {}".format(pssh_cmd, out))
+    return out
+
+
+def pscp(copy_path, destination_dir, hosts_file, timeout=300, max_threads=16, user=None):
+    pscp_cmd = 'pscp.pssh'
+    os_type = shell_cmd('awk -F= \'/^NAME/{print $2}\' /etc/os-release', 45)
+    if 'Ubuntu' in os_type:
+        pscp_cmd = 'parallel-scp'
+    if user:
+        pscp_cmd = pscp_cmd + " --user={}".format(user)
+    pscp_cmd = pscp_cmd + " -r -t 0 -p {} -h {} {} {}".format(max_threads, hosts_file, copy_path, destination_dir)
+    out = shell_cmd(pscp_cmd, timeout)
+    if 'FAILURE' in out:
+        raise Exception("Pscp command failed on one or more hosts with command {}, Output: {}".format(pscp_cmd, out))
+    return out
 
 
 class MoneoCLI:
@@ -18,42 +64,36 @@ class MoneoCLI:
         Deploys Moneo monitoring to hosts listed in the
         specified host ini file
         '''
-        dep_cmd = 'ansible-playbook' + ' -f ' + str(args.fork_processes) + \
-                  ' -i ' + args.host_ini + ' src/ansible/deploy.yaml'
-
-        if self.args.type == 'workers':
-            dep_cmd = dep_cmd + ' -e "skip_master=true"'
-        elif self.args.type == 'manager':
-            dep_cmd = dep_cmd + ' -e "skip_worker=true"'
-        dep_cmd = dep_cmd + ' -e "skip_insights=' + \
-            ('false' if self.args.insights else 'true') + '"'
-        dep_cmd = dep_cmd + ' -e "enable_profiling=' + \
-            ('true' if self.args.profiler_metrics else 'false') + '"'
-        dep_cmd = dep_cmd + ' -e "enable_container=' + \
-            ('true' if self.args.container else 'false') + '"'
 
         print('Deployment type: ' + self.args.type)
         logging.info('Moneo starting, Deployment type: ' + args.type)
-        os.system(dep_cmd)
+
+        if self.args.type == 'workers' or self.args.type == 'full':
+            if self.args.container:
+                self.deploy_work_docker(self.args.host_file, self.args.fork_processes)
+            else:
+                self.deploy_worker(
+                    self.args.host_file,
+                    self.args.fork_processes)
+
+        if self.args.type == 'manager' or self.args.type == 'full':
+            self.deploy_manager(self.args.host_file, user=self.args.user, manager_host=self.args.manager_host)
+        logging.info('Moneo starting, Deployment type: ' + self.args.type)
 
     def stop(self):
         '''Stops Moneo monitoring on hosts listed in the specified host ini file'''
         while True:
             confirm = input("Are you sure you would like to perform a '" + self.args.type
                             + "' shutdown of Moneo? (Y/n)\n")
-
             if confirm.upper() == 'Y':
-                dep_cmd = 'ansible-playbook' + ' -f ' + str(args.fork_processes) + \
-                          ' -i ' + args.host_ini + ' src/ansible/shutdown.yaml'
-                if self.args.type == 'workers':
-                    dep_cmd = dep_cmd + ' -e "skip_master=true"'
-                elif self.args.type == 'manager':
-                    dep_cmd = dep_cmd + ' -e "skip_worker=true"'
-                os.system(dep_cmd)
-                print("Moneo is Shutting down \n")
+                if self.args.type == 'workers' or self.args.type == 'full':
+                    self.shutdown_worker(self.args.host_file, self.args.fork_processes)
+                    print("Moneo workers is Shutting down \n")
+                if self.args.type == 'manager' or self.args.type == 'full':
+                    self.shutdown_manager(user=self.args.user, manager_host=self.args.manager_host)
+                    print("Moneo manager is Shutting down \n")
                 logging.info('Moneo is Shutting down')
                 return 0
-
             elif confirm.upper() == 'N':
                 print("Canceling request to shutdown Moneo \n")
                 logging.info('Canceling request to shutdown Moneo')
@@ -63,11 +103,124 @@ class MoneoCLI:
 
     def jobID_update(self):
         '''Updates job id for hosts listed in the specified host ini file'''
-        dep_cmd = 'ansible-playbook' + ' -f ' + str(args.fork_processes) + ' -i ' + \
-            args.host_ini + ' src/ansible/updateJobID.yaml -e job_Id=' + args.job_id
-        print('Job ID update to ' + self.args.job_id)
-        logging.info('Job ID update to ' + args.job_id + ". Hostfile: " + args.host_ini)
-        os.system(dep_cmd)
+        print('Updating job ID to ' + self.args.job_id)
+        logging.info('Updating job ID to ' + self.args.job_id)
+        cmd = '/tmp/moneo-worker/jobIdUpdate.sh ' + self.args.job_id
+        out = pssh(cmd=cmd, hosts_file=self.args.host_file, user=self.args.user)
+        logging.info(out)
+        logging.info('Job ID updated to ' + self.args.job_id + ". Hostfile: " + self.args.host_file)
+
+    def deploy_worker(self, hosts_file, max_threads=16):
+        out = pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file, user=self.args.user)
+        logging.info(out)
+        copy_path = './src/worker/'
+        destination_dir = '/tmp/moneo-worker'
+        print('-Copying files to workers-')
+        logging.info('Copying files to workers')
+        out = pscp(copy_path, destination_dir, hosts_file, user=self.args.user)
+        logging.info(out)
+        print('--------------------------')
+        if self.args.skip_install:
+            pass
+        else:
+            print('-Installing Moneo on workers-')
+            cmd = '/tmp/moneo-worker/install/install.sh'
+            if self.args.launch_publisher:
+                agent = self.args.launch_publisher
+                print('-Install ' + agent + ' agent-')
+                logging.info('Install ' + agent + ' agent')
+                cmd = cmd + ' ' + agent
+            else:
+                cmd = cmd + ' false'
+            out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
+            logging.info(out)
+            print('--------------------------')
+        print('-Starting metric exporters on workers-')
+        logging.info('Starting metric exporters on workers')
+        cmd = '/tmp/moneo-worker/start.sh'
+        if self.args.profiler_metrics:
+            print('-Profiling enabled-')
+            logging.info('Profiling enabled')
+            cmd = cmd + ' true'
+        else:
+            cmd = cmd + ' false'
+        if self.args.launch_publisher:
+            agent = self.args.launch_publisher
+            print('-Enable ' + agent + ' agent-')
+            logging.info('Enable ' + agent + ' agent')
+            cmd = cmd + ' ' + agent
+        else:
+            cmd = cmd + ' false'
+        out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
+        logging.info(out)
+        print('--------------------------')
+        print('-Deploying Complete')
+
+    def deploy_work_docker(self, hosts_file, max_threads=16):
+        copy_path = './src/worker/deploy_docker.sh'
+        destination_dir = '/tmp/moneo-worker'
+        print('-Deploying docker containers to Nvidia support workers)-')
+        logging.info('Deploying docker container to workers')
+        out = pscp(copy_path, destination_dir, hosts_file, user=self.args.user)
+        logging.info(out)
+        out = pssh(cmd='/tmp/moneo-worker/deploy_docker.sh',
+                   hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
+        logging.info(out)
+        print('-Deploying Complete')
+
+    def check_command_result(self, result):
+        if 'Permission denied' in result:
+            logging.error("SSH permission denied issue with output:{}".format(result))
+            raise Exception('SSH permission issue')
+        elif 'failure in name resolution' in result:
+            logging.error("Host resolution issue with output:{}".format(result))
+            raise Exception('Host resolution issue')
+        else:
+            logging.info(result)
+
+    def deploy_manager(self, work_host_file, user=None, manager_host='localhost', export_AzInsight=False):
+        ssh_host = manager_host
+        if user:
+            ssh_host = "{}@{}".format(user, manager_host)
+        copy_path = "src/master/"
+        destination_dir = '/tmp/moneo-master'
+        print('-Copying files to manager-')
+        logging.info('Copying files to manager')
+        cmd = "ssh {} 'rm -rf {}'".format(ssh_host, destination_dir)
+        self.check_command_result(shell_cmd(cmd, 30))
+        cmd = "scp -r {} {}:{}".format(copy_path, ssh_host, '/tmp/')
+        self.check_command_result(shell_cmd(cmd, 30))
+        cmd = "ssh {} 'mv {} {}'".format(ssh_host, '/tmp/master', destination_dir)
+        self.check_command_result(shell_cmd(cmd, 30))
+        print('--------------------------')
+        print('-Deploying Grafana and Prometheus docker containers to manager-')
+        logging.info('Deploying Grafana and Prometheus docker containers to manager')
+        cmd = "ssh {} 'sudo /tmp/moneo-master/managerLaunch.sh {} {}' ".format(ssh_host, work_host_file, manager_host)
+        self.check_command_result(shell_cmd(cmd, 60))
+        print('--------------------------')
+        if export_AzInsight:
+            print('-Starting Azure insights collector-')
+            logging.info('Starting Azure insights collector')
+            copy_path = "src/azinsights"
+            cmd = "scp -r {} {}:{}".format(copy_path, ssh_host, destination_dir)
+            self.check_command_result(shell_cmd(cmd, 30))
+            copy_path = "./config.ini"
+            cmd = "scp -r {} {}:{}//azinsights".format(copy_path, ssh_host, destination_dir)
+            self.check_command_result(shell_cmd(cmd, 30))
+            print('--------------------------')
+        print('-Deploying Complete-')
+
+    def shutdown_worker(self, hosts_file, max_threads=16,):
+        cmd = '/tmp/moneo-worker/shutdown.sh true'
+        out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
+        logging.info(out)
+
+    def shutdown_manager(self, user=None, manager_host='localhost'):
+        ssh_host = manager_host
+        if user:
+            ssh_host = "{}@{}".format(user, manager_host)
+        cmd = "ssh {} 'sudo /tmp/moneo-master/shutdown.sh'".format(ssh_host)
+        self.check_command_result(shell_cmd(cmd, 60))
 
 
 def check_deploy_shutdown(args, parser):
@@ -75,8 +228,9 @@ def check_deploy_shutdown(args, parser):
     Checks if the necessary arguments are provided for
     deploy and shutdwon
     '''
-    if (not os.path.isfile(args.host_ini)):
-        print(args.host_ini + " does not exist. Please provide a host file. i.e. host.ini.\n")
+
+    if (not os.path.isfile(args.host_file)):
+        print(args.host_file + " does not exist. Please provide a host file. i.e. host.ini.\n")
         parser.print_help()
         exit(1)
     if args.job_id:
@@ -96,22 +250,40 @@ def check_insights_config(args, parser):
         exit(1)
 
 
+def parallel_ssh_check():
+    """check parallel ssh installed"""
+
+    os_type = shell_cmd('awk -F= \'/^NAME/{print $2}\' /etc/os-release', 45)
+
+    if 'Ubuntu' in os_type:
+        pkg_check_results = shell_cmd('dpkg -s pssh', 45)
+    else:
+        pkg_check_results = shell_cmd('rpm -q pssh', 45)
+
+    if 'not installed' in pkg_check_results:
+        logging.error('pssh is not installed, please install pssh to continue')
+        print('pssh is not installed.'
+              'Moneo CLI requires pssh to distribute commands to the worker nodes. Please install PSSH')
+        exit(1)
+    return True
+
+
 if __name__ == '__main__':
-    #   parser options
+
     parser = argparse.ArgumentParser(
         description='Moneo CLI Help Menu',
         prog='moneo.py',
-        usage='%(prog)s [-d ] [-c HOST_INI] [{manager,workers,full}] \
-        \nusage: %(prog)s [-s ] [-c HOST_INI] [{manager,workers,full}] \
-        \nusage: %(prog)s [-j JOB_ID ] [-c HOST_INI] \
+        usage='%(prog)s [-d ] [-c HOST_FILE] [{manager,workers,full}] \
+        \nusage: %(prog)s [-s ] [-c HOST_FILE] [{manager,workers,full}] \
+        \nusage: %(prog)s [-j JOB_ID ] [-c HOST_FILE] \
         \ni.e. python3 moneo.py -d -c ./host.ini full'
     )
 
     parser.add_argument(
         '-c',
-        '--host_ini',
-        default='./host.ini',
-        help='Provide filepath and name of ansible config file. The default is host.ini in the Moneo directory.')
+        '--host_file',
+        default='./hostfile',
+        help='Provide filepath and name to hostfile. The default is hostfile in the Moneo directory.')
     parser.add_argument(
         '-j',
         '--job_id',
@@ -122,12 +294,12 @@ if __name__ == '__main__':
         '-d',
         '--deploy',
         action='store_true',
-        help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
+        help='Requires host file to be specified (i.e. -c hostfile) or file to be in Moneo directory.')
     parser.add_argument(
         '-s',
         '--shutdown',
         action='store_true',
-        help='Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.')
+        help='Requires host file to be specified (i.e. -c hostfile) or file to be in Moneo directory.')
     parser.add_argument(
         '-i',
         '--insights',
@@ -161,15 +333,36 @@ if __name__ == '__main__':
         type=int,
         help='The number of processes used to deploy/shutdown/update Moneo.'
              'Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.')
-
+    parser.add_argument(
+        '-w',
+        '--skip_install',
+        action='store_true',
+        default=False,
+        help='Skip worker software install')
+    parser.add_argument(
+        '-u',
+        '--user',
+        default=None,
+        help='Provide username to use on remote VMs if not the same as current machine. Default is none')
+    parser.add_argument(
+        '-m',
+        '--manager_host',
+        default='localhost',
+        help='Manager hostname or IP. Default is localhost.')
+    parser.add_argument(
+        '-g',
+        '--launch_publisher',
+        type=str,
+        help='This launches the publisher which will share exporter data with Azure. Choices: {geneva, azure_monitor}.')
     args = parser.parse_args()
 
     logging.basicConfig(
         level=logging.INFO, filename='./moneoCLI.log', format='[%(asctime)s] moneoCLI-%(levelname)s-%(message)s')
     try:
         mCLI = MoneoCLI(args)
-
         #   Workflow selection
+        if not parallel_ssh_check():
+            exit(1)
         if (args.deploy and args.shutdown):
             print("deploy and shutdown are exclusive arguments. Please only provide one.\n")
             parser.print_help()
@@ -182,15 +375,16 @@ if __name__ == '__main__':
             check_deploy_shutdown(args, parser)
             mCLI.stop()
         elif args.job_id:
-            if (not os.path.isfile(args.host_ini)):
+            if (not os.path.isfile(args.host_file)):
                 print(
-                    args.host_ini + " does not exist. Please provide a host file. i.e. host.ini.\n")
+                    args.host_file + " does not exist. Please provide a host file. i.e. hostfile.\n")
                 parser.print_help()
                 exit(1)
             mCLI.jobID_update()
         else:
             parser.print_help()
     except Exception as e:
+        print('An exception was raised. Please see moneoCLI.log')
         logging.error('Raised exception. Message: %s', e)
 
     exit(0)

@@ -219,7 +219,7 @@ class NodeExporter(BaseExporter):
             else:
                 self.gauges[field_name].remove(self.config['job_id'])
         # Update job id
-        with open('curr_jobID') as f:
+        with open('/tmp/moneo-worker/curr_jobID') as f:
             self.config['job_id'] = f.readline().strip()
         logging.debug('Job ID updated to %s', self.config['job_id'])
 
@@ -392,6 +392,7 @@ def main():
         help='Port to export metrics from')
     args = parser.parse_args()
     # set up logging
+    os.makedirs('/tmp/moneo-worker', exist_ok=True)
     logging.basicConfig(level=get_log_level(args), filename='/tmp/moneo-worker/moneoExporter.log',
                         format='[%(asctime)s] node_exporter-%(levelname)s-%(message)s')
     jobId = None  # set a default job id of None
