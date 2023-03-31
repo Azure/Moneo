@@ -35,6 +35,10 @@ Steps
     ```sh 
     python3 moneo.py --deploy -c hostfile full
     ```
+    * If using the Azure HPC/AI market place image or if installation has been performed on all worker nodes by a previous deploymeny we can skip the install step:
+    ```sh 
+    python3 moneo.py --deploy -c hostfile full -w
+    ```
     Note: See usage section of the README doc for more advance details on Moneo CLI
 
     Note: By default Moneo deploys to the manager using localhost. This can be changed using the "manager_host" flag.
