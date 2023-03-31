@@ -143,7 +143,7 @@ Which can be accessed as such:
 -w, --skip_install | None |   Skip worker software install|
 -u, --user | Username for remote machine | Provide username to use on remote VMs if not the same as current machine. Default is none.|
 -m, --manager_host | Manager Hostname/IP | Manager hostname or IP. Default is localhost.|
---g , --launch_publisher | {geneva, azure_monitor} | his launches the publisher which will share exporter data with Azure.|
+--g , --launch_publisher | {geneva, azure_monitor} | This launches the publisher which will share exporter data with Azure.|
 
 ### _Access the Portal_
 
