@@ -146,9 +146,15 @@ class MoneoCLI:
             cmd = cmd + ' false'
         if self.args.launch_publisher:
             agent = self.args.launch_publisher
-            print('-Enable ' + agent + ' agent-')
-            logging.info('Enable ' + agent + ' agent')
             cmd = cmd + ' ' + agent
+            if self.args.publisher_auth:
+                auth = self.args.publisher_auth
+                print('-Enable ' + agent + ' agent authentication: ' + auth + '-')
+                logging.info('Enable ' + agent + ' agent authentication: ' + auth)
+                cmd = cmd + ' ' + auth
+            else:
+                print('-Enable ' + agent + ' agent-')
+                logging.info('Enable ' + agent + ' agent')
         else:
             cmd = cmd + ' false'
         out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
@@ -354,6 +360,12 @@ if __name__ == '__main__':
         '--launch_publisher',
         type=str,
         help='This launches the publisher which will share exporter data with Azure. Choices: {geneva, azure_monitor}.')
+    parser.add_argument(
+        '-a',
+        '--publisher_auth',
+        type=str,
+        help='Required if launching publisher with geneva. Authentication method for geneva. Choices: {umi, cert}.'
+             'If using cert, please replace the mdm-key.pem and mdm-cert.pem files in the publisher config directory with your own.')
     args = parser.parse_args()
 
     logging.basicConfig(

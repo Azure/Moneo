@@ -6,6 +6,7 @@ PROF_METRICS=$1
 
 START_PUBLISHER=$2
 
+PUBLISHER_AUTH=${3:-""}
 #shutdown previous instances
 $WORK_DIR/shutdown.sh false
 
@@ -35,8 +36,18 @@ then
     then
         if [[ $START_PUBLISHER == "geneva" ]];
         then
-            # check/start geneva docker
-            $WORK_DIR/start_geneva.sh $WORK_DIR/publisher/config/geneva_config.json
+            if [ -n "$PUBLISHER_AUTH" ]
+            then
+                if [[ $PUBLISHER_AUTH == "umi" || $PUBLISHER_AUTH == "cert" ]];
+                then
+                    # Start Geneva Metrics Extension(MA) docker container with UMI
+                    echo "Starting Geneva Metrics Extension(MA) docker container with $PUBLISHER_AUTH"
+                    $WORK_DIR/start_geneva.sh $PUBLISHER_AUTH $WORK_DIR/publisher/config
+                else
+                    # Unsupported auth type
+                    echo "Publisher auth not supported"
+                fi
+            fi
         fi
         sleep 5
         nohup python3  $WORK_DIR/publisher/metrics_publisher.py $START_PUBLISHER </dev/null >/dev/null 2>&1 &
