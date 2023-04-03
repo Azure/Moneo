@@ -35,7 +35,7 @@ Steps
     ```sh 
     python3 moneo.py --deploy -c hostfile full
     ```
-    * If using the Azure HPC/AI market place image or if installation has been performed on all worker nodes by a previous deploymeny we can skip the install step:
+    * If using the Azure HPC/AI marketplace image or if installation has been performed on all worker nodes by a previous deployment we can skip the install step:
     ```sh 
     python3 moneo.py --deploy -c hostfile full -w
     ```
