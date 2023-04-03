@@ -111,6 +111,7 @@ class MoneoCLI:
         logging.info('Job ID updated to ' + self.args.job_id + ". Hostfile: " + self.args.host_file)
 
     def deploy_worker(self, hosts_file, max_threads=16):
+        '''Deploys Moneo worker to hosts listed in the specified host ini file'''
         out = pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file, user=self.args.user)
         logging.info(out)
         copy_path = './src/worker/'
@@ -127,6 +128,9 @@ class MoneoCLI:
             cmd = '/tmp/moneo-worker/install/install.sh'
             if self.args.launch_publisher:
                 agent = self.args.launch_publisher
+                if agent != 'geneva' and agent != 'azure_monitor':
+                    logging.error("Invalid agent specified: " + agent)
+                    raise Exception("Invalid agent specified: " + agent)
                 print('-Install ' + agent + ' agent-')
                 logging.info('Install ' + agent + ' agent')
                 cmd = cmd + ' ' + agent
@@ -146,6 +150,12 @@ class MoneoCLI:
             cmd = cmd + ' false'
         if self.args.launch_publisher:
             agent = self.args.launch_publisher
+            if agent == 'geneva' and not self.args.publisher_auth:
+                logging.error("Geneva agent requires specified authentication")
+                raise Exception("Geneva agent requires specified authentication")
+            elif agent == 'azure_monitor' and self.args.publisher_auth:
+                logging.error("Azure Monitor agent does not require authentication")
+                raise Exception("Azure Monitor agent does not require authentication")
             cmd = cmd + ' ' + agent
             if self.args.publisher_auth:
                 auth = self.args.publisher_auth
@@ -310,7 +320,7 @@ if __name__ == '__main__':
         '-i',
         '--insights',
         action='store_true',
-        help='Experimental feature: Enable exporting of metrics to Azure Insights.'
+        help='Experimental feature: Enable exporting of metrics to Azure Insights. '
              'Requires a valid instrumentation key and base_url for the Prometheus DB in config.ini')
     parser.add_argument(
         'type',
@@ -337,7 +347,7 @@ if __name__ == '__main__':
         '--fork_processes',
         default=16,
         type=int,
-        help='The number of processes used to deploy/shutdown/update Moneo.'
+        help='The number of processes used to deploy/shutdown/update Moneo. '
              'Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.')
     parser.add_argument(
         '-w',
@@ -364,7 +374,7 @@ if __name__ == '__main__':
         '-a',
         '--publisher_auth',
         type=str,
-        help='Required if launching publisher with geneva. Authentication method for geneva. Choices: {umi, cert}.'
+        help='Required if launching publisher with geneva. Authentication method for geneva. Choices: {umi, cert}. '
              'Please replace the mdm-key.pem and mdm-cert.pem in src/worker/publisher/config with yours if using cert.')
     args = parser.parse_args()
 
