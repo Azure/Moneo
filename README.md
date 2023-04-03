@@ -67,15 +67,16 @@ Minimum Requirements
     - Ubuntu 18.04, 20.04, 22.04
     - AlmaLinux 8.6
 ### Manager node requirements
-- docker
-- parallel-ssh
+- docker 20.10.23 (May work with other versions but this has been tested.)
+- parallel-ssh 2.3.4 (May work with other versions but this has been tested.)
 
 ### Worker node requirements
 - Nvidia Architecture supported (only for Nvidai GPU monitoring):
     - Volta
     - Ampere
     - Hopper
- - Installed with install script at time of deployment (if not installed):
+ - docker 20.10.23 (Only if using geneva agent. May work with other versions but this has been tested.)
+ - Installed with install script at time of deployment (If not installed.):
     - DCGM 3.1.6
     - pip3
     - prometheus_client
