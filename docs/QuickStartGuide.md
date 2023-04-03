@@ -26,7 +26,7 @@ Steps
     ```
     Note: The manager node can also be a work node as well. The manager node will have the Grafana and Prometheus docker containers deployed to it.
     
-    Note: You must have password ssh enabled on your nodes
+    Note: You must have passwordless ssh enabled on your nodes
     
     Note: The manager node must be able to ssh into itself
     
