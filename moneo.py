@@ -365,7 +365,7 @@ if __name__ == '__main__':
         '--publisher_auth',
         type=str,
         help='Required if launching publisher with geneva. Authentication method for geneva. Choices: {umi, cert}.'
-             'If using cert, please replace the mdm-key.pem and mdm-cert.pem files in the publisher config directory with your own.')
+             'Please replace the mdm-key.pem and mdm-cert.pem in src/worker/publisher/config with yours if using cert.')
     args = parser.parse_args()
 
     logging.basicConfig(
