@@ -11,7 +11,7 @@ then
     if [ "$PUBLISHER" = "geneva" ] && [ -d $MONEO_PATH ];
     then
         #starts Geneva agent
-        $MONEO_PATH/src/worker/start_geneva.sh  $MONEO_PATH/src/worker/publisher/config/geneva_config.json
+        $MONEO_PATH/src/worker/start_geneva.sh cert $MONEO_PATH/src/worker/publisher/config/geneva_config.json
         sleep 5 # wait a bit for the exporters to start
         systemctl start moneo_publisher.service 
     elif [ "$PUBLISHER" = "azure_monitor" ];
