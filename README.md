@@ -68,7 +68,7 @@ Minimum Requirements
     - AlmaLinux 8.6
 ### Manager node requirements
 - docker 20.10.23 (May work with other versions but this has been tested.)
-- parallel-ssh 2.3.4 (May work with other versions but this has been tested.)
+- parallel-ssh 2.3.1-2 (May work with other versions but this has been tested.)
 
 ### Worker node requirements
 - Nvidia Architecture supported (only for Nvidai GPU monitoring):
@@ -94,7 +94,7 @@ git clone https://github.com/Azure/Moneo.git
 cd Moneo
 
 # install dependencies
-sudo apt-get install pssh
+sudo apt-get install pssh=2.3.1-2
 ```
 
 Configuration
