@@ -61,16 +61,27 @@ There five categories of metrics that Moneo monitors:
 
 Minimum Requirements
 -----
-
 - python >=3.7 installed
-- docker installed
-- ansible installed (python module)
+
 - OS Support:
-    - Ubuntu 18.04, 20.04
+    - Ubuntu 18.04, 20.04, 22.04
     - AlmaLinux 8.6
+### Manager node requirements
+- docker 20.10.23 (May work with other versions but this has been tested.)
+- parallel-ssh 2.3.1-2 (May work with other versions but this has been tested.)
+
+### Worker node requirements
 - Nvidia Architecture supported (only for Nvidai GPU monitoring):
     - Volta
     - Ampere
+    - Hopper
+ - docker 20.10.23 (Only if using geneva agent. May work with other versions but this has been tested.)
+ - Installed with install script at time of deployment (If not installed.):
+    - DCGM 3.1.6
+    - pip3
+    - prometheus_client
+    - psutil
+    - filelock
 
 Setup
 -----
@@ -83,32 +94,25 @@ git clone https://github.com/Azure/Moneo.git
 cd Moneo
 
 # install dependencies
-python3 -m pip install ansible
+sudo apt-get install pssh=2.3.1-2
 ```
 
 Configuration
 -------------
 
-Prepare a config file `host.ini` for all master/worker nodes, here's an example:
+Prepare a hostfile that lists all worker node hostnames/ip
 
-```ini
-[master]
-192.168.0.100
-
-[worker]
+```hostfile
 192.168.0.100
 192.168.0.101
 192.168.0.110
-
-[all:vars]
-ansible_user=username
-ansible_ssh_private_key_file=/path/to/key
-ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 ```
 
-If you have configured passwordless SSH already, `[all:vars]` section can be skipped.
+If the remote worker machines use a different username use the Moneo cli "--user" flag to indicate username to use.
 
-Please refer to [Ansible Inventory docs](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html) for more complex cases.
+If the manager is not local host use the "--manager_host" flag to specify hostname/IP.
+
+i.e. ```python3 moneo.py -d manager -c hostfile --user <username> --manager_host <host IP>```
 
 Usage
 -----
@@ -121,22 +125,26 @@ Which can be accessed as such:
     python3 moneo.py --help
     ```
 #### CLI Usage
-* ```python3 moneo.py [-d/--deploy] [-c HOST_INI] {manager,workers,full}```
-* ```python3 moneo.py [-s/--shutdown] [-c HOST_INI] {manager,workers,full}```
-* ```python3 moneo.py [-j JOB_ID ] [-c HOST_INI]```
-* i.e. ```python3 moneo.py -d -c ./host.ini full```
+* ```python3 moneo.py [-d/--deploy] [-c hostfile] {manager,workers,full}```
+* ```python3 moneo.py [-s/--shutdown] [-c hostfile] {manager,workers,full}```
+* ```python3 moneo.py [-j JOB_ID ] [-c hostfile]```
+* i.e. ```python3 moneo.py -d -c ./hostfile full```
 
 
 | Flag                           | Options/arguments        |Description|
 |--------------------------------|--------------------------|--------|
 |-d, --deploy | None   |Deploy option selection. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.|
 |-s, --shutdown| None  |Shutdown option selection. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.|
+| | {manager,workers,full} | Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full. |
 |-c, --host_ini    | path + file name    |Provide filepath and name of ansible config file. The default is host.ini in the Moneo directory.|
 |-j , --job_id | Job ID |Job ID for filtering metrics by job group. Host.ini file required. Cannot be specified during deployment and shutdown.|
 |-p, --profiler_metrics | None|Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.|
 |-f, --fork_processes | number of processes | The number of processes used to deploy/shutdown/update Moneo. Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.|
 |-r, --container | None|Deploy Moneo-worker inside the container. Supported Platform: {nvidia} |
-| | {manager,workers,full} | Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full. |
+-w, --skip_install | None |   Skip worker software install|
+-u, --user | Username for remote machine | Provide username to use on remote VMs if not the same as current machine. Default is none.|
+-m, --manager_host | Manager Hostname/IP | Manager hostname or IP. Default is localhost.|
+--g , --launch_publisher | {geneva, azure_monitor} | This launches the publisher which will share exporter data with Azure.|
 
 ### _Access the Portal_
 
@@ -163,9 +171,8 @@ There are several cases based on the networking configuration:
 - [Quick Start](./docs/QuickStartGuide.md)
 - To get started with job level filtering see: [Job Level Filtering](./docs/JobFiltering.md)
 - Slurm epilog/prolog integration: [Slurm example](./examples/slurm/README.md)
-- To add your own metrics see: [Adding custom Metrics](./docs/CustomMetrics.md)
 - To deploy moneo-worker inside container: [Moneo-exporter](./docs/Moneo-exporter.md)
-- To integrate Moneo with Azure Insights dashboard see: [Azure Application Insights for Metric Visualization](src/azinsights/README.md)
+- To integrate Moneo with Azure Insights dashboard see: [Azure Monitor](./docs/AzureMonitorAgent.md)
 
 Known Issues
 ------------

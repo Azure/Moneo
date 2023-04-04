@@ -43,5 +43,8 @@ Steps
 4. At this point Moneo will now update job Ids based off when a Slurm job is start and completed.
 
 
+Alternative: Moneo Linux services
+-----
+As an alternative to using Moneo CLI in the prolog/epilog scripts you can configure Moneo Linux service: [Moneo services](../../linux_service/README.md)
 
-
+This will allow for Moneo exporters to be started/stopped by systemctl.

@@ -78,5 +78,7 @@ To update job name/ID we can use the [job ID update script](../src/worker/jobIdU
 
 ```sudo ../src/worker/jobIdUpdate.sh <jobname/ID>```
 
+or see [Update Job Id With Moneo CLI](../docs/JobFiltering.md)
+
 Note: use parallel-ssh to distribute this command to a cluster (i.e. step 5 of the instructions)
 

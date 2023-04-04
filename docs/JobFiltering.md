@@ -8,27 +8,18 @@ Steps
 -----
 Moneo must be already deployed and running on the cluster where job grouping will be designated.(Please note that this feature is not supported if Moneo-worker is deployed inside docker, will support it in the future.)
 1. To set a job Id to a subset of nodes a config.ini file with the desired hosts must be passed in:
-*  ```python3 moneo.py -j 4 -c host.ini```
-* The 'host.ini' file will be the same format as the config file used to deploy Moneo for the exception that the worker list will only include the hosts for the job group.
+*  ```python3 moneo.py -j 4 -c hostfile```
+* The 'hostfile' file will be the same format as the config file used to deploy Moneo with the exception that the worker list will only include the hosts for the job group.
 * i.e. 
-    ```ini
-    [master]
-    192.168.0.100
-
-    [worker]
+    ```hostfile
     192.168.0.100
     192.168.0.101
     192.168.0.110
-
-    [all:vars]
-    ansible_user=username
-    ansible_ssh_private_key_file=/path/to/key
-    ansible_ssh_common_args='-o StrictHostKeyChecking=no'
     ```
     Note: The master node can also be work node as well. The master node will have the Grafana and Prometheus docker containers deployed to it.
  * The hosts listed under the worker label will be part of the specified job group.
-2. The ```python3 moneo.py -j 4 -c host.ini``` command can be used in a job scheduling script such as a PBS scipt, Sbatch script or called manually from command line.
-3. At the completion of the of the job ```python3 moneo.py -j None -c host.ini``` command can be called again with either "None" or some default Job ID. AGain this can be put at the end of a job scheduling script.
+2. The ```python3 moneo.py -j 4 -c hostfile``` command can be used in a job scheduling script such as a PBS scipt, Sbatch script or called manually from command line.
+3. At the completion of the of the job ```python3 moneo.py -j None -c hostfile``` command can be called again with either "None" or some default Job ID. AGain this can be put at the end of a job scheduling script.
 
 Portal View
 -----

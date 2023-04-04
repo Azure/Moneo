@@ -31,7 +31,8 @@ def pssh(cmd, hosts_file, timeout=300, max_threads=16, user=None):
         pssh_cmd = 'parallel-ssh'
     if user:
         pssh_cmd = pssh_cmd + " --user={}".format(user)
-    pssh_cmd = pssh_cmd + " -i -t 0 -p {} -h {} 'sudo {}' ".format(max_threads, hosts_file, cmd)
+    pssh_cmd = pssh_cmd + \
+        " -x '-o StrictHostKeyChecking=no' -i -t 0 -p {} -h {} 'sudo {}' ".format(max_threads, hosts_file, cmd)
     out = shell_cmd(pssh_cmd, timeout)
     if 'FAILURE' in out:
         raise Exception("Pssh command failed on one or more hosts with command {}, Output: {}".format(pssh_cmd, out))
@@ -45,7 +46,9 @@ def pscp(copy_path, destination_dir, hosts_file, timeout=300, max_threads=16, us
         pscp_cmd = 'parallel-scp'
     if user:
         pscp_cmd = pscp_cmd + " --user={}".format(user)
-    pscp_cmd = pscp_cmd + " -r -t 0 -p {} -h {} {} {}".format(max_threads, hosts_file, copy_path, destination_dir)
+    pscp_cmd = pscp_cmd + \
+        " -x '-o StrictHostKeyChecking=no' -r -t \
+        0 -p {} -h {} {} {}".format(max_threads, hosts_file, copy_path, destination_dir)
     out = shell_cmd(pscp_cmd, timeout)
     if 'FAILURE' in out:
         raise Exception("Pscp command failed on one or more hosts with command {}, Output: {}".format(pscp_cmd, out))
@@ -202,26 +205,28 @@ class MoneoCLI:
         destination_dir = '/tmp/moneo-master'
         print('-Copying files to manager-')
         logging.info('Copying files to manager')
-        cmd = "ssh {} 'rm -rf {}'".format(ssh_host, destination_dir)
+        ssh_asking = '-o StrictHostKeyChecking=no'
+        cmd = "ssh {} {} 'rm -rf {}'".format(ssh_asking, ssh_host, destination_dir)
         self.check_command_result(shell_cmd(cmd, 30))
         cmd = "scp -r {} {}:{}".format(copy_path, ssh_host, '/tmp/')
         self.check_command_result(shell_cmd(cmd, 30))
-        cmd = "ssh {} 'mv {} {}'".format(ssh_host, '/tmp/master', destination_dir)
+        cmd = "ssh {} {} 'mv {} {}'".format(ssh_asking, ssh_host, '/tmp/master', destination_dir)
         self.check_command_result(shell_cmd(cmd, 30))
         print('--------------------------')
         print('-Deploying Grafana and Prometheus docker containers to manager-')
         logging.info('Deploying Grafana and Prometheus docker containers to manager')
-        cmd = "ssh {} 'sudo /tmp/moneo-master/managerLaunch.sh {} {}' ".format(ssh_host, work_host_file, manager_host)
+        cmd = "ssh {} {} 'sudo /tmp/moneo-master/managerLaunch.sh {} {}' \
+            ".format(ssh_asking, ssh_host, work_host_file, manager_host)
         self.check_command_result(shell_cmd(cmd, 60))
         print('--------------------------')
         if export_AzInsight:
             print('-Starting Azure insights collector-')
             logging.info('Starting Azure insights collector')
             copy_path = "src/azinsights"
-            cmd = "scp -r {} {}:{}".format(copy_path, ssh_host, destination_dir)
+            cmd = "scp {} -r {} {}:{}".format(ssh_asking, copy_path, ssh_host, destination_dir)
             self.check_command_result(shell_cmd(cmd, 30))
             copy_path = "./config.ini"
-            cmd = "scp -r {} {}:{}//azinsights".format(copy_path, ssh_host, destination_dir)
+            cmd = "scp {} -r {} {}:{}//azinsights".format(ssh_asking, copy_path, ssh_host, destination_dir)
             self.check_command_result(shell_cmd(cmd, 30))
             print('--------------------------')
         print('-Deploying Complete-')
@@ -235,7 +240,7 @@ class MoneoCLI:
         ssh_host = manager_host
         if user:
             ssh_host = "{}@{}".format(user, manager_host)
-        cmd = "ssh {} 'sudo /tmp/moneo-master/shutdown.sh'".format(ssh_host)
+        cmd = "ssh {} {} 'sudo /tmp/moneo-master/shutdown.sh'".format("-o StrictHostKeyChecking=no", ssh_host)
         self.check_command_result(shell_cmd(cmd, 60))
 
 
