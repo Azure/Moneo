@@ -254,6 +254,10 @@ def check_deploy_shutdown(args, parser):
         print(args.host_file + " does not exist. Please provide a host file. i.e. host.ini.\n")
         parser.print_help()
         exit(1)
+    else:
+        # ensure we have the absolute path
+        args.host_file = os.path.abspath(args.host_file)
+        print(args.host_file)
     if args.job_id:
         print(
             "Job Id cannot be specified during deployment and shutdown. Ignoring Job Id.\n")
