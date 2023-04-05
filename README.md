@@ -145,7 +145,7 @@ Which can be accessed as such:
 -u, --user | Username for remote machine | Provide username to use on remote VMs if not the same as current machine. Default is none.|
 -m, --manager_host | Manager Hostname/IP | Manager hostname or IP. Default is localhost.|
 --g , --launch_publisher | {geneva, azure_monitor} | This launches the publisher which will share exporter data with Azure.|
-
+-a PUBLISHER_AUTH | {umi, cert}| Required if launching publisher with geneva. Authentication method for geneva. See help menu for cert configuration.|
 ### _Access the Portal_
 
 The Prometheus and Grafana services will be started on master nodes after deployment.
