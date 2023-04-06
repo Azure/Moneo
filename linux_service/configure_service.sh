@@ -35,12 +35,3 @@ then
 fi
 
 systemctl daemon-reload
-
-# enable exporter services
-systemctl enable moneo@node_exporter.service
-systemctl enable moneo@net_exporter.service
-systemctl enable moneo@nvidia_exporter.service
-if [[ -n $PUBLISHER  ]];
-then
-    systemctl enable moneo_publisher.service
-fi
