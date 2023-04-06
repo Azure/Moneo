@@ -70,11 +70,3 @@ else
     # Unsupported auth type
     echo "Publisher auth not supported"
 fi
-
-# Run Geneva Metrics Extension(MA) docker container
-sudo docker run -d --name=$CONTAINER_NAME --net=host --uts=host                      \
-                -v $GENEVA_DIR:/etc/geneva/ -e MDM_ACCOUNT=$GENEVA_ACCOUNT_NAME     \
-                -e MDM_INPUT="otlp_grpc,statsd_udp" -e MDM_LOG_LEVEL="info"         \
-                -e CONFIG_OVERRIDES_FILE="/etc/geneva/auth_umi.json"                \
-                -e METRIC_ENDPOINT=$METRIC_ENDPOINT                                 \
-                genevamdm
