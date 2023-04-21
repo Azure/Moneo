@@ -18,7 +18,7 @@ GENEVA_MDM_ENDPOINT=$(jq -r '.MDMEndPoint' $GENEVA_CONFIG)
 if [[ "$GENEVA_MDM_ENDPOINT" == *"ppe"* ]]; then
   METRIC_ENDPOINT="https://global.ppe.microsoftmetrics.com/"
 elif [[ "$GENEVA_MDM_ENDPOINT" == *"prod"* ]]; then
-  METRIC_ENDPOINT="https://global.prod.microsoftmetrics.com/"
+  METRIC_ENDPOINT=""
 else
     echo "Invalid Geneva Metrics Extension(MA) Endpoint"
     exit 1
@@ -49,6 +49,7 @@ EOF
                     -v $GENEVA_DIR:/etc/geneva/ -e MDM_ACCOUNT=$GENEVA_ACCOUNT_NAME     \
                     -e MDM_INPUT="otlp_grpc,statsd_udp" -e MDM_LOG_LEVEL="info"         \
                     -e CONFIG_OVERRIDES_FILE="/etc/geneva/auth_umi.json"                \
+                    -e METRIC_ENDPOINT=$METRIC_ENDPOINT                                 \
                     genevamdm
 elif [ $AUTH == "cert" ];
 then
