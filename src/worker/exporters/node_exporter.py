@@ -156,7 +156,7 @@ class NodeExporter(BaseExporter):
                         value[hca] = {timestamp: 1}
             except Exception as e:
                 logging.error('Raised exception. Message: %s', e)
-                pass    
+                pass
         else:
             value = 0
         return value
