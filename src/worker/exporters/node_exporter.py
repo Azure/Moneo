@@ -171,20 +171,24 @@ class NodeExporter(BaseExporter):
                 logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
                 self.update_field(field_name, value[k], self.config['job_id'], k, numa_domain)
         elif 'xid' in field_name or 'link_flap' in field_name:
-            for dev_id in value.keys():
-                for time_stamp in value[dev_id].keys():
-                    if time_stamp in self.config['counter'][field_name][dev_id]:
-                        continue
-                    logging.debug(
-                        f'Handeling key: {dev_id}. Setting value: {value[dev_id]}')
-                    self.config['counter'][field_name][dev_id].clear()
-                    if 'xid' in field_name:
-                        self.update_field(field_name, value[dev_id][time_stamp],
-                                          self.config['job_id'], dev_id, GPU_Mapping[dev_id], time_stamp)
-                    else:  # "linkflap"
-                        self.update_field(field_name, value[dev_id][time_stamp],
-                                          self.config['job_id'], IB_Mapping[dev_id], time_stamp)
-                    config['counter'][field_name][dev_id][time_stamp] = value[dev_id][time_stamp]
+            try:
+                for dev_id in value.keys():
+                    for time_stamp in value[dev_id].keys():
+                        if time_stamp in self.config['counter'][field_name][dev_id]:
+                            continue
+                        logging.debug(
+                            f'Handeling key: {dev_id}. Setting value: {value[dev_id]}')
+                        self.config['counter'][field_name][dev_id].clear()
+                        if 'xid' in field_name:
+                            self.update_field(field_name, value[dev_id][time_stamp],
+                                              self.config['job_id'], dev_id, GPU_Mapping[dev_id], time_stamp)
+                        else:  # "linkflap"
+                            self.update_field(field_name, value[dev_id][time_stamp],
+                                              self.config['job_id'], IB_Mapping[dev_id], time_stamp)
+                        config['counter'][field_name][dev_id][time_stamp] = value[dev_id][time_stamp]
+            except Exception as e:
+                logging.error('Raised exception. Message: %s', e)
+                pass
         else:
             self.update_field(field_name, value, self.config['job_id'])
 

@@ -102,9 +102,9 @@ def get_vm_id():
     Returns:
         vm_id(str): The vm id
     """
-    cmd = 'curl -H Metadata:true \
+    cmd = 'curl -s -H Metadata:true \
     "http://169.254.169.254/metadata/instance/compute/vmId?api-version=2021-02-01&format=text"'
-    vm_id = shell_cmd(cmd, 15).splitlines()[5]
+    vm_id = shell_cmd(cmd, 15).splitlines()[0]
     return vm_id
 
 
@@ -114,9 +114,9 @@ def get_scaleset_name():
     Returns:
         scaleset_name(str): The scaleset name
     """
-    cmd = 'curl -H Metadata:true \
+    cmd = 'curl -s -H Metadata:true \
     "http://169.254.169.254/metadata/instance/compute/name?api-version=2021-02-01&format=text"'
-    scaleset_name = shell_cmd(cmd, 15).splitlines()[5]
+    scaleset_name = shell_cmd(cmd, 15).splitlines()[0]
     return scaleset_name.split("_")[0]
 
 
@@ -126,9 +126,9 @@ def get_subcription_id():
     Returns:
         subscription_id(str): The subscription id
     """
-    cmd = 'curl -H Metadata:true \
+    cmd = 'curl -s -H Metadata:true \
     "http://169.254.169.254/metadata/instance/compute/subscriptionId?api-version=2021-02-01&format=text"'
-    subscription_id = shell_cmd(cmd, 15).splitlines()[5]
+    subscription_id = shell_cmd(cmd, 15).splitlines()[0]
     return subscription_id
 
 
