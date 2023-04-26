@@ -50,7 +50,7 @@ then
             fi
         fi
         sleep 5
-        nohup python3  $WORK_DIR/publisher/metrics_publisher.py $START_PUBLISHER </dev/null >/dev/null 2>&1 &
+        nohup python3  $WORK_DIR/publisher/metrics_publisher.py $START_PUBLISHER >> /tmp/metrics_publisher.log 2>&1 &
     else
         echo "Publisher not supported"
     fi

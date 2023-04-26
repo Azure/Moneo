@@ -1,14 +1,17 @@
-import urllib
-import socket
+import logging
 import json
-import time
+import urllib
 import shlex
+import socket
 import subprocess
 import sys
+import time
 from prometheus_client.parser import text_string_to_metric_families
+from urllib.error import URLError
 
 
 publisher_agent = sys.argv[1]
+logger = logging.getLogger(__name__)
 
 if publisher_agent == 'geneva':
     from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
@@ -289,6 +292,11 @@ if __name__ == '__main__':
 
     # Publish metrics every 20 seconds
     while True:
-        raw_metrics = metricsPublisher.get_metrics()
-        metricsPublisher.publish_metrics(raw_metrics)
+        try:
+            raw_metrics = metricsPublisher.get_metrics()
+            metricsPublisher.publish_metrics(raw_metrics)
+        except URLError as e:
+            logger.exception('Network connection issue.')
+        except:
+            logger.exception('Failed to retrieve and publish metrics to Geneva.')
         time.sleep(interval)
