@@ -1,7 +1,11 @@
 global:
   scrape_interval: 1s
   evaluation_interval: 1s
-
+  external_labels:
+    subscription: subscription_id
+    cluster: cluster_name
+remote_write:
+  - url: "http://localhost:8081/api/v1/write"
 scrape_configs:
   - job_name: 'dcgm_exporter'
     static_configs:

@@ -80,7 +80,7 @@ class MoneoCLI:
                     self.args.fork_processes)
 
         if self.args.type == 'manager' or self.args.type == 'full':
-            self.deploy_manager(self.args.host_file, user=self.args.user, manager_host=self.args.manager_host)
+            self.deploy_manager(self.args.host_file, user=self.args.user, manager_host=self.args.manager_host, export_Prometheus=self.args.enable_prometheus)
         logging.info('Moneo starting, Deployment type: ' + self.args.type)
 
     def stop(self):
@@ -197,7 +197,7 @@ class MoneoCLI:
         else:
             logging.info(result)
 
-    def deploy_manager(self, work_host_file, user=None, manager_host='localhost', export_AzInsight=False):
+    def deploy_manager(self, work_host_file, user=None, manager_host='localhost', export_AzInsight=False, export_Prometheus=False):
         ssh_host = manager_host
         if user:
             ssh_host = "{}@{}".format(user, manager_host)
@@ -228,6 +228,12 @@ class MoneoCLI:
             copy_path = "./config.ini"
             cmd = "scp {} -r {} {}:{}//azinsights".format(ssh_asking, copy_path, ssh_host, destination_dir)
             self.check_command_result(shell_cmd(cmd, 30))
+            print('--------------------------')
+        if export_Prometheus:
+            print('-Starting Prometheus sidecar-')
+            logging.info('Starting Prometheus sidecar')
+            cmd = "ssh {} {} 'sudo /tmp/moneo-master/start_sidecar.sh'".format(ssh_asking, ssh_host)
+            self.check_command_result(shell_cmd(cmd, 60))
             print('--------------------------')
         print('-Deploying Complete-')
 
@@ -384,6 +390,13 @@ if __name__ == '__main__':
         type=str,
         help='Required if launching publisher with geneva. Authentication method for geneva. Choices: {umi, cert}. '
              'Please replace the mdm-key.pem and mdm-cert.pem in src/worker/publisher/config with yours if using cert.')
+    parser.add_argument(
+        '-e',
+        '--enable_prometheus',
+        action='store_true',
+        default=False,
+        help='Remote write promethues metrics to azure monitor workspace endpoint. Default is False.')
+
     args = parser.parse_args()
 
     logging.basicConfig(

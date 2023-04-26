@@ -9,12 +9,31 @@ JOB_NAMES=("dcgm_exporter" "net_exporter" "node_exporter")
 HOSTS=`cat $1`
 MANAGER=$2
 
+get_subscription(){
+    subscription_name=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute/subscriptionId?api-version=2021-02-01&format=text")
+
+    echo $subscription_name
+}
+
+get_cluster_name(){
+    cluster_name=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute/name?api-version=2021-02-01&format=text" | cut -d'_' -f1)
+
+    echo $cluster_name
+}
+
 # generate config file for Prometheus exporters
 generate_prom(){
     HOSTLIST=''
     HOSTLIST1=''
     HOSTLIST2=''
     WORKER_LIST="$@"
+
+    SUBSCRIPTION=$(get_subscription)
+    CLUSTER_NAME=$(get_cluster_name)
+    #replace place holder with subscrption and cluster name:subscription and cluster name
+    sed -i -r "s/subscription_id/$SUBSCRIPTION/" $PROM_CONFIG
+    sed -i -r "s/cluster_name/$CLUSTER_NAME/" $PROM_CONFIG
+
     for i in $WORKER_LIST
     do
         if [ "${i}" = "" ];
@@ -49,4 +68,3 @@ docker rm -f grafana || true
 
 sudo bash run.sh
 popd
-
