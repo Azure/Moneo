@@ -295,7 +295,7 @@ if __name__ == '__main__':
         try:
             raw_metrics = metricsPublisher.get_metrics()
             metricsPublisher.publish_metrics(raw_metrics)
-        except URLError as e:
+        except URLError:
             logger.exception('Network connection issue.')
         except:
             logger.exception('Failed to retrieve and publish metrics to Geneva.')
