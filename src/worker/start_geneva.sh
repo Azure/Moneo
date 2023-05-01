@@ -17,8 +17,8 @@ GENEVA_MDM_ENDPOINT=$(jq -r '.MDMEndPoint' $GENEVA_CONFIG)
 # Set Geneva Metrics Extension(MA) endpoint
 if [[ "$GENEVA_MDM_ENDPOINT" == *"ppe"* ]]; then
   METRIC_ENDPOINT="https://global.ppe.microsoftmetrics.com/"
-elif [[ $str == *"prod"* ]]; then
-  METRIC_ENDPOINT="https://global.prod.microsoftmetrics.com/"
+elif [[ "$GENEVA_MDM_ENDPOINT" == *"prod"* ]]; then
+  METRIC_ENDPOINT=""
 else
     echo "Invalid Geneva Metrics Extension(MA) Endpoint"
     exit 1

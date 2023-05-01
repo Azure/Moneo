@@ -132,27 +132,31 @@ class NodeExporter(BaseExporter):
                 # psutil returns virtual memory stats in bytes, convert to kB
                 value = getattr(virtual_mem, metric) / 1024
         elif 'xid' in field_name or "link_flap" in field_name:
-            value = {}
-            cmd = config['command'][field_name]
-            # check if error present in logs
-            field_check = shell_cmd(cmd, 5)
-            # strip empty lines
-            result = [line for line in field_check.split(
-                '\n') if line.strip() != '']
-            for line in result:
-                timestamp = re.search(
-                    r"\w\w\w\s+\d+\s\d\d:\d\d:\d\d", line).group()
-                if 'xid' in field_name:
-                    results = re.search(r"\(.+\):\s\d\d", line).group().split()
-                    pci = results[0].replace(
-                        '(PCI:', '').replace('):', '')[-10:]
-                    value[pci] = {timestamp: int(results[1])}
-                else:  # link flap
-                    results = re.search(r"\bib\d:", line)
-                    if not results:
-                        continue
-                    hca = results.group().replace(':', '')
-                    value[hca] = {timestamp: 1}
+            try:
+                value = {}
+                cmd = config['command'][field_name]
+                # check if error present in logs
+                field_check = shell_cmd(cmd, 5)
+                # strip empty lines
+                result = [line for line in field_check.split(
+                    '\n') if line.strip() != '']
+                for line in result:
+                    timestamp = re.search(
+                        r"\w\w\w\s+\d+\s\d\d:\d\d:\d\d", line).group()
+                    if 'xid' in field_name:
+                        results = re.search(r"\(.+\):\s\d\d", line).group().split()
+                        pci = results[0].replace(
+                            '(PCI:', '').replace('):', '')[-10:]
+                        value[pci] = {timestamp: int(results[1])}
+                    else:  # link flap
+                        results = re.search(r"\bib\d:", line)
+                        if not results:
+                            continue
+                        hca = results.group().replace(':', '')
+                        value[hca] = {timestamp: 1}
+            except Exception as e:
+                logging.error('Raised exception. Message: %s', e)
+                pass
         else:
             value = 0
         return value
@@ -171,20 +175,24 @@ class NodeExporter(BaseExporter):
                 logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
                 self.update_field(field_name, value[k], self.config['job_id'], k, numa_domain)
         elif 'xid' in field_name or 'link_flap' in field_name:
-            for dev_id in value.keys():
-                for time_stamp in value[dev_id].keys():
-                    if time_stamp in self.config['counter'][field_name][dev_id]:
-                        continue
-                    logging.debug(
-                        f'Handeling key: {dev_id}. Setting value: {value[dev_id]}')
-                    self.config['counter'][field_name][dev_id].clear()
-                    if 'xid' in field_name:
-                        self.update_field(field_name, value[dev_id][time_stamp],
-                                          self.config['job_id'], dev_id, GPU_Mapping[dev_id], time_stamp)
-                    else:  # "linkflap"
-                        self.update_field(field_name, value[dev_id][time_stamp],
-                                          self.config['job_id'], IB_Mapping[dev_id], time_stamp)
-                    config['counter'][field_name][dev_id][time_stamp] = value[dev_id][time_stamp]
+            try:
+                for dev_id in value.keys():
+                    for time_stamp in value[dev_id].keys():
+                        if time_stamp in self.config['counter'][field_name][dev_id]:
+                            continue
+                        logging.debug(
+                            f'Handeling key: {dev_id}. Setting value: {value[dev_id]}')
+                        self.config['counter'][field_name][dev_id].clear()
+                        if 'xid' in field_name:
+                            self.update_field(field_name, value[dev_id][time_stamp],
+                                              self.config['job_id'], dev_id, GPU_Mapping[dev_id], time_stamp)
+                        else:  # "linkflap"
+                            self.update_field(field_name, value[dev_id][time_stamp],
+                                              self.config['job_id'], IB_Mapping[dev_id], time_stamp)
+                        config['counter'][field_name][dev_id][time_stamp] = value[dev_id][time_stamp]
+            except Exception as e:
+                logging.error('Raised exception. Message: %s', e)
+                pass
         else:
             self.update_field(field_name, value, self.config['job_id'])
 

@@ -130,3 +130,6 @@ dmypy.json
 
 #config files
 *.ini
+
+# IDE
+.vs/
