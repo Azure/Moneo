@@ -83,7 +83,10 @@ class BaseExporter:
                 if (job_update):
                     self.jobID_update()
                     job_update = False
-                self.process()
+                try:
+                    self.process()
+                except:
+                    logging.exception('Error while processing metrics')
                 time.sleep(self.config['update_freq'])
                 if self.config['exit']:
                     logging.info('Received exit signal, shutting down ...')
