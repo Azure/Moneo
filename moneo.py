@@ -80,7 +80,12 @@ class MoneoCLI:
                     self.args.fork_processes)
 
         if self.args.type == 'manager' or self.args.type == 'full':
-            self.deploy_manager(self.args.host_file, user=self.args.user, manager_host=self.args.manager_host, export_Prometheus=self.args.enable_prometheus)
+            self.deploy_manager(
+                self.args.host_file,
+                user=self.args.user,
+                manager_host=self.args.manager_host,
+                export_Prometheus=self.args.enable_prometheus
+            )
         logging.info('Moneo starting, Deployment type: ' + self.args.type)
 
     def stop(self):
@@ -197,7 +202,14 @@ class MoneoCLI:
         else:
             logging.info(result)
 
-    def deploy_manager(self, work_host_file, user=None, manager_host='localhost', export_AzInsight=False, export_Prometheus=False):
+    def deploy_manager(
+        self,
+        work_host_file,
+        user=None,
+        manager_host='localhost',
+        export_AzInsight=False,
+        export_Prometheus=False
+    ):
         ssh_host = manager_host
         if user:
             ssh_host = "{}@{}".format(user, manager_host)
