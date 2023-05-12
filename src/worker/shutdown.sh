@@ -19,11 +19,21 @@ kill_exporters() {
 }
 
 kill_docker() {
-	if [[ $(docker ps -a | grep genevamdmagent) ]]; then
-		echo "Stopping Geneva Metrics Extension(MA) container"
-		docker stop genevamdmagent
-		docker rm genevamdmagent
-	fi
+    if [[ $(docker ps -a | grep genevamdmagent) ]]; then
+        echo "Stopping Geneva Metrics Extension(MA) Container"
+        docker stop genevamdmagent
+        docker rm genevamdmagent
+    fi
+    if [[ $(docker ps -a | grep prometheus) ]]; then
+        echo "Stopping Prometheus Container"
+        docker stop prometheus
+        docker rm prometheus
+    fi
+    if [[ $(docker ps -a | grep prometheus_sidecar) ]]; then
+        echo "Stopping prometheus Sidecar Container"
+        docker stop prometheus_sidecar
+        docker rm prometheus_sidecar
+    fi
 }
 
 if [ $arch == "nvidia" ]; then

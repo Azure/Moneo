@@ -1,0 +1,4 @@
+{
+    "IDENTITY_CLIENT_ID": "<identity client id>",
+    "INGESTION_ENDPOINT": "<metrics ingestion endpoint>"
+}
