@@ -32,7 +32,7 @@ nohup python3  $WORK_DIR/exporters/node_exporter.py </dev/null >/dev/null 2>&1 &
 
 if [ -n "$START_PUBLISHER" ]
 then
-    if [[ $START_PUBLISHER == "geneva" || $START_PUBLISHER == "azure_monitor" ]]
+    if [[ $START_PUBLISHER == "geneva" || $START_PUBLISHER == "azure_monitor" || $START_PUBLISHER == "managed_prometheus" ]]
     then
         if [[ $START_PUBLISHER == "geneva" ]];
         then
@@ -48,6 +48,10 @@ then
                     echo "Publisher auth not supported"
                 fi
             fi
+        elif [[ $START_PUBLISHER == 'managed_prometheus' ]];
+        then
+            echo "Starting Managed Prometheus"
+            $WORK_DIR/start_managed_prometheus.sh
         fi
         sleep 5
         nohup python3  $WORK_DIR/publisher/metrics_publisher.py $START_PUBLISHER >> /tmp/metrics_publisher.log 2>&1 &

@@ -113,7 +113,7 @@ class MoneoCLI:
         logging.info(out)
         logging.info('Job ID updated to ' + self.args.job_id + ". Hostfile: " + self.args.host_file)
 
-    def deploy_worker(self, hosts_file, max_threads=16):
+    def deploy_worker(self, hosts_file, max_threads=16):    # noqa: C901
         '''Deploys Moneo worker to hosts listed in the specified host ini file'''
         out = pssh(cmd='rm -rf /tmp/moneo-worker', hosts_file=hosts_file, user=self.args.user)
         logging.info(out)
@@ -131,9 +131,10 @@ class MoneoCLI:
             cmd = '/tmp/moneo-worker/install/install.sh'
             if self.args.launch_publisher:
                 agent = self.args.launch_publisher
-                if agent != 'geneva' and agent != 'azure_monitor':
+                if agent != 'geneva' and agent != 'azure_monitor' and agent != 'managed_prometheus':
                     logging.error("Invalid agent specified: " + agent)
                     raise Exception("Invalid agent specified: " + agent)
+                print('--------------------------')
                 print('-Install ' + agent + ' agent-')
                 logging.info('Install ' + agent + ' agent')
                 cmd = cmd + ' ' + agent
@@ -159,9 +160,16 @@ class MoneoCLI:
             elif agent == 'azure_monitor' and self.args.publisher_auth:
                 logging.error("Azure Monitor agent does not require authentication")
                 raise Exception("Azure Monitor agent does not require authentication")
+            elif agent == 'managed_prometheus' and self.args.publisher_auth != 'umi':
+                logging.error("Managed Prometheus agent requires specified authentication: umi")
+                raise Exception("Managed Prometheus agent requires specified authentication: umi")
+            elif agent == 'managed_prometheus' and self.args.type != 'workers':
+                logging.error("Managed Prometheus agent can only be deployed on workers")
+                raise Exception("Managed Prometheus agent can only be deployed on workers")
             cmd = cmd + ' ' + agent
             if self.args.publisher_auth:
                 auth = self.args.publisher_auth
+                print('--------------------------')
                 print('-Enable ' + agent + ' agent authentication: ' + auth + '-')
                 logging.info('Enable ' + agent + ' agent authentication: ' + auth)
                 cmd = cmd + ' ' + auth
@@ -377,12 +385,13 @@ if __name__ == '__main__':
         '-g',
         '--launch_publisher',
         type=str,
-        help='This launches the publisher which will share exporter data with Azure. Choices: {geneva, azure_monitor}.')
+        help='This launches the publisher which will share exporter data with Azure.'
+             'Choices: {geneva, azure_monitor, managed_prometheus}.')
     parser.add_argument(
         '-a',
         '--publisher_auth',
         type=str,
-        help='Required if launching publisher with geneva. Authentication method for geneva. Choices: {umi, cert}. '
+        help='Required if launching publisher with geneva. Authentication method for geneva. Choices: {umi, cert}.'
              'Please replace the mdm-key.pem and mdm-cert.pem in src/worker/publisher/config with yours if using cert.')
     args = parser.parse_args()
 
