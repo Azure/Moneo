@@ -342,6 +342,8 @@ def init_ib_config():
             config['counter']['link_flap'] = {}
             result = result.split('\n')[1:]
             for ib in result:
+                if "ib" not in ib:
+                    continue
                 if len(ib):
                     mapping = re.search(r"ib\d", ib.strip()).group()
                     config['counter']['link_flap'][mapping] = {}
