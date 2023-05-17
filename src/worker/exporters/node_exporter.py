@@ -26,6 +26,7 @@ import shlex
 import psutil
 import re
 import prometheus_client
+import datetime
 
 FIELD_LIST = [
     'net_rx',
@@ -154,9 +155,11 @@ class NodeExporter(BaseExporter):
                             continue
                         hca = results.group().replace(':', '')
                         value[hca] = {timestamp: 1}
-            except Exception as e:
+            except Exception as e:   
                 logging.error('Raised exception. Message: %s', e)
                 pass
+            # update search time stamp 
+            self.config['event_timestamp'] =  datetime.datetime.now().strftime("%b %d %H:%M:%S")
         else:
             value = 0
         return value
@@ -178,6 +181,10 @@ class NodeExporter(BaseExporter):
             try:
                 for dev_id in value.keys():
                     for time_stamp in value[dev_id].keys():
+                        event_time = datetime.datetime.strptime(time_stamp, "%b %d %H:%M:%S")
+                        collect_time = datetime.datetime.strptime(self.config['event_timestamp'], "%b %d %H:%M:%S")
+                        if event_time < collect_time:
+                            continue
                         if time_stamp in self.config['counter'][field_name][dev_id]:
                             continue
                         logging.debug(
@@ -193,9 +200,9 @@ class NodeExporter(BaseExporter):
             except Exception as e:
                 logging.error('Raised exception. Message: %s', e)
                 pass
+
         else:
             self.update_field(field_name, value, self.config['job_id'])
-
         logging.debug('Node exporter field %s: %s', field_name, str(value))
 
     def jobID_update(self):
@@ -254,13 +261,15 @@ def init_config(job_id, port=None):
         'job_id': job_id,
         'fieldFiles': {},
         'counter': {},
+        'event_timestamp': datetime.datetime.now().strftime("%b %d %H:%M:%S")
     }
+
     # for xid and link flaps
     config['command'] = {}
     cmd = "awk -F= '/^NAME/{print $2}' /etc/os-release"
     result = shell_cmd(cmd, 5)
     if "Ubuntu" in result:
-        config['command']['link_flap'] = "sudo grep 'Lost carrier' /var/log/syslog"
+        config['command']['link_flap'] = "sudo grep 'Lost carrier' /home/rafsalas/syslog"
         config['command']['xid_error'] = "sudo grep 'NVRM: Xid' /var/log/syslog"
         init_nvidia_config()
         init_ib_config()
