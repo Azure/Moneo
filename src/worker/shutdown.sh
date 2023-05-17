@@ -16,6 +16,7 @@ kill_exporters() {
     pkill -f "${1}_exporter.py*"
     pkill -f "net_exporter.py*"
     pkill -f "node_exporter.py*"
+    pkill -f "metrics_publisher.py*"
 }
 
 kill_docker() {
@@ -38,7 +39,6 @@ kill_docker() {
 
 if [ $arch == "nvidia" ]; then
     kill_exporters $arch
-    pkill -f "metrics_publisher.py*"
     pkill -f "^nv-hostengine"
 
 	if [ $remove_docker == "true" ]; then
@@ -50,12 +50,13 @@ if [ $arch == "nvidia" ]; then
     sleep 3
     exit 0
 elif [ $arch == "amd" ]; then
-        kill_exporters $arch
-    pkill -f "metrics_publisher.py*"
+    kill_exporters $arch
     pkill -f "^/opt/rocm/rdc/bin/rdcd"
     sleep 3
         exit 0
 else
+    kill_exporters
+    kill_docker
     echo "No GPU architecture detected"
 fi
     exit 0
