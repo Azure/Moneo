@@ -57,6 +57,7 @@ elif [ $arch == "amd" ]; then
 else
     kill_exporters
     kill_docker
+    sleep 3
     echo "No GPU architecture detected"
 fi
     exit 0
