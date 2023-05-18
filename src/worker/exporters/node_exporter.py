@@ -134,7 +134,7 @@ class NodeExporter(BaseExporter):
                 value = getattr(virtual_mem, metric) / 1024
         elif 'xid' in field_name or "link_flap" in field_name:
             try:
-                value = {}
+                value={}
                 cmd = config['command'][field_name]
                 # check if error present in logs
                 field_check = shell_cmd(cmd, 5)
@@ -145,16 +145,20 @@ class NodeExporter(BaseExporter):
                     timestamp = re.search(
                         r"\w\w\w\s+\d+\s\d\d:\d\d:\d\d", line).group()
                     if 'xid' in field_name:
-                        results = re.search(r"\(.+\):\s\d\d", line).group().split()
-                        pci = results[0].replace(
-                            '(PCI:', '').replace('):', '')[-10:]
-                        value[pci] = {timestamp: int(results[1])}
+                        continue
+                        # results = re.search(r"\(.+\):\s\d\d", line).group().split()
+                        # pci = results[0].replace(
+                        #     '(PCI:', '').replace('):', '')[-10:]
+                        # value[pci] = {timestamp: int(results[1])}
                     else:  # link flap
                         results = re.search(r"\bib\d:", line)
                         if not results:
                             continue
                         hca = results.group().replace(':', '')
-                        value[hca] = {timestamp: 1}
+                        if hca not in value:
+                            value[hca] = []
+                        
+                        value[hca].append(timestamp)
             except Exception as e:   
                 logging.error('Raised exception. Message: %s', e)
                 pass
@@ -178,25 +182,43 @@ class NodeExporter(BaseExporter):
                 logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
                 self.update_field(field_name, value[k], self.config['job_id'], k, numa_domain)
         elif 'xid' in field_name or 'link_flap' in field_name:
+            Mapping = GPU_Mapping if field_name == 'xid' else IB_Mapping
+            label_names = ['job_id', 'pci_id', 'gpu_id', 'time_stamp'] if field_name == 'xid' else ['job_id', 'ib_port', 'time_stamp']
+           # print()
+            if 'xid' in field_name:
+                return
             try:
                 for dev_id in value.keys():
-                    for time_stamp in value[dev_id].keys():
-                        event_time = datetime.datetime.strptime(time_stamp, "%b %d %H:%M:%S")
-                        collect_time = datetime.datetime.strptime(self.config['event_timestamp'], "%b %d %H:%M:%S")
+                    # remove old linkflap values
+                    for time_stamp in value[dev_id]:
+                        label_values = [self.config['job_id'], dev_id, Mapping[dev_id], time_stamp] if field_name == 'xid' else [self.config['job_id'], Mapping[dev_id], time_stamp]
+                        
+                        metric = self.gauges[field_name]
+                        labels = {k: v for k, v in zip(metric._labelnames, label_values)}
+                        #print (labels)
+                        metric_exists = metric.labels(**labels) is not None           
+                        if metric_exists:
+                            print("Metric exists")
+                            self.gauges[field_name].remove(*label_values)
+
+                    for time_stamp in value[dev_id]:
+                        event_time = datetime.datetime.strptime(time_stamp, "%b %d %H:%M:%S")                     
+                        collect_time = datetime.datetime.strptime(self.config['event_timestamp'], "%b %d %H:%M:%S")                          
                         if event_time < collect_time:
                             continue
                         if time_stamp in self.config['counter'][field_name][dev_id]:
                             continue
+                        print("after conditions", time_stamp)
                         logging.debug(
                             f'Handeling key: {dev_id}. Setting value: {value[dev_id]}')
-                        self.config['counter'][field_name][dev_id].clear()
+                        #self.config['counter'][field_name][dev_id].clear()
                         if 'xid' in field_name:
-                            self.update_field(field_name, value[dev_id][time_stamp],
-                                              self.config['job_id'], dev_id, GPU_Mapping[dev_id], time_stamp)
+                            # self.update_field(field_name, 1,
+                            #                   self.config['job_id'], dev_id, GPU_Mapping[dev_id], time_stamp)
                         else:  # "linkflap"
-                            self.update_field(field_name, value[dev_id][time_stamp],
-                                              self.config['job_id'], IB_Mapping[dev_id], time_stamp)
-                        config['counter'][field_name][dev_id][time_stamp] = value[dev_id][time_stamp]
+                            # self.update_field(field_name, 1,
+                            #                   self.config['job_id'], IB_Mapping[dev_id], time_stamp)
+                        self.config['counter'][field_name][dev_id].append(time_stamp)
             except Exception as e:
                 logging.error('Raised exception. Message: %s', e)
                 pass
@@ -355,7 +377,7 @@ def init_ib_config():
                     continue
                 if len(ib):
                     mapping = re.search(r"ib\d", ib.strip()).group()
-                    config['counter']['link_flap'][mapping] = {}
+                    config['counter']['link_flap'][mapping] = []
                     IB_Mapping[mapping] = ib.strip() + ':1'
             FIELD_LIST.append('link_flap')
         except Exception as e:
@@ -412,8 +434,9 @@ def main():
     args = parser.parse_args()
     # set up logging
     os.makedirs('/tmp/moneo-worker', exist_ok=True)
-    logging.basicConfig(level=get_log_level(args), filename='/tmp/moneo-worker/moneoExporter.log',
-                        format='[%(asctime)s] node_exporter-%(levelname)s-%(message)s')
+    # logging.basicConfig(level=get_log_level(args), filename='/tmp/moneo-worker/moneoExporter.log',
+    #                     format='[%(asctime)s] node_exporter-%(levelname)s-%(message)s')
+    logging.basicConfig(level=get_log_level(args))
     jobId = None  # set a default job id of None
     try:
         init_config(jobId, args.port)
