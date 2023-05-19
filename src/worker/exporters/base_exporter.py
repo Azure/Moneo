@@ -85,7 +85,6 @@ class BaseExporter:
                     job_update = False
                 try:
                     self.process()
-                    self.config['exit']=True
                 except:
                     logging.exception('Error while processing metrics')
                 time.sleep(self.config['update_freq'])
