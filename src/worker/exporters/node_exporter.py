@@ -145,11 +145,14 @@ class NodeExporter(BaseExporter):
                     timestamp = re.search(
                         r"\w\w\w\s+\d+\s\d\d:\d\d:\d\d", line).group()
                     if 'xid' in field_name:
-                        continue
-                        # results = re.search(r"\(.+\):\s\d\d", line).group().split()
-                        # pci = results[0].replace(
-                        #     '(PCI:', '').replace('):', '')[-10:]
-                        # value[pci] = {timestamp: int(results[1])}
+                        results = re.search(r"\(.+\):\s\d\d", line).group().split()
+                        if not results:
+                            continue
+                        pci = results[0].replace(
+                             '(PCI:', '').replace('):', '')[-10:]
+                        if pci not in value:
+                            value[pci] = {timestamp: []}
+                        value[pci][timestamp].append(int(results[1]))
                     else:  # link flap
                         results = re.search(r"\bib\d:", line)
                         if not results:
@@ -157,7 +160,6 @@ class NodeExporter(BaseExporter):
                         hca = results.group().replace(':', '')
                         if hca not in value:
                             value[hca] = []
-                        
                         value[hca].append(timestamp)
             except Exception as e:   
                 logging.error('Raised exception. Message: %s', e)
@@ -182,42 +184,32 @@ class NodeExporter(BaseExporter):
                 logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
                 self.update_field(field_name, value[k], self.config['job_id'], k, numa_domain)
         elif 'xid' in field_name or 'link_flap' in field_name:
-            Mapping = GPU_Mapping if field_name == 'xid' else IB_Mapping
-            label_names = ['job_id', 'pci_id', 'gpu_id', 'time_stamp'] if field_name == 'xid' else ['job_id', 'ib_port', 'time_stamp']
-           # print()
-            if 'xid' in field_name:
-                return
+            Mapping = GPU_Mapping if 'xid' in field_name  else IB_Mapping
+            label_names = ['job_id', 'pci_id', 'gpu_id', 'time_stamp'] if 'xid' in field_name else ['job_id', 'ib_port', 'time_stamp']
             try:
                 for dev_id in value.keys():
-                    # remove old linkflap values
-                    for time_stamp in value[dev_id]:
-                        label_values = [self.config['job_id'], dev_id, Mapping[dev_id], time_stamp] if field_name == 'xid' else [self.config['job_id'], Mapping[dev_id], time_stamp]
-                        
+                    # remove old  values
+                    for time_stamp in self.config['counter'][field_name][dev_id]:
+                        label_values = [self.config['job_id'], dev_id, Mapping[dev_id], time_stamp] if 'xid' in field_name  else [self.config['job_id'], Mapping[dev_id], time_stamp]
                         metric = self.gauges[field_name]
                         labels = {k: v for k, v in zip(metric._labelnames, label_values)}
-                        #print (labels)
                         metric_exists = metric.labels(**labels) is not None           
                         if metric_exists:
-                            print("Metric exists")
                             self.gauges[field_name].remove(*label_values)
+                    self.config['counter'][field_name][dev_id].clear()
+                    iter_object= value.keys() if field_name == 'xid' else value[dev_id]
 
-                    for time_stamp in value[dev_id]:
+                    for time_stamp in iter_object:
+                        label_values = [self.config['job_id'], dev_id, Mapping[dev_id], time_stamp] if 'xid' in field_name  else [self.config['job_id'], Mapping[dev_id], time_stamp]
                         event_time = datetime.datetime.strptime(time_stamp, "%b %d %H:%M:%S")                     
                         collect_time = datetime.datetime.strptime(self.config['event_timestamp'], "%b %d %H:%M:%S")                          
                         if event_time < collect_time:
                             continue
-                        if time_stamp in self.config['counter'][field_name][dev_id]:
-                            continue
-                        print("after conditions", time_stamp)
-                        logging.debug(
-                            f'Handeling key: {dev_id}. Setting value: {value[dev_id]}')
-                        #self.config['counter'][field_name][dev_id].clear()
                         if 'xid' in field_name:
-                            # self.update_field(field_name, 1,
-                            #                   self.config['job_id'], dev_id, GPU_Mapping[dev_id], time_stamp)
-                        else:  # "linkflap"
-                            # self.update_field(field_name, 1,
-                            #                   self.config['job_id'], IB_Mapping[dev_id], time_stamp)
+                            for code in value[dev_id][time_stamp]:
+                                self.update_field(field_name, code,*label_values)
+                        else:
+                            self.update_field(field_name, 1,*label_values)
                         self.config['counter'][field_name][dev_id].append(time_stamp)
             except Exception as e:
                 logging.error('Raised exception. Message: %s', e)
@@ -292,7 +284,7 @@ def init_config(job_id, port=None):
     result = shell_cmd(cmd, 5)
     if "Ubuntu" in result:
         config['command']['link_flap'] = "sudo grep 'Lost carrier' /home/rafsalas/syslog"
-        config['command']['xid_error'] = "sudo grep 'NVRM: Xid' /var/log/syslog"
+        config['command']['xid_error'] = "sudo grep 'NVRM: Xid' /home/rafsalas/syslog"
         init_nvidia_config()
         init_ib_config()
     elif "AlmaLinux" in result:
@@ -404,7 +396,7 @@ def init_nvidia_config():
                 pci = re.search(r"\w+:\w\w:\w\w\.", result).group().lower()
                 pci = pci.replace('.', '')[-10:]
                 GPU_Mapping[pci] = str(gpu)  # pci mapping
-                config['counter']['xid_error'][pci] = {}
+                config['counter']['xid_error'][pci] = []
             FIELD_LIST.append('xid_error')
         except Exception as e:
             print(e)
