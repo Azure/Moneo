@@ -25,7 +25,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "iteration": 1666638673767,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -94,7 +93,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -194,7 +193,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -312,7 +311,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -409,7 +408,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -522,7 +521,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -616,7 +615,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -727,7 +726,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -821,7 +820,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -887,7 +886,7 @@
         "type": "prometheus",
         "uid": "P6FAF8666AEFFE3AA"
       },
-      "description": "last Xid Code",
+      "description": "XID Codes",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -895,7 +894,10 @@
           },
           "custom": {
             "align": "left",
-            "displayMode": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
             "inspect": false
           },
           "mappings": [],
@@ -920,7 +922,8 @@
       "id": 34,
       "options": {
         "footer": {
-          "enablePagination": false,
+          "countRows": false,
+          "enablePagination": true,
           "fields": "",
           "reducer": [
             "sum"
@@ -935,7 +938,7 @@
           }
         ]
       },
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -950,7 +953,7 @@
           "refId": "A"
         }
       ],
-      "title": "Last XID Code ",
+      "title": "XID Codes",
       "transformations": [
         {
           "id": "filterFieldsByName",
@@ -990,10 +993,8 @@
                 "operation": "groupby"
               },
               "time_stamp": {
-                "aggregations": [
-                  "last"
-                ],
-                "operation": "aggregate"
+                "aggregations": [],
+                "operation": "groupby"
               }
             }
           }
@@ -1006,12 +1007,13 @@
               "Value (last)": 3,
               "gpu_id": 1,
               "pci_id": 2,
-              "time_stamp (last)": 0
+              "time_stamp": 0
             },
             "renameByName": {
               "Value (last)": "XID",
               "gpu_id": "GPU ID",
               "pci_id": "PCI ID",
+              "time_stamp": "Time Stamp",
               "time_stamp (last)": "Time Stamp"
             }
           }
@@ -1077,7 +1079,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1180,7 +1182,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1279,7 +1281,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1378,7 +1380,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1481,7 +1483,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1578,7 +1580,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1675,7 +1677,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.0.2",
+      "pluginVersion": "9.4.7",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1735,8 +1737,9 @@
       }
     }
   ],
-  "refresh": false,
-  "schemaVersion": 36,
+  "refresh": "30",
+  "revision": 1,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -1774,8 +1777,8 @@
       {
         "current": {
           "selected": false,
-          "text": "moneoVM",
-          "value": "moneoVM"
+          "text": "ub22h3e8f000003",
+          "value": "ub22h3e8f000003"
         },
         "datasource": {
           "type": "prometheus",
@@ -1803,7 +1806,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
             "All"
           ],
@@ -1838,7 +1841,7 @@
     ]
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {
