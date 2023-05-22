@@ -8,7 +8,7 @@ distro=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 if [[ $distro =~ "Ubuntu" ]]; then
     apt-get install -y python3-dev
 elif [[ $distro =~ "AlmaLinux" ]]; then
-    yum install -y python3-dev
+    yum install -y python3-devel
 else
 	echo "OS version is not supported"
 fi
