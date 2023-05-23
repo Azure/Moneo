@@ -1777,8 +1777,8 @@
       {
         "current": {
           "selected": false,
-          "text": "ub22h3e8f000003",
-          "value": "ub22h3e8f000003"
+          "text": "moneoVM",
+          "value": "moneoVM"
         },
         "datasource": {
           "type": "prometheus",
