@@ -349,7 +349,7 @@ def init_ib_config():
     # IB mapping
     cmd = 'ibv_devinfo -l'
     result = shell_cmd(cmd, 5)
-    if 'HCAs found' in result:
+    if 'HCAs found' in result or 'HCA found' in result:
         try:
             config['counter']['link_flap'] = {}
             result = result.split('\n')[1:]
