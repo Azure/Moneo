@@ -177,7 +177,7 @@ class NodeExporter(BaseExporter):
         if 'cpu' in field_name:
             logging.debug(f'Handeling field: {field_name}')
             for id, k in enumerate(value.keys()):
-                numa_domain = str(id // config['numa_domain_size'])
+                numa_domain = str(id % config['numa_domain_size'])
                 logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
                 self.update_field(field_name, value[k], self.config['job_id'], k, numa_domain)
         elif 'xid' in field_name or 'link_flap' in field_name:
@@ -211,7 +211,7 @@ class NodeExporter(BaseExporter):
     def remove_metric(self, field_name, Mapping):
         if 'cpu' in field_name:
             for id in range(self.config['num_cores']):
-                numa_domain = str(id // config['numa_domain_size'])
+                numa_domain = str(id % config['numa_domain_size'])
                 self.gauges[field_name].remove(self.config['job_id'], str(id), numa_domain)
         elif 'xid' in field_name or 'link_flap' in field_name:
             for dev_id in self.config['counter'][field_name].keys():
