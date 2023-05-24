@@ -1,6 +1,47 @@
 #!/bin/bash
-PUBLISHER=$1
-MONEO_PATH=$2
+PUBLISHER=$3
+MANAGED_PROM=$2
+MONEO_PATH=$1
+
+if [[ ! -d "$MONEO_PATH" ]];
+then
+    echo "Error: Moneo path does not exist. Please install Moneo and/or provide the full path to this script. Exiting start script"
+    exit 1
+fi
+
+procs=("net_exporter" "node_exporter")
+
+if lspci | grep -iq NVIDIA ; then
+    procs+=("nvidia_exporter")
+fi
+
+if [[ -n $PUBLISHER && $PUBLISHER = true ]]; then
+    procs+=("metrics_publisher")
+fi
+
+function proc_check(){
+    CHECK=`ps -eaf | grep /tmp/moneo-worker/`
+    for substring in "${procs[@]}"; do
+        if [[ $CHECK == *"$substring"* ]]; then
+            echo "$substring service started as expected."
+        else
+            echo "Some services failed to start"
+            exit 1
+        fi
+    done
+    if [[ -n $MANAGED_PROM && $MANAGED_PROM = true ]];
+    then
+        if [[ $(docker ps -a | grep prometheus_sidecar) &&  $(docker ps -a | grep prometheus) ]] ; then
+            echo "Prometheus and Prometheus_side_car docker containers running."
+        else
+            echo "Prometheus and/or Prometheus_side_car failed to start. Please ensure you have the proper user managed identity assigned to your VMSS/VM. (moneo-umi)"
+            exit 1
+        fi
+    fi
+    echo "All Services Running"
+    exit 0
+}
+
 
 systemctl enable moneo@node_exporter.service
 systemctl enable moneo@net_exporter.service
@@ -10,22 +51,14 @@ systemctl start moneo@node_exporter.service
 systemctl start moneo@net_exporter.service
 systemctl start moneo@nvidia_exporter.service
 
-if [[ ! -z "$PUBLISHER" ]];
-then
-    if [ "$PUBLISHER" = "geneva" ] && [ -d $MONEO_PATH ];
-    then
-        #starts Geneva agent
-        $MONEO_PATH/src/worker/start_geneva.sh cert $MONEO_PATH/src/worker/publisher/config
-        sleep 5 # wait a bit for the exporters to start
-        systemctl enable moneo_publisher.service
-        systemctl start moneo_publisher.service 
-    elif [ "$PUBLISHER" = "azure_monitor" ];
-    then
-        sleep 5 # wait a bit for the exporters to start
-        systemctl enable moneo_publisher.service
-        systemctl start moneo_publisher.service 
-    else
-        echo "Either PUBLISHER OR MONEO_PATH unrecognized. PUBLISHER can be geneva or azure_monitor. If publisher is geneva MONEO_PATH must be defined."
-        echo "Some services may have started use the stop_moneo_services script to perform a clean stop"
-    fi
+if [[ -n $MANAGED_PROM && $MANAGED_PROM = true ]]; then
+    $MONEO_PATH/src/worker/start_managed_prometheus.sh
 fi
+
+if [[ -n $PUBLISHER && $PUBLISHER = true ]]; then
+    sleep 5 # wait a bit for the exporters to start
+    systemctl enable moneo_publisher.service
+    systemctl start moneo_publisher.service 
+fi
+
+proc_check

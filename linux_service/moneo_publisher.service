@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 Restart=no
 ExecStartPre=<Moneo_Path>/linux_service/moneo_prestart.sh <Moneo_Path> metrics_publisher.py
-ExecStart=/usr/bin/python3 /tmp/moneo-worker/publisher/metrics_publisher.py <pub-type>
+ExecStart=/usr/bin/python3 /tmp/moneo-worker/publisher/metrics_publisher.py azure_monitor
 User=root
 
 
