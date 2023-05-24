@@ -3,6 +3,20 @@ Moneo as a Linux Service
 Description
 -----
 Setting up Moneo exporters as Linux service will allow for easy management and deployment of exporters.
+
+
+Three launch methods provided:
+1. The basic launch method launches the exporters on the compute node. It is up to the user to either:
+   - Use Moneo CLI to launch the manager Grafana and Prometheus containers on a head node.
+   - Or use you own method to scrape from the exporter ports ("nvidia_exporter": 8000 "net_exporter": 8001 "node_exporter": 8002).
+2. Launch exporters and an [Azure Monitor](../docs/AzureMonitorAgent.md) publisher.
+   - Before launch you must modify the "azure_monitor_agent_config" section of [publisher_config](../src/worker/publisher/config/publisher_config.json) file with the Azure monitor workspace connection string.
+3. Azure Managed Grafana/Prometheus.
+   - This will require you to set up Managed Prometheus and Managed Grafana
+   - See prereqs for [Managed Prometheus](../docs/ManagedPrometheusAgent.md)
+   - Once Managed Prometheus is set up you can link it to a Grafana Dashboard.
+   - See [Azure Managed Grafana overview](https://learn.microsoft.com/en-us/azure/managed-grafana/overview) for info on setting up Grafana.
+
 This guide will walk you through how to set up Linux services for Moneo exporters.
 
 Prerequisites
