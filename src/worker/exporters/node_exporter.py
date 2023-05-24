@@ -177,7 +177,7 @@ class NodeExporter(BaseExporter):
         if 'cpu' in field_name:
             logging.debug(f'Handeling field: {field_name}')
             for id, k in enumerate(value.keys()):
-                numa_domain = str(id % config['numa_domain_size'])
+                numa_domain = config['cpu_numa_map'][id]
                 logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
                 self.update_field(field_name, value[k], self.config['job_id'], k, numa_domain)
         elif 'xid' in field_name or 'link_flap' in field_name:
@@ -186,8 +186,6 @@ class NodeExporter(BaseExporter):
                 self.remove_metric(field_name, Mapping)
                 for dev_id in value.keys():
                     iter_object = value[dev_id].keys() if field_name == 'xid' else value[dev_id]
-                    if 'xid' in field_name:
-                        print(value[dev_id])
                     for time_stamp in iter_object:
                         label_values = [self.config['job_id'], dev_id, Mapping[dev_id], time_stamp] \
                             if 'xid' in field_name else [self.config['job_id'], Mapping[dev_id], time_stamp]
@@ -211,7 +209,7 @@ class NodeExporter(BaseExporter):
     def remove_metric(self, field_name, Mapping):
         if 'cpu' in field_name:
             for id in range(self.config['num_cores']):
-                numa_domain = str(id % config['numa_domain_size'])
+                numa_domain = config['cpu_numa_map'][id]
                 self.gauges[field_name].remove(self.config['job_id'], str(id), numa_domain)
         elif 'xid' in field_name or 'link_flap' in field_name:
             for dev_id in self.config['counter'][field_name].keys():
@@ -248,6 +246,31 @@ class NodeExporter(BaseExporter):
         logging.info('Received exit signal, shutting down ...')
 
 
+def get_core_numa_mapping(core_count):
+    cmd = 'numactl --hardware'
+    output = shell_cmd(cmd, 5)
+    numa_mapping = {}
+    lines = output.split('\n')
+    for line in lines:
+        if 'node ' in line and 'cpus' in line:
+            current_numa_domain = int(re.search(r'node (\d+)', line).group(1))
+            if ':' in line:
+                cpus_str = line.split(': ')[1].split()
+                for cpu in cpus_str:
+                    numa_mapping[int(cpu)] = current_numa_domain
+    if len(numa_mapping.keys()) != core_count:
+        numa_mapping = {}
+        cmd = 'lscpu -e=cpu,node'
+        output = shell_cmd(cmd, 5)
+        lines = output.split('\n')
+        for line in lines:
+            if 'CPU' in line.upper() or line.strip() == "":
+                continue
+            cpu, node = line.split()
+            numa_mapping[int(cpu)] = node
+    return numa_mapping
+
+
 # you will need to initialize your custom metric's file if we are exporting
 # from a file you may also want to initialize the config's counter member
 # for the specific field
@@ -266,7 +289,6 @@ def init_config(job_id, port=None):
         'counter': {},
         'event_timestamp': datetime.datetime.now().strftime("%b %d %H:%M:%S")
     }
-
     # for xid and link flaps
     config['command'] = {}
     cmd = "awk -F= '/^NAME/{print $2}' /etc/os-release"
@@ -285,10 +307,7 @@ def init_config(job_id, port=None):
         logging.info('OS not supported attempting to continue...')
     # get NUMA domain
     config['num_cores'] = psutil.cpu_count()
-    cmd = "lscpu"
-    numa_domains = int(shell_cmd(cmd, 5).split("\n")[8].split()[-1])
-    domain_size = config['num_cores'] // numa_domains
-    config['numa_domain_size'] = domain_size
+    config['cpu_numa_map'] = get_core_numa_mapping(config['num_cores'])
 
     # initalize field specific config parameters
     for field_name in FIELD_LIST:
