@@ -34,6 +34,7 @@ Bellow are the prereqs needed:
 Instructions for Configuring, Installing and Launching Moneo services
 -----
 ### Configuration and Instalation ###
+Configuration/Installation is only required once. Afte that is complete the Linux services can be stopped and started as desired.
 1. Configuration and installation of the Linux service is done with the following command:
    ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/configure_service.sh <Full Path to Moneo>"```
    - If You will only be launching the exporters without AZ monitor or Managed Prometheus Continue to the Launch Services section else continue.
@@ -45,9 +46,15 @@ Instructions for Configuring, Installing and Launching Moneo services
    - For Azure Monitor:
       -  modify the connection string of "azure_monitor_agent_config" section and copy the file to the compute nodes.
       -  ```parallel-scp -h hostfile <Full Path to Moneo>/src/worker/publisher/config/publisher_config.json <Full Path to Moneo>/src/worker/publisher/config```
-   
 ### Launch Services ###
-#### Exportesr only Launch ####
+The [start_moneo_services.sh ](./start_moneo_services.sh) script is what is used to start the linux services once configuration/installation is complete.
+The script takes 3 arguments:
+ 1. Full directory path of Moneo
+ 2. Start with Managed Prometheus (true/false)
+ 3. Start with Azure Monitor (true/false)
+ An example command would looke like (Exporters only): /home/<user>/Moneo/linux_service/start_moneo_services.sh /home/<user>/Moneo false false
+   
+#### Exporters only Launch ####
 ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/start_moneo_services.sh <Full Path to Moneo> false false"```
 #### Exporters with Azure Monitor ####
 ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/start_moneo_services.sh <Full Path to Moneo> false true"```
