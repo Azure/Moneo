@@ -33,8 +33,8 @@ Bellow are the prereqs needed:
 
 Instructions for Configuring, Installing and Launching Moneo services
 -----
-### Configuration and Instalation ###
-Configuration/Installation is only required once. Afte that is complete the Linux services can be stopped and started as desired.
+### Configuration and Installation ###
+Configuration/Installation is only required once. Afte that is complete the Linux services can be started and stopped as desired.
 1. Configuration and installation of the Linux service is done with the following command:
    ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/configure_service.sh <Full Path to Moneo>"```
    - If You will only be launching the exporters without AZ monitor or Managed Prometheus Continue to the Launch Services section else continue.
