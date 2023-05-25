@@ -26,6 +26,7 @@ import shlex
 import psutil
 import re
 import prometheus_client
+import datetime
 
 FIELD_LIST = [
     'net_rx',
@@ -111,9 +112,6 @@ class NodeExporter(BaseExporter):
         elif 'cpu' in field_name:
             value = {}
             if 'util' in field_name:
-                # If using psutil, times % and util % do not need to be
-                # calculated using the counters
-
                 for id, util_percent in enumerate(
                         psutil.cpu_percent(percpu=True)):
                     value[str(id)] = util_percent
@@ -137,7 +135,6 @@ class NodeExporter(BaseExporter):
                 cmd = config['command'][field_name]
                 # check if error present in logs
                 field_check = shell_cmd(cmd, 5)
-                # strip empty lines
                 result = [line for line in field_check.split(
                     '\n') if line.strip() != '']
                 for line in result:
@@ -145,18 +142,27 @@ class NodeExporter(BaseExporter):
                         r"\w\w\w\s+\d+\s\d\d:\d\d:\d\d", line).group()
                     if 'xid' in field_name:
                         results = re.search(r"\(.+\):\s\d\d", line).group().split()
-                        pci = results[0].replace(
-                            '(PCI:', '').replace('):', '')[-10:]
-                        value[pci] = {timestamp: int(results[1])}
+                        if not results:
+                            continue
+                        pci = results[0].replace('(PCI:', '').replace('):', '')[-10:]
+                        if pci not in value:
+                            value = {pci: {timestamp: []}}
+                        if timestamp not in value[pci]:
+                            value[pci][timestamp] = []
+                        value[pci][timestamp].append(int(results[1]))
                     else:  # link flap
                         results = re.search(r"\bib\d:", line)
                         if not results:
                             continue
                         hca = results.group().replace(':', '')
-                        value[hca] = {timestamp: 1}
+                        if hca not in value:
+                            value[hca] = []
+                        value[hca].append(timestamp)
             except Exception as e:
                 logging.error('Raised exception. Message: %s', e)
                 pass
+            # update search time stamp
+            self.config['event_timestamp'] = datetime.datetime.now().strftime("%b %d %H:%M:%S")
         else:
             value = 0
         return value
@@ -166,66 +172,68 @@ class NodeExporter(BaseExporter):
             *labels
         ).set(value)
 
-    def handle_field(self, field_name, value):
+    def handle_field(self, field_name, value):  # noqa: C901
         '''Update metric value for gauge'''
         if 'cpu' in field_name:
             logging.debug(f'Handeling field: {field_name}')
             for id, k in enumerate(value.keys()):
-                numa_domain = str(id // config['numa_domain_size'])
+                numa_domain = config['cpu_numa_map'][id]
                 logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
                 self.update_field(field_name, value[k], self.config['job_id'], k, numa_domain)
         elif 'xid' in field_name or 'link_flap' in field_name:
+            Mapping = GPU_Mapping if 'xid' in field_name else IB_Mapping
             try:
+                self.remove_metric(field_name, Mapping)
                 for dev_id in value.keys():
-                    for time_stamp in value[dev_id].keys():
-                        if time_stamp in self.config['counter'][field_name][dev_id]:
+                    iter_object = value[dev_id].keys() if field_name == 'xid' else value[dev_id]
+                    for time_stamp in iter_object:
+                        label_values = [self.config['job_id'], dev_id, Mapping[dev_id], time_stamp] \
+                            if 'xid' in field_name else [self.config['job_id'], Mapping[dev_id], time_stamp]
+                        event_time = datetime.datetime.strptime(time_stamp, "%b %d %H:%M:%S")
+                        collect_time = datetime.datetime.strptime(self.config['event_timestamp'], "%b %d %H:%M:%S")
+                        if event_time < collect_time:
                             continue
-                        logging.debug(
-                            f'Handeling key: {dev_id}. Setting value: {value[dev_id]}')
-                        self.config['counter'][field_name][dev_id].clear()
                         if 'xid' in field_name:
-                            self.update_field(field_name, value[dev_id][time_stamp],
-                                              self.config['job_id'], dev_id, GPU_Mapping[dev_id], time_stamp)
-                        else:  # "linkflap"
-                            self.update_field(field_name, value[dev_id][time_stamp],
-                                              self.config['job_id'], IB_Mapping[dev_id], time_stamp)
-                        config['counter'][field_name][dev_id][time_stamp] = value[dev_id][time_stamp]
+                            for code in value[dev_id][time_stamp]:
+                                self.update_field(field_name, code, *label_values)
+                        else:
+                            self.update_field(field_name, 1, *label_values)
+                        self.config['counter'][field_name][dev_id].append(time_stamp)
             except Exception as e:
                 logging.error('Raised exception. Message: %s', e)
                 pass
         else:
             self.update_field(field_name, value, self.config['job_id'])
-
         logging.debug('Node exporter field %s: %s', field_name, str(value))
+
+    def remove_metric(self, field_name, Mapping):
+        if 'cpu' in field_name:
+            for id in range(self.config['num_cores']):
+                numa_domain = config['cpu_numa_map'][id]
+                self.gauges[field_name].remove(self.config['job_id'], str(id), numa_domain)
+        elif 'xid' in field_name or 'link_flap' in field_name:
+            for dev_id in self.config['counter'][field_name].keys():
+                for time_stamp in self.config['counter'][field_name][dev_id]:
+                    label_values = [self.config['job_id'], dev_id, Mapping[dev_id], time_stamp] if 'xid' in \
+                        field_name else [self.config['job_id'], Mapping[dev_id], time_stamp]
+                    metric = self.gauges[field_name]
+                    labels = {k: v for k, v in zip(metric._labelnames, label_values)}
+                    metric_exists = metric.labels(**labels) is not None
+                    if metric_exists:
+                        self.gauges[field_name].remove(*label_values)
+                self.config['counter'][field_name][dev_id].clear()
+        else:
+            self.gauges[field_name].remove(self.config['job_id'])
 
     def jobID_update(self):
         '''Updates job id when job update flag has been set'''
         # Remove last set of label values
         for field_name in self.node_fields:
-            if 'cpu' in field_name:
-                for id in range(self.config['num_cores']):
-                    numa_domain = str(id // config['numa_domain_size'])
-                    self.gauges[field_name].remove(self.config['job_id'],
-                                                   str(id),
-                                                   numa_domain)
-            elif 'xid' in field_name:
-                for pci_id in self.config['counter'][field_name].keys():
-                    for time_stamp in self.config['counter'][field_name][pci_id].keys(
-                    ):
-                        self.gauges[field_name].remove(
-                            self.config['job_id'], pci_id, GPU_Mapping[pci_id], time_stamp)  # remove old
-                    # remove old time stamp
-                    self.config['counter'][field_name][pci_id].clear()
-            elif 'link_flap' in field_name:
-                for hca in self.config['counter'][field_name].keys():
-                    for time_stamp in self.config['counter'][field_name][hca].keys(
-                    ):
-                        self.gauges[field_name].remove(
-                            self.config['job_id'], IB_Mapping[hca], time_stamp)  # remove old
-                    # remove old time stamp
-                    self.config['counter'][field_name][hca].clear()
+            if 'xid' in field_name or 'link_flap' in field_name:
+                Mapping = GPU_Mapping if 'xid' in field_name else IB_Mapping
+                self.remove_metric(field_name, Mapping)
             else:
-                self.gauges[field_name].remove(self.config['job_id'])
+                self.remove_metric(field_name, None)
         # Update job id
         with open('/tmp/moneo-worker/curr_jobID') as f:
             self.config['job_id'] = f.readline().strip()
@@ -236,6 +244,31 @@ class NodeExporter(BaseExporter):
     def cleanup(self):
         '''Things that need to be called when signal to exit is given'''
         logging.info('Received exit signal, shutting down ...')
+
+
+def get_core_numa_mapping(core_count):
+    cmd = 'numactl --hardware'
+    output = shell_cmd(cmd, 5)
+    numa_mapping = {}
+    lines = output.split('\n')
+    for line in lines:
+        if 'node ' in line and 'cpus' in line:
+            current_numa_domain = int(re.search(r'node (\d+)', line).group(1))
+            if ':' in line:
+                cpus_str = line.split(': ')[1].split()
+                for cpu in cpus_str:
+                    numa_mapping[int(cpu)] = current_numa_domain
+    if len(numa_mapping.keys()) != core_count:
+        numa_mapping = {}
+        cmd = 'lscpu -e=cpu,node'
+        output = shell_cmd(cmd, 5)
+        lines = output.split('\n')
+        for line in lines:
+            if 'CPU' in line.upper() or line.strip() == "":
+                continue
+            cpu, node = line.split()
+            numa_mapping[int(cpu)] = node
+    return numa_mapping
 
 
 # you will need to initialize your custom metric's file if we are exporting
@@ -254,6 +287,7 @@ def init_config(job_id, port=None):
         'job_id': job_id,
         'fieldFiles': {},
         'counter': {},
+        'event_timestamp': datetime.datetime.now().strftime("%b %d %H:%M:%S")
     }
     # for xid and link flaps
     config['command'] = {}
@@ -273,10 +307,7 @@ def init_config(job_id, port=None):
         logging.info('OS not supported attempting to continue...')
     # get NUMA domain
     config['num_cores'] = psutil.cpu_count()
-    cmd = "lscpu"
-    numa_domains = int(shell_cmd(cmd, 5).split("\n")[8].split()[-1])
-    domain_size = config['num_cores'] // numa_domains
-    config['numa_domain_size'] = domain_size
+    config['cpu_numa_map'] = get_core_numa_mapping(config['num_cores'])
 
     # initalize field specific config parameters
     for field_name in FIELD_LIST:
@@ -337,7 +368,7 @@ def init_ib_config():
     # IB mapping
     cmd = 'ibv_devinfo -l'
     result = shell_cmd(cmd, 5)
-    if 'HCAs found' in result:
+    if 'HCAs found' in result or 'HCA found' in result:
         try:
             config['counter']['link_flap'] = {}
             result = result.split('\n')[1:]
@@ -346,7 +377,7 @@ def init_ib_config():
                     continue
                 if len(ib):
                     mapping = re.search(r"ib\d", ib.strip()).group()
-                    config['counter']['link_flap'][mapping] = {}
+                    config['counter']['link_flap'][mapping] = []
                     IB_Mapping[mapping] = ib.strip() + ':1'
             FIELD_LIST.append('link_flap')
         except Exception as e:
@@ -373,7 +404,7 @@ def init_nvidia_config():
                 pci = re.search(r"\w+:\w\w:\w\w\.", result).group().lower()
                 pci = pci.replace('.', '')[-10:]
                 GPU_Mapping[pci] = str(gpu)  # pci mapping
-                config['counter']['xid_error'][pci] = {}
+                config['counter']['xid_error'][pci] = []
             FIELD_LIST.append('xid_error')
         except Exception as e:
             print(e)
