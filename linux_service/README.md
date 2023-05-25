@@ -69,9 +69,11 @@ Stopping services is the same command for all methods.
 Assuming configuration files have been updated follow these reference these commands for the work flow:
 - Configuration/Install: 
    ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/configure_service.sh <Full Path to Moneo>"```
-- 
+- Extra Configure step for AZ Monitor and/or Managed Prometheus
    ```parallel-scp -h hostfile <Full Path to Moneo>/src/worker/publisher/config/<Respective config file> <Full Path to Moneo>/src/worker/publisher/config```
+- Start
    ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/start_moneo_services.sh <Full Path to Moneo> <Managed Prom true/false> <Az Monitor true/false>"```
+ - Stop
    ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/stop_moneo_services.sh"```
    
  
