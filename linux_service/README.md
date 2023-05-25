@@ -47,8 +47,12 @@ Instructions for Configuring, Installing and Launching Moneo services
       -  ```parallel-scp -h hostfile <Full Path to Moneo>/src/worker/publisher/config/publisher_config.json <Full Path to Moneo>/src/worker/publisher/config```
    
 ### Launch Services ###
- 
-
+#### Exportesr only Launch ####
+```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/start_moneo_services.sh <Full Path to Moneo> false false"```
+#### Exporters with Azure Monitor ####
+```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/start_moneo_services.sh <Full Path to Moneo> false true"```
+#### Exporters with Managed Prometheus ####
+```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/start_moneo_services.sh <Full Path to Moneo> true false"```
 
 Updating job ID
 -----
