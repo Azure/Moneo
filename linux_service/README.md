@@ -10,7 +10,7 @@ Three launch methods provided:
    - Use Moneo CLI to launch the manager Grafana and Prometheus containers on a head node.
    - Or use you own method to scrape from the exporter ports ("nvidia_exporter": 8000 "net_exporter": 8001 "node_exporter": 8002).
 2. Launch exporters and an [Azure Monitor](../docs/AzureMonitorAgent.md) publisher.
-   - Before launch you must modify the "azure_monitor_agent_config" section of [publisher_config](../src/worker/publisher/config/publisher_config.json) file with the Azure monitor workspace connection string.
+   - Before launch you must modify the "azure_monitor_agent_config" section of [publisher_config](../src/worker/publisher/config/publisher_config.json) file with the Azure Monitor workspace connection string.
 3. Azure Managed Grafana/Prometheus.
    - This will require you to set up Managed Prometheus and Managed Grafana
    - See prereqs for [Managed Prometheus](../docs/ManagedPrometheusAgent.md)
@@ -87,5 +87,5 @@ To update job name/ID we can use the [job ID update script](../src/worker/jobIdU
 
 or see [Update Job Id With Moneo CLI](../docs/JobFiltering.md)
 
-Note: use parallel-ssh to distribute this command to a cluster (i.e. step 5 of the instructions)
+Note: use parallel-ssh to distribute this command to a cluster
 
