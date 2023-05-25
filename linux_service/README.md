@@ -47,12 +47,12 @@ Configuration/Installation is only required once. Afte that is complete the Linu
       -  modify the connection string of "azure_monitor_agent_config" section and copy the file to the compute nodes.
       -  ```parallel-scp -h hostfile <Full Path to Moneo>/src/worker/publisher/config/publisher_config.json <Full Path to Moneo>/src/worker/publisher/config```
 ### Launch Services ###
-The [start_moneo_services.sh ](./start_moneo_services.sh) script is what is used to start the linux services once configuration/installation is complete.
+The [start_moneo_services.sh ](./start_moneo_services.sh) script is used to start the linux services once configuration/installation is complete.
 The script takes 3 arguments:
  1. Full directory path of Moneo
  2. Start with Managed Prometheus (true/false)
  3. Start with Azure Monitor (true/false)
- An example command would looke like (Exporters only): /home/<user>/Moneo/linux_service/start_moneo_services.sh /home/<user>/Moneo false false
+ An example command would look like (Exporters only): /home/<user>/Moneo/linux_service/start_moneo_services.sh /home/<user>/Moneo false false
    
 #### Exporters only Launch ####
 ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/start_moneo_services.sh <Full Path to Moneo> false false"```
@@ -60,6 +60,21 @@ The script takes 3 arguments:
 ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/start_moneo_services.sh <Full Path to Moneo> false true"```
 #### Exporters with Managed Prometheus ####
 ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/start_moneo_services.sh <Full Path to Moneo> true false"```
+   
+### Stop Services ###
+Stopping services is the same command for all methods.
+```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/stop_moneo_services.sh"```
+   
+### Recap ###
+Assuming configuration files have been updated follow these reference these commands for the work flow:
+- Configuration/Install: 
+   ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/configure_service.sh <Full Path to Moneo>"```
+- 
+   ```parallel-scp -h hostfile <Full Path to Moneo>/src/worker/publisher/config/<Respective config file> <Full Path to Moneo>/src/worker/publisher/config```
+   ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/start_moneo_services.sh <Full Path to Moneo> <Managed Prom true/false> <Az Monitor true/false>"```
+   ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/stop_moneo_services.sh"```
+   
+ 
 
 Updating job ID
 -----
