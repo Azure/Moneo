@@ -21,14 +21,14 @@ This guide will walk you through how to set up Linux services for Moneo exporter
 
 Prerequisites
 -----
-If using [Azure's Ubuntu HPC AI VM image](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/microsoft-dsvm.ubuntu-hpc?tab=overview) all dependencies will already be installed. Additional dependencies are installed as part of this guide. Please see [Install Script](../src/worker/install/install.sh) for details on what Python and Ubuntu packages are installed. DCGM 3.1.6 and higher is required for GPU nodes. This will also be checked/installed via the instll script as part of this guide.
+If using [Azure's Ubuntu HPC AI VM image](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/microsoft-dsvm.ubuntu-hpc?tab=overview) all dependencies will already be installed. Additional dependencies are installed as part of this guide. Please see [Install Script](../src/worker/install/install.sh) for details on what Python and Ubuntu packages are installed. DCGM 3.1.6 and higher is required for GPU nodes. This will also be checked/installed via the install script as part of this guide.
 
-Bellow are the prereqs needed:
+Below are the prereqs needed:
 - PSSH (This can be interchanged with other tools that can do distributed commands. The instructions will use PSSH for Ubuntu)
 - AlmaLinux 8.7
 - Ubuntu 20.04/22.04
 - Moneo cloned/installed in the same directory on all compute nodes.
-- A hostfile with the target compute nodes.
+- A host file with the target compute nodes.
  
 
 Instructions for Configuring, Installing and Launching Moneo services
@@ -38,7 +38,7 @@ Configuration/Installation is only required once. Afte that is complete the Linu
 1. Configuration and installation of the Linux service is done with the following command:
    ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/configure_service.sh <Full Path to Moneo>"```
    - If You will only be launching the exporters without AZ monitor or Managed Prometheus Continue to the Launch Services section else continue.
-2. For Azure Monitor or Managaed Prometheus methods if you have not yet modified the configuration files reference the following:
+2. For Azure Monitor or Managed Prometheus methods if you have not yet modified the configuration files reference the following:
    - For Azure Managed Prometheus:
      - modify [prom_sidecar_config.json](../src/worker/publisher/config) and copy the file to the compute nodes.
      - ```parallel-scp -h hostfile <Full Path to Moneo>/src/worker/publisher/config/prom_sidecar_config.json  <Full Path to Moneo>/src/worker/publisher/config```
@@ -47,7 +47,7 @@ Configuration/Installation is only required once. Afte that is complete the Linu
       -  modify the connection string of "azure_monitor_agent_config" section and copy the file to the compute nodes.
       -  ```parallel-scp -h hostfile <Full Path to Moneo>/src/worker/publisher/config/publisher_config.json <Full Path to Moneo>/src/worker/publisher/config```
 ### Launch Services ###
-The [start_moneo_services.sh ](./start_moneo_services.sh) script is used to start the linux services once configuration/installation is complete.
+The [start_moneo_services.sh ](./start_moneo_services.sh) script is used to start the Linux services once configuration/installation is complete.
 The script takes 3 arguments:
  1. Full directory path of Moneo
  2. Start with Managed Prometheus (true/false)
@@ -66,7 +66,7 @@ Stopping services is the same command for all methods.
 ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/stop_moneo_services.sh"```
    
 ### Recap ###
-Assuming configuration files have been updated follow these reference these commands for the work flow:
+Assuming configuration files have been updated and user managed ID applied if necessary (Managed Prometheus) reference these commands for the work flow:
 - Configuration/Install: 
    ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/configure_service.sh <Full Path to Moneo>"```
 - Extra Configure step for AZ Monitor and/or Managed Prometheus
@@ -75,7 +75,8 @@ Assuming configuration files have been updated follow these reference these comm
    ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/start_moneo_services.sh <Full Path to Moneo> <Managed Prom true/false> <Az Monitor true/false>"```
  - Stop
    ```parallel-ssh -i -t 0 -h hostfile "sudo <Full Path to Moneo>/linux_service/stop_moneo_services.sh"```
-   
+ 
+ Note: This guide uses PSSH to distribute the commands. Any tool that is similar to PSSH can be used such as PDSH. The scipts can also be called from job schedulers or individually.
  
 
 Updating job ID
