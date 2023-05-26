@@ -36,8 +36,13 @@ then
         echo "$MONEO_PATH/src/worker/publisher/$EXE_TYPE Does not exist"
         exit 1
     fi
-    cp -rf $MONEO_PATH/src/worker/publisher/*  /tmp/moneo-worker/publisher/
+    cp $MONEO_PATH/src/worker/publisher/$EXE_TYPE   /tmp/moneo-worker/publisher/
 else
+    if [[ ! -d "/tmp/moneo-worker/publisher/config" ]]; then
+        mkdir /tmp/moneo-worker/publisher/config
+        cp -rf $MONEO_PATH/src/worker/publisher/config/ /tmp/moneo-worker/publisher/
+    fi
+
     if [[ ! -e "$MONEO_PATH/src/worker/exporters/$EXE_TYPE" ]];
     then
         echo "Error: $MONEO_PATH/src/worker/exporters/$EXE_TYPE Does not exist. Exiting prestart script"
