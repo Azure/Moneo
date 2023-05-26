@@ -1,6 +1,6 @@
 #!/bin/bash
-PUBLISHER=$3
-MANAGED_PROM=$2
+WITH_PUBLISHER=$3
+WITH_MANAGED_PROM=$2
 MONEO_PATH=$1
 
 if [[ ! -d "$MONEO_PATH" ]];
@@ -15,7 +15,7 @@ if lspci | grep -iq NVIDIA ; then
     procs+=("nvidia_exporter")
 fi
 
-if [[ -n $PUBLISHER && $PUBLISHER = true ]]; then
+if [[ -n $WITH_PUBLISHER && $WITH_PUBLISHER = true ]]; then
     procs+=("metrics_publisher")
 fi
 
@@ -29,7 +29,7 @@ function proc_check(){
             exit 1
         fi
     done
-    if [[ -n $MANAGED_PROM && $MANAGED_PROM = true ]];
+    if [[ -n $WITH_MANAGED_PROM && $WITH_MANAGED_PROM = true ]];
     then
         if [[ $(docker ps -a | grep prometheus_sidecar) &&  $(docker ps -a | grep prometheus) ]] ; then
             echo "Prometheus and Prometheus_side_car docker containers running."
@@ -51,11 +51,11 @@ systemctl start moneo@node_exporter.service
 systemctl start moneo@net_exporter.service
 systemctl start moneo@nvidia_exporter.service
 
-if [[ -n $MANAGED_PROM && $MANAGED_PROM = true ]]; then
+if [[ -n $WITH_MANAGED_PROM && $WITH_MANAGED_PROM = true ]]; then
     $MONEO_PATH/src/worker/start_managed_prometheus.sh
 fi
 
-if [[ -n $PUBLISHER && $PUBLISHER = true ]]; then
+if [[ -n $WITH_PUBLISHER && $WITH_PUBLISHER = true ]]; then
     sleep 5 # wait a bit for the exporters to start
     systemctl enable moneo_publisher.service
     systemctl start moneo_publisher.service 
