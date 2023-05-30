@@ -9,6 +9,8 @@ then
     exit 1
 fi
 
+
+
 procs=("net_exporter" "node_exporter")
 
 if lspci | grep -iq NVIDIA ; then
@@ -41,6 +43,8 @@ function proc_check(){
     echo "All Services Running"
     exit 0
 }
+
+$MONEO_PATH/linux_service/moneo_prestart.sh $MONEO_PATH
 
 
 systemctl enable moneo@node_exporter.service
