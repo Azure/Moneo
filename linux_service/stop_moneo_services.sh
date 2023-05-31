@@ -10,8 +10,10 @@ systemctl disable moneo@net_exporter.service
 systemctl disable moneo@nvidia_exporter.service
 systemctl disable moneo_publisher.service
 
-if [[ $(docker ps -a | grep genevamdmagent) ]]; then
-    echo "Stopping Geneva Metrics Extension(MA) container"
-    docker stop genevamdmagent
-    docker rm genevamdmagent
+if [[ $(docker ps -a | grep prometheus_sidecar) ||  $(docker ps -a | grep prometheus) ]]; then
+    echo "Stopping Prometheus containers"
+    docker stop prometheus_sidecar
+    docker rm prometheus_sidecar
+    docker stop prometheus
+    docker rm prometheus
 fi

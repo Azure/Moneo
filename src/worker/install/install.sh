@@ -1,5 +1,4 @@
 #!/bin/bash
-arch="nvidia"
 
 PUBLISHER_INSTALL=$1
 MDM_DOCKER_VERSION=2.2023.316.006-5d91fa-20230316t1622
@@ -14,7 +13,7 @@ else
 	source $(dirname "${BASH_SOURCE[0]}")/common.sh
 fi
 
-python3 -m pip uninstall opentelemetry-sdk azure-monitor-opentelemetry opentelemetry-exporter-otlp -y
+python3 -m pip uninstall opentelemetry-sdk azure-monitor-opentelemetry opentelemetry-exporter-otlp opentelemetry-exporter-otlp-proto-grpc opentelemetry-exporter-otlp-proto-http -y
 
 if [ -n "$PUBLISHER_INSTALL" ];
 then
