@@ -20,8 +20,19 @@ get_cluster_name(){
     echo $cluster_name
 }
 
+get_physical_host_name(){
+    KVP_PATH='/opt/azurehpc/tools/kvp_client'
+    if [ -f "$KVP_PATH" ]; then
+        HOST_NAME=$("$KVP_PATH" 3 | grep -i 'PhysicalHostName;' | awk -F 'Value:'  '{print $2}');
+        echo $HOST_NAME
+    else
+        echo "physical_host_name"
+    fi
+}
+
 SUBSCRIPTION_NAME=$(get_subscription)
 CLUSTER_NAME=$(get_cluster_name)
+PHYS_HOST_NAME=$(get_physical_host_name)
 
 generate_prom(){
     DCMG_TARGET="        - $INSTANCE_NAME:8000\n"
@@ -32,6 +43,7 @@ generate_prom(){
     sed -i -r "s/subscription_id/$SUBSCRIPTION_NAME/" $PROM_CONFIG
     sed -i -r "s/cluster_name/$CLUSTER_NAME/" $PROM_CONFIG
     sed -i -r "s/instance_name/$INSTANCE_NAME/" $PROM_CONFIG
+    sed -i -r "s/physical_host_name/$PHYS_HOST_NAME/" $PROM_CONFIG
 
     sed -i -r "s/\s+- moneo-worker-0:8000/$DCMG_TARGET/" $PROM_CONFIG
     sed -i -r "s/\s+- moneo-worker-0:8001/$NET_TARRGET/" $PROM_CONFIG
