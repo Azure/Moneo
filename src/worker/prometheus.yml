@@ -5,6 +5,7 @@ global:
     subscription: subscription_id
     cluster: cluster_name
     instance: instance_name
+    physical_host: physical_host_name
 remote_write:
   - url: "http://localhost:8081/api/v1/write"
 scrape_configs:
