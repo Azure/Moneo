@@ -202,7 +202,7 @@ class DcgmExporter(DcgmReader):
                 if val.isBlank:
                     continue
 
-                dcgm_config['last_value'][gpuId][fieldId] = val.value
+                dcgm_config['last_value'][gpuId][fieldId] = val
                 self.m_gauges[fieldId].labels(
                     gpuId,
                     gpuUniqueId,
@@ -226,30 +226,34 @@ class DcgmExporter(DcgmReader):
         job_update = False
         newJobID = None
         # get new job id
-        with open('/tmp/moneo-worker/curr_jobID') as f:
-            newJobID = f.readline().strip()
-        fvs = self.m_dcgmGroup.samples.GetAllSinceLastCall(None, self.m_fieldGroup).values
+        try:
+            with open('/tmp/moneo-worker/curr_jobID') as f:
+                newJobID = f.readline().strip()
+            fvs = self.m_dcgmGroup.samples.GetAllSinceLastCall(None, self.m_fieldGroup).values
 
-        # remove last set of label values
-        for gpuId in fvs.keys():
-            gpuUuid = self.m_gpuIdToUUId[gpuId]
-            gpuBusId = self.m_gpuIdToBusId[gpuId]
-            gpuUniqueId = gpuUuid if dcgm_config['sendUuid'] else gpuBusId
-            for fieldId in self.m_publishFields[self.m_updateFreq]:
-                if fieldId in self.m_dcgmIgnoreFields:
-                    continue
-                # remove last set of label values
-                self.m_gauges[fieldId].remove(gpuId, gpuUniqueId, dcgm_config['jobId'])
+            # remove last set of label values
+            for gpuId in fvs.keys():
+                gpuUuid = self.m_gpuIdToUUId[gpuId]
+                gpuBusId = self.m_gpuIdToBusId[gpuId]
+                gpuUniqueId = gpuUuid if dcgm_config['sendUuid'] else gpuBusId
+                for fieldId in self.m_publishFields[self.m_updateFreq]:
+                    if fieldId in self.m_dcgmIgnoreFields:
+                        continue
+                    # remove last set of label values
+                    self.m_gauges[fieldId].remove(gpuId, gpuUniqueId, dcgm_config['jobId'])
 
-                val = fvs[gpuId][fieldId][-1]
-                if val.isBlank:
-                    val = dcgm_config['last_value'][gpuId][fieldId]
-                # update new gauge with new job id label
-                self.m_gauges[fieldId].labels(
-                    gpuId,
-                    gpuUniqueId,
-                    newJobID
-                ).set(val.value)
+                    val = fvs[gpuId][fieldId][-1]
+                    if val.isBlank:
+                        val = dcgm_config['last_value'][gpuId][fieldId]
+                    # update new gauge with new job id label
+                    self.m_gauges[fieldId].labels(
+                        gpuId,
+                        gpuUniqueId,
+                        newJobID
+                    ).set(val.value)
+        except Exception as e:
+            newJobID = dcgm_config['jobId']
+            logging.error(' Job change Raised exception. Message: %s', e)
 
         # update job id
         dcgm_config['jobId'] = newJobID
