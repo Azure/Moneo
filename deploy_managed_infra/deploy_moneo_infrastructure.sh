@@ -36,13 +36,11 @@ az deployment group create \
   --verbose
 
 if [ $? -eq 0 ]; then
-    echo "The last command completed successfully."
+    echo "The deployment command completed successfully. Moving on to identity asignment"
 else
-    echo "The last command encountered an error."
+    echo "The deployment command encountered an error. Please review the error and fix the issues"
     exit 1
 fi
-
-sleep 60s
 
 # Get the Object ID of the Managed Identity
 managedIdentityObjectId=$(az identity show -n $idname -g $rgroup --subscription $subid --query principalId -o tsv)
@@ -55,8 +53,27 @@ prom_work_space="/subscriptions/$subid/resourceGroups/$rgroup/providers/microsof
 # Assign "Monitoring Metrics Publisher" role to the Managed Identity for Data Collection Endpoint
 az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $dataCollectionEndpointResourceId --subscription $subid
 
+if [ $? != 0 ]; then
+    echo "The identity asignment encountered an error. Please review the error and fix the issues"
+    exit 1
+fi
+
 # Assign "Monitoring Metrics Publisher" role to the Managed Identity for Data Collection Rule
 az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $dataCollectionRuleResourceId --subscription $subid
 
+if [ $? != 0 ]; then
+    echo "The identity asignment encountered an error. Please review the error and fix the issues"
+    exit 1
+fi
+
 # Assign "Monitoring Metrics Publisher" role to the Managed Identity for Azure monitor workspace
 az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $prom_work_space
+
+if [ $? -eq 0 ]; then
+    echo "The identity asignment completed successfully. Setup is complete."
+else
+    echo "The identity asignment encountered an error. Please review the error and fix the issues"
+    exit 1
+fi
+
+exit 0
