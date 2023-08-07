@@ -130,7 +130,7 @@ dmypy.json
 
 #config files
 *.ini
-*prom_sidecar_config.json
+*managed_prom_config.json
 *publisher_config.json
 *geneva_config.json 
 
