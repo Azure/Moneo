@@ -33,6 +33,10 @@
         "moeno_location": {
             "defaultValue": "southcentralus",
             "type": "String"
+        },
+        "alert_email": {
+            "defaultValue": "",
+            "type": "String"
         }
     },
     "variables": {},
@@ -48,7 +52,7 @@
                 "emailReceivers": [
                     {
                         "name": "Prometheus Limit_-EmailAction-",
-                        "emailAddress": "moneoserv@microsoft.com",
+                        "emailAddress": "[parameters('alert_email')]",
                         "useCommonAlertSchema": false
                     }
                 ],
@@ -315,7 +319,7 @@
                 "criteria": {
                     "allOf": [
                         {
-                            "threshold": 40000000,
+                            "threshold": 1000000,
                             "name": "Metric1",
                             "metricNamespace": "microsoft.monitor/accounts",
                             "metricName": "EventsPerMinuteIngested",

@@ -20,13 +20,14 @@ else
   exit 1
 fi
 
-# Change the namimg if desired
+# Change the naming if desired
 prometheus_mon_workspace="moneo-amw"
 rgroup="moneo-rg" 
 idname="moneo-identity"
 grafana_name="moneo-dashboard"
 
 # change location and subscription
+alert_email="<email>"
 location="southcentralus"
 subid="<sub-id>"
 
@@ -42,6 +43,7 @@ az deployment group create \
   --parameters  grafana_moneo_grafana_name=$grafana_name \
   --parameters userAssignedIdentities_moneo_identity_name=$idname \
   --parameters moeno_location=$location \
+  --parameters alert_email=$alert_email \
   --verbose
 
 if [ $? -eq 0 ]; then
