@@ -1,5 +1,14 @@
 #!/bin/bash
 
+function check_output(){
+  output=$1
+  if [ $output != 0 ]; then
+    echo "The identity asignment encountered an error. Please review the error and fix the issues"
+    exit 1
+  fi
+}
+
+
 if az account show &>/dev/null; then
   # You are logged in
   echo "You are logged in to the Azure CLI."
@@ -49,31 +58,28 @@ dataCollectionRuleResourceId=$(az monitor account show  -n $prometheus_mon_works
 dataCollectionEndpointResourceId=$(echo "$dataCollectionEndpointResourceId" | sed 's/"//g')
 dataCollectionRuleResourceId=$(echo "$dataCollectionRuleResourceId" | sed 's/"//g')
 prom_work_space="/subscriptions/$subid/resourceGroups/$rgroup/providers/microsoft.monitor/accounts/$prometheus_mon_workspace"
+grafana_id="/subscriptions/$subid/resourceGroups/$rgroup/providers/Microsoft.Dashboard/grafana/$grafana_name"
+grafobjectid=az resource show --ids $grafana_id --query "identity.principalId" --output tsv
 
 # Assign "Monitoring Metrics Publisher" role to the Managed Identity for Data Collection Endpoint
 az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $dataCollectionEndpointResourceId --subscription $subid
 
-if [ $? != 0 ]; then
-    echo "The identity asignment encountered an error. Please review the error and fix the issues"
-    exit 1
-fi
+check_output $?
 
 # Assign "Monitoring Metrics Publisher" role to the Managed Identity for Data Collection Rule
 az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $dataCollectionRuleResourceId --subscription $subid
 
-if [ $? != 0 ]; then
-    echo "The identity asignment encountered an error. Please review the error and fix the issues"
-    exit 1
-fi
+check_output $?
 
 # Assign "Monitoring Metrics Publisher" role to the Managed Identity for Azure monitor workspace
 az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $prom_work_space
 
-if [ $? -eq 0 ]; then
-    echo "The identity asignment completed successfully. Setup is complete."
-else
-    echo "The identity asignment encountered an error. Please review the error and fix the issues"
-    exit 1
-fi
+check_output $?
+
+az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $grafobjectid --scope $prom_work_space
+
+check_output $?
+
+echo "The identity asignment completed successfully. Setup is complete."
 
 exit 0
