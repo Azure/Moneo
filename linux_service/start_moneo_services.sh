@@ -33,10 +33,10 @@ function proc_check(){
     done
     if [[ -n $WITH_MANAGED_PROM && $WITH_MANAGED_PROM = true ]];
     then
-        if [[ $(docker ps -a | grep prometheus_sidecar) &&  $(docker ps -a | grep prometheus) ]] ; then
-            echo "Prometheus and Prometheus_side_car docker containers running."
+        if [[ $(docker ps -a | grep prometheus) ]] ; then
+            echo "Prometheus docker containers running."
         else
-            echo "Prometheus and/or Prometheus_side_car failed to start. Please ensure you have the proper user managed identity assigned to your VMSS/VM. (moneo-umi)"
+            echo "Prometheus failed to start. Please ensure you have the proper user managed identity assigned to your VMSS/VM. (moneo-umi)"
             exit 1
         fi
     fi

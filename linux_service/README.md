@@ -40,8 +40,8 @@ Configuration/Installation is only required once. Afte that is complete the Linu
    - If You will only be launching the exporters without AZ monitor or Managed Prometheus Continue to the Launch Services section else continue.
 2. For Azure Monitor or Managed Prometheus methods if you have not yet modified the configuration files reference the following:
    - For Azure Managed Prometheus:
-     - modify [prom_sidecar_config.json](../src/worker/publisher/config) and copy the file to the compute nodes.
-     - ```parallel-scp -h hostfile <Full Path to Moneo>/src/worker/publisher/config/prom_sidecar_config.json  <Full Path to Moneo>/src/worker/publisher/config```
+     - modify [managed_prom_config.json](../src/worker/publisher/config) and copy the file to the compute nodes.
+     - ```parallel-scp -h hostfile <Full Path to Moneo>/src/worker/publisher/config/managed_prom_config.json  <Full Path to Moneo>/src/worker/publisher/config```
      - Lastly check that that the managed user identity used to set up Managed Prometheus (Azure role assignments) is assigned to your VMSS.
    - For Azure Monitor:
       -  modify the connection string of "azure_monitor_agent_config" section and copy the file to the compute nodes.
