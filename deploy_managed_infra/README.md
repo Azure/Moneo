@@ -24,7 +24,8 @@ Specifically:
         subid="<sub-id>"
     ```
 
-2. AZ cli installed and logged in
+2. AZ cli installed and logged in.
+3. You may choose to edit the [ARM template](./managed_infra_template.json). We do not support any changes to the file so do so at your own risk.
 
 ## Deploy instructionts ##
 
@@ -32,4 +33,5 @@ Specifically:
 2. It will take some time to deploy. The script will output failed deployment and or IAM assignments.
 3. if the deployment is successful you should see these resources:
 ![Alt text](image.png)
-4. The final step is to verify/Add Grafana admin,viewer,and/or editor roles to your grafana resource.
+4. Verify/Add Grafana admin,viewer,and/or editor roles to your grafana resource.
+5. The deployment is complete. You can now design the Grafana dashboards to your own specifications. Also see: [ManagedPrometheusAgent.md](../docs/ManagedPrometheusAgent.md) for details on how to launch Moneo on compute nodes and start ingesting data.

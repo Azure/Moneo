@@ -30,11 +30,6 @@ kill_docker() {
         docker stop prometheus
         docker rm prometheus
     fi
-    if [[ $(docker ps -a | grep prometheus_sidecar) ]]; then
-        echo "Stopping prometheus Sidecar Container"
-        docker stop prometheus_sidecar
-        docker rm prometheus_sidecar
-    fi
 }
 
 if [ $arch == "nvidia" ]; then
