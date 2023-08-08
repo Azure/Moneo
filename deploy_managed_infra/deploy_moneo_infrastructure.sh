@@ -78,7 +78,7 @@ az role assignment create --role "Monitoring Metrics Publisher" --assignee-objec
 
 check_output $?
 
-az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $grafobjectid --scope $prom_work_space
+az role assignment create --role "Monitoring Reader" --assignee-object-id $grafobjectid --scope $prom_work_space
 
 check_output $?
 
