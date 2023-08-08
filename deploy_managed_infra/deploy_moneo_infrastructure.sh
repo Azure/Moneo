@@ -59,7 +59,7 @@ dataCollectionEndpointResourceId=$(echo "$dataCollectionEndpointResourceId" | se
 dataCollectionRuleResourceId=$(echo "$dataCollectionRuleResourceId" | sed 's/"//g')
 prom_work_space="/subscriptions/$subid/resourceGroups/$rgroup/providers/microsoft.monitor/accounts/$prometheus_mon_workspace"
 grafana_id="/subscriptions/$subid/resourceGroups/$rgroup/providers/Microsoft.Dashboard/grafana/$grafana_name"
-grafobjectid=az resource show --ids $grafana_id --query "identity.principalId" --output tsv
+grafobjectid=$(az resource show --ids $grafana_id --query "identity.principalId" --output tsv)
 
 # Assign "Monitoring Metrics Publisher" role to the Managed Identity for Data Collection Endpoint
 az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $dataCollectionEndpointResourceId --subscription $subid
