@@ -1,0 +1,345 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "accounts_moneo_amw_name": {
+            "defaultValue": "moneo-amw",
+            "type": "String"
+        },
+        "grafana_moneo_grafana_name": {
+            "defaultValue": "moneo-grafana",
+            "type": "String"
+        },
+        "actionGroups_Prom_Limit_name": {
+            "defaultValue": "Prom-Limit",
+            "type": "String"
+        },
+        "metricAlerts_Prom_limit_name": {
+            "defaultValue": "Prom-limit",
+            "type": "String"
+        },
+        "userAssignedIdentities_moneo_identity_name": {
+            "defaultValue": "moneo-id-test",
+            "type": "String"
+        },
+        "prometheusRuleGroups_Aggregated_Metrics_1_name": {
+            "defaultValue": "Aggregated Metrics 1",
+            "type": "String"
+        },
+        "prometheusRuleGroups_Aggregated_Metrics_2_name": {
+            "defaultValue": "Aggregated Metrics 2",
+            "type": "String"
+        },
+        "moeno_location": {
+            "defaultValue": "southcentralus",
+            "type": "String"
+        },
+        "alert_email": {
+            "defaultValue": "",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "microsoft.insights/actionGroups",
+            "apiVersion": "2023-01-01",
+            "name": "[parameters('actionGroups_Prom_Limit_name')]",
+            "location": "Global",
+            "properties": {
+                "groupShortName": "[parameters('actionGroups_Prom_Limit_name')]",
+                "enabled": true,
+                "emailReceivers": [
+                    {
+                        "name": "Prometheus Limit_-EmailAction-",
+                        "emailAddress": "[parameters('alert_email')]",
+                        "useCommonAlertSchema": false
+                    }
+                ],
+                "smsReceivers": [],
+                "webhookReceivers": [],
+                "eventHubReceivers": [],
+                "itsmReceivers": [],
+                "azureAppPushReceivers": [],
+                "automationRunbookReceivers": [],
+                "voiceReceivers": [],
+                "logicAppReceivers": [],
+                "azureFunctionReceivers": [],
+                "armRoleReceivers": []
+            }
+        },
+        {
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "apiVersion": "2023-01-31",
+            "name": "[parameters('userAssignedIdentities_moneo_identity_name')]",
+            "location": "[parameters('moeno_location')]"
+        },
+        {
+            "type": "microsoft.monitor/accounts",
+            "apiVersion": "2023-04-03",
+            "name": "[parameters('accounts_moneo_amw_name')]",
+            "location": "[parameters('moeno_location')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.AlertsManagement/prometheusRuleGroups",
+            "apiVersion": "2023-03-01",
+            "name": "[parameters('prometheusRuleGroups_Aggregated_Metrics_1_name')]",
+            "location": "[parameters('moeno_location')]",
+            "dependsOn": [
+                "[resourceId('microsoft.monitor/accounts', parameters('accounts_moneo_amw_name'))]"
+            ],
+            "properties": {
+                "enabled": true,
+                "description": "Rule Group for aggregated values",
+                "scopes": [
+                    "[resourceId('microsoft.monitor/accounts', parameters('accounts_moneo_amw_name'))]"
+                ],
+                "rules": [
+                    {
+                        "record": "average_dcgm_gpu_temp",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "max_dcgm_gpu_temp",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "min_dcgm_gpu_temp",
+                        "enabled": true,
+                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "average_dcgm_memory_temp",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "max_dcgm_memory_temp",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "min_dcgm_memory_temp",
+                        "enabled": true,
+                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "average_dcgm_sm_clock",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "max_dcgm_sm_clock",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "min_dcgm_sm_clock",
+                        "enabled": true,
+                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "average_dcgm_memory_clock",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "max_dcgm_memory_clock",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "min_dcgm_memory_clock",
+                        "enabled": true,
+                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "average_dcgm_gpu_utilization",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "max_dcgm_gpu_utilization",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "min_dcgm_gpu_utilization",
+                        "enabled": true,
+                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "average_dcgm_mem_copy_utilization",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "max_dcgm_mem_copy_utilization",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "min_dcgm_mem_copy_utilization",
+                        "enabled": true,
+                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    }
+                ],
+                "interval": "PT1M"
+            }
+        },
+        {
+            "type": "Microsoft.AlertsManagement/prometheusRuleGroups",
+            "apiVersion": "2023-03-01",
+            "name": "[parameters('prometheusRuleGroups_Aggregated_Metrics_2_name')]",
+            "location": "[parameters('moeno_location')]",
+            "dependsOn": [
+                "[resourceId('microsoft.monitor/accounts', parameters('accounts_moneo_amw_name'))]"
+            ],
+            "properties": {
+                "enabled": true,
+                "description": "Rule Group for aggregated values",
+                "scopes": [
+                    "[resourceId('microsoft.monitor/accounts', parameters('accounts_moneo_amw_name'))]"
+                ],
+                "rules": [
+                    {
+                        "record": "average_dcgm_power_usage",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "max_dcgm_power_usage",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "min_dcgm_power_usage",
+                        "enabled": true,
+                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "average_dcgm_total_energy_consumption",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "max_dcgm_total_energy_consumption",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "min_dcgm_total_energy_consumption",
+                        "enabled": true,
+                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "average_ib_port_xmit_data",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "max_ib_port_xmit_data",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "min_ib_port_xmit_data",
+                        "enabled": true,
+                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "average_ib_port_rcv_data",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "max_ib_port_rcv_data",
+                        "enabled": true,
+                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    },
+                    {
+                        "record": "min_ib_port_rcv_data",
+                        "enabled": true,
+                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                    }
+                ],
+                "interval": "PT1M"
+            }
+        },
+        {
+            "type": "Microsoft.Dashboard/grafana",
+            "apiVersion": "2022-08-01",
+            "name": "[parameters('grafana_moneo_grafana_name')]",
+            "location": "[parameters('moeno_location')]",
+            "dependsOn": [
+                "[resourceId('microsoft.monitor/accounts', parameters('accounts_moneo_amw_name'))]"
+            ],
+            "sku": {
+                "name": "Standard"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "provisioningState": "Succeeded",
+                "zoneRedundancy": "Disabled",
+                "publicNetworkAccess": "Enabled",
+                "autoGeneratedDomainNameLabelScope": "TenantReuse",
+                "apiKey": "Disabled",
+                "deterministicOutboundIP": "Disabled",
+                "grafanaIntegrations": {
+                    "azureMonitorWorkspaceIntegrations": [
+                        {
+                            "azureMonitorWorkspaceResourceId": "[resourceId('microsoft.monitor/accounts', parameters('accounts_moneo_amw_name'))]"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "microsoft.insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[parameters('metricAlerts_Prom_limit_name')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('microsoft.monitor/accounts', parameters('accounts_moneo_amw_name'))]",
+                "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Prom_Limit_name'))]"
+            ],
+            "properties": {
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('microsoft.monitor/accounts', parameters('accounts_moneo_amw_name'))]"
+                ],
+                "evaluationFrequency": "PT30M",
+                "windowSize": "PT1H",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 1000000,
+                            "name": "Metric1",
+                            "metricNamespace": "microsoft.monitor/accounts",
+                            "metricName": "EventsPerMinuteIngested",
+                            "operator": "GreaterThanOrEqual",
+                            "timeAggregation": "Maximum",
+                            "criterionType": "StaticThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                },
+                "autoMitigate": true,
+                "targetResourceType": "microsoft.monitor/accounts",
+                "targetResourceRegion": "[parameters('moeno_location')]",
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', parameters('actionGroups_Prom_Limit_name'))]",
+                        "webHookProperties": {}
+                    }
+                ]
+            }
+        }
+    ]
+}

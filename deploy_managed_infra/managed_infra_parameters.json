@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "accounts_moneo_amw_name": {
+            "value": null
+        },
+        "grafana_moneo_grafana_name": {
+            "value": null
+        },
+        "actionGroups_Prom_Limit_name": {
+            "value": null
+        },
+        "metricAlerts_Prom_limit_name": {
+            "value": null
+        },
+        "userAssignedIdentities_moneo_identity_name": {
+            "value": null
+        },
+        "prometheusRuleGroups_Aggregated_Metrics_1_name": {
+            "value": null
+        },
+        "prometheusRuleGroups_Aggregated_Metrics_2_name": {
+            "value": null
+        }
+    }
+}
