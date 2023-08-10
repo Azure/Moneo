@@ -64,21 +64,21 @@ grafana_id="/subscriptions/$subid/resourceGroups/$rgroup/providers/Microsoft.Das
 grafobjectid=$(az resource show --ids $grafana_id --query "identity.principalId" --output tsv)
 
 # Assign "Monitoring Metrics Publisher" role to the Managed Identity for Data Collection Endpoint
-az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $dataCollectionEndpointResourceId --subscription $subid
+az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $dataCollectionEndpointResourceId --subscription $subid --assignee-principal-type ServicePrincipal 
 
 check_output $?
 
 # Assign "Monitoring Metrics Publisher" role to the Managed Identity for Data Collection Rule
-az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $dataCollectionRuleResourceId --subscription $subid
+az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $dataCollectionRuleResourceId --subscription $subid --assignee-principal-type ServicePrincipal 
 
 check_output $?
 
 # Assign "Monitoring Metrics Publisher" role to the Managed Identity for Azure monitor workspace
-az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $prom_work_space
+az role assignment create --role "Monitoring Metrics Publisher" --assignee-object-id $managedIdentityObjectId --scope $prom_work_space  --assignee-principal-type ServicePrincipal 
 
 check_output $?
 
-az role assignment create --role "Monitoring Reader" --assignee-object-id $grafobjectid --scope $prom_work_space
+az role assignment create --role "Monitoring Reader" --assignee-object-id $grafobjectid --scope $prom_work_space --assignee-principal-type ServicePrincipal 
 
 check_output $?
 
