@@ -1,11 +1,10 @@
 #!/bin/bash
 
-MONEO_PATH=$1
+MONEO_PATH=/opt/azurehpc/tools/Moneo
 
 if [[ ! -d "$MONEO_PATH" ]];
 then
-    echo "Error: Moneo path $MONEO_PATH does not exist. Ensure you are using the correct arguments  
-    (i.e. ./configure_service.sh <Moneo Full Path>, or ./configure_service.sh <Moneo Full Path> true/false). Exiting." 
+    echo "Error: Moneo path $MONEO_PATH does not exist. Ensure you have Moneo directory in this path $MONEO_PATH"
     exit 1
 fi
 
