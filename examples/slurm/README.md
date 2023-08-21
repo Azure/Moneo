@@ -29,9 +29,9 @@ This makes managing Moneo easier.
 2. Next modify the /etc/slurm.conf file by adding the following variables:
 
     ``` Bash
-        Prolog=/mnt/sched/slurm/etc/prolog.sh
+        Prolog=/mnt/sched/slurm/etc/prologMoneo.sh
         PrologFlags=Alloc
-        Epilog=/mnt/sched/slurm/etc/epilog.sh
+        Epilog=/mnt/sched/slurm/etc/epilogMoneo.sh
     ```
 
     Note:  This will allow the scripts to be run on each compute node
