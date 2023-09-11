@@ -1,7 +1,7 @@
-Moneo
-=====
-Description
------
+# Moneo #
+
+## Description ##
+
 Moneo is a distributed GPU system monitor for AI workflows.
 
 Moneo orchestrates metric collection (DCGMI + Prometheus DB) and visualization (Grafana) across multi-GPU/node systems. This provides useful insights into workflow and system level characterization.
@@ -9,7 +9,9 @@ Moneo orchestrates metric collection (DCGMI + Prometheus DB) and visualization (
 <summary>Metrics</summary>
 
 There five categories of metrics that Moneo monitors:
-1.	GPU Counters
+
+1. GPU Counters
+
     - Compute/Memory Utilization
     - SM and Memory Clock frequency
     - Temperature
@@ -17,12 +19,12 @@ There five categories of metrics that Moneo monitors:
     - ECC Counts (Nvidia)
     - GPU Throttling (Nvidia)
     - XID code (Nvidia)
-2.	GPU Profiling Counters
+2. GPU Profiling Counters
     - SM Activity
     - Memory Dram Activity
     - NVLink Activity
     - PCIE Rate
-3.	InfiniBand Network Counters
+3. InfiniBand Network Counters
     - IB TX/RX rate
     - IB Port errors
     - IB Link FLap
@@ -31,6 +33,7 @@ There five categories of metrics that Moneo monitors:
     - Clock frequency
 5. Memory
     - Utilization
+
 </details>
 
 <details>
@@ -59,125 +62,88 @@ There five categories of metrics that Moneo monitors:
 
 </details>
 
-Minimum Requirements
+## Minimum Requirements ##
+
 -----
+
 - python >=3.7 installed
 
 - OS Support:
-    - Ubuntu 18.04, 20.04, 22.04
-    - AlmaLinux 8.6
-### Manager node requirements
+  - Ubuntu 18.04, 20.04, 22.04
+  - AlmaLinux 8.6
+
+### Manager node requirements ###
+
+Note: Not applicable if using Azure Managed Grafana/Prometheus
+
 - docker 20.10.23 (May work with other versions but this has been tested.)
 - parallel-ssh 2.3.1-2 (May work with other versions but this has been tested.)
+- Manager node must be able to ssh to itself
 
-### Worker node requirements
+### Worker node requirements ###
+
 - Nvidia Architecture supported (only for Nvidai GPU monitoring):
-    - Volta
-    - Ampere
-    - Hopper
- - docker 20.10.23 (Only if using geneva agent. May work with other versions but this has been tested.)
- - Installed with install script at time of deployment (If not installed.):
-    - DCGM 3.1.6
-    - pip3
-    - prometheus_client
-    - psutil
-    - filelock
+  - Volta
+  - Ampere
+  - Hopper
+- docker 20.10.23 (Only if using geneva agent. May work with other versions but this has been tested.)
+- Installed with install script at time of deployment (If not installed.):
+  - DCGM 3.1.6
+  - pip3
+  - prometheus_client
+  - psutil
+  - filelock
 
-Setup
+## Usage ##
+
 -----
 
-Run following commands on dev box (could be one of the master/worker nodes or a local node):
+### Deploying Moneo ###
+
+There are a few methods to deploy Moneo. They can be found here [Getting started Guide](./docs/QuickStartGuide.md)
+
+1. Preffered Method Using Azure Managed Prometheus/Grafana and Moneo linux services for collection
+2. Alternative 1: Using Azure Monitor Workspace and Moneo linux services for collection
+3. Alternative 2: Using Moneo CLI with a dedicate headnode to host local Prometheus/Grafana servers
+
+Note: Moneo CLI can be used in place of Moneo linux services to deploy Moneo workers
+
+### Moneo CLI ###
+
+Moneo CLI provides an alternative way to deploy and update Moneo manager and worker nodes. Although linux services are preffered this offeres an alternative way to control Moneo.
+
+#### CLI Usage ####
+
+- ```python3 moneo.py [-d/--deploy] [-c hostfile] {manager,workers,full}```
+- ```python3 moneo.py [-s/--shutdown] [-c hostfile] {manager,workers,full}```
+- ```python3 moneo.py [-j JOB_ID ] [-c hostfile]```
+- i.e. ```python3 moneo.py -d -c ./hostfile full```
+
+Note: For more options check the Moneo help menu
 
 ```sh
-# get the code
-git clone https://github.com/Azure/Moneo.git
-cd Moneo
-
-# install dependencies
-sudo apt-get install pssh=2.3.1-2
+python3 moneo.py --help
 ```
 
-Configuration
--------------
+### Access the Grafana Portal ###
 
-Prepare a hostfile that lists all worker node hostnames/ip
-
-```hostfile
-192.168.0.100
-192.168.0.101
-192.168.0.110
-```
-
-If the remote worker machines use a different username use the Moneo cli "--user" flag to indicate username to use.
-
-If the manager is not local host use the "--manager_host" flag to specify hostname/IP.
-
-i.e. ```python3 moneo.py -d manager -c hostfile --user <username> --manager_host <host IP>```
-
-Usage
------
-### _Moneo CLI_
-To make deploying and shutting down easier we provide the Moneo CLI. 
-
-Which can be accessed as such:
-
-*   ```sh
-    python3 moneo.py --help
-    ```
-#### CLI Usage
-* ```python3 moneo.py [-d/--deploy] [-c hostfile] {manager,workers,full}```
-* ```python3 moneo.py [-s/--shutdown] [-c hostfile] {manager,workers,full}```
-* ```python3 moneo.py [-j JOB_ID ] [-c hostfile]```
-* i.e. ```python3 moneo.py -d -c ./hostfile full```
-
-
-| Flag                           | Options/arguments        |Description|
-|--------------------------------|--------------------------|--------|
-|-d, --deploy | None   |Deploy option selection. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.|
-|-s, --shutdown| None  |Shutdown option selection. Requires config file to be specified (i.e. -c host.ini) or file to be in Moneo directory.|
-| | {manager,workers,full} | Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full. |
-|-c, --host_ini    | path + file name    |Provide filepath and name of ansible config file. The default is host.ini in the Moneo directory.|
-|-j , --job_id | Job ID |Job ID for filtering metrics by job group. Host.ini file required. Cannot be specified during deployment and shutdown.|
-|-p, --profiler_metrics | None|Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity). Addition of profile metrics encurs additional overhead on computer nodes.|
-|-f, --fork_processes | number of processes | The number of processes used to deploy/shutdown/update Moneo. Increasing process count can reduce the latency when deploying to large number of nodes. Default is 16.|
-|-r, --container | None|Deploy Moneo-worker inside the container. Supported Platform: {nvidia} |
--w, --skip_install | None |   Skip worker software install|
--u, --user | Username for remote machine | Provide username to use on remote VMs if not the same as current machine. Default is none.|
--m, --manager_host | Manager Hostname/IP | Manager hostname or IP. Default is localhost.|
---g , --launch_publisher | {geneva, azure_monitor} | This launches the publisher which will share exporter data with Azure.|
--a PUBLISHER_AUTH | {umi, cert}| Required if launching publisher with geneva. Authentication method for geneva. See help menu for cert configuration.|
-### _Access the Portal_
-
-The Prometheus and Grafana services will be started on master nodes after deployment.
-You can access the Grafana portal to visualize collected metrics.
-
-There are several cases based on the networking configuration:
-
-* If the master node has a public IP address or domain, you can access the portal through `http://master-ip-or-domain:3000` directly.
-
-  For example, if you are deploying for Azure VM or VMSS, you can [associate a public IP address](https://docs.microsoft.com/en-us/azure/virtual-network/ip-services/associate-public-ip-address-vm) to the master node, then create a [fully qualified domain name (FQDN)](https://docs.microsoft.com/en-us/azure/virtual-machines/create-fqdn) for it.
-
-* If the master node does not have a public IP address to access, e.g., the VMSS is created behind a load balancer, you will need to create a proxy to access.
-
-  For example, you can create a socks5 proxy at `socks5://localhost:1080` through `ssh -D 1080 -p PORT USER@IP`, then install [Proxy SwitchyOmega](https://chrome.google.com/webstore/detail/proxy-switchyomega/padekgcemlokbadohgkifijomclgjgif?hl=en) in Edge/Chrome browser and configure the proxy to protocol `socks5`, server `localhost`, port `1080` for all schemes, you will be able to navigate portal using master node's hostname at `http://master-hostname:3000`.
-
-* Default Grafana access:
-    *  username: azure
-    *  password: azure
-    
-  This can be changed in the "src/master/grafana/grafana.env" file.
+- For Azure Managed Grafana the dashboards can be accessed via the endpoint provided on the resource overview.
+- For Moneo CLI deployment with a dedicated head node the Grafana portal can be reached via browser: http://master-ip-or-domain:3000
+- If Azure Monitor is used instead of Managed or local Grafana then you can navigate to the Azure Monitor Workspace on The Azure portal.
   
- ### _User Docs_ ###
+### _User Docs_ ###
+
 - [Quick Start](./docs/QuickStartGuide.md)
 - To get started with job level filtering see: [Job Level Filtering](./docs/JobFiltering.md)
 - Slurm epilog/prolog integration: [Slurm example](./examples/slurm/README.md)
 - To deploy moneo-worker inside container: [Moneo-exporter](./docs/Moneo-exporter.md)
 - To integrate Moneo with Azure Insights dashboard see: [Azure Monitor](./docs/AzureMonitorAgent.md)
 
-Known Issues
-------------
+### Known Issues ###
 
-* NVIDIA exporter may conflict with DCGMI
+-----
+
+- NVIDIA exporter may conflict with DCGMI
 
   There're [two modes for DCGM](https://docs.nvidia.com/datacenter/dcgm/latest/dcgm-user-guide/getting-started.html#content): embedded mode and standalone mode.
 
@@ -187,24 +153,26 @@ Known Issues
 
   > Generally, NVIDIA prefers this mode of operation, as it provides the most flexibility and lowest maintenance cost to users.
 
-* Moneo will attempt to install a tested version of DCGM if it is not present on the worker nodes. However, this step is skipped if DCGM is already installed. In instances DCGM installed may be too old. 
+- Moneo will attempt to install a tested version of DCGM if it is not present on the worker nodes. However, this step is skipped if DCGM is already installed. In instances DCGM installed may be too old.
 
   This may cause the Nvidia exporter to fail. In this case it is recommended that DCGM be upgrade to atleast version 2.4.4.
   To view which exporters are running on a worker just run ```ps -eaf | grep python3```
 
-Troubleshooting 
-------------
+## Troubleshooting ##
+
+-----
+
 - Verifying Grafana and Prometheus containers are running:
-    - Check browser http://master-ip-or-domain:3000 (Grafana), http://master-ip-or-domain:9090 (Prometheus)
-    - On Manager node terminal run ```sudo docker container ls```
-        ![image](https://user-images.githubusercontent.com/70273488/205715440-9f994c84-b115-4a98-9535-fdce8a4adf7d.png)
+  - Check browser http://master-ip-or-domain:3000 (Grafana), http://master-ip-or-domain:9090 (Prometheus)
+  - On Manager node terminal run ```sudo docker container ls```
+  
+    ![image](https://user-images.githubusercontent.com/70273488/205715440-9f994c84-b115-4a98-9535-fdce8a4adf7d.png)
 - Verifying exporters on worker node:
-    - ```ps -eaf | grep python3``` 
-    
+  - ``` ps -eaf | grep python3 ```
+
     ![image](https://user-images.githubusercontent.com/70273488/205716391-d0144085-8948-4269-a25c-51bc68448e1e.png)
 
-
-## Contributing
+## Contributing ##
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
@@ -218,10 +186,10 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-## Trademarks
+## Trademarks ##
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.

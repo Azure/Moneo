@@ -39,7 +39,7 @@ This guide will provide step-by-step instructions on how to  to publish your exp
 
 2. deploy Moneo on worker nodes:
 
-    - Worker deployment
+    - Worker deployment using CLI
 
     ```bash
         python3 moneo.py -d -c hostlist workers -g managed_prometheus -a umi 
