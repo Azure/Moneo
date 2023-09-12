@@ -1,8 +1,6 @@
 
 # Deploy Moneo with Local Grafana and head node #
 
-
-
 1. Create a hostfile file.  
 
     ```hostfile
@@ -11,11 +9,11 @@
         192.168.0.110
     ```
 
-    Note: The manager node can also be a work node as well. The manager node will have the Grafana and Prometheus docker containers deployed to it.
+    Note: The manager node can also be a worker node as well. The manager node will have the Grafana and Prometheus docker containers deployed to it.
 
-    Note: You must have passwordless ssh enabled on your nodes
+    Note: You must have passwordless ssh enabled on your nodes.
 
-    Note: The manager node must be able to ssh into itself
+    Note: The manager node must be able to ssh into itself.
 
 2. Now deploy Moneo
     - using Moneo cli:
