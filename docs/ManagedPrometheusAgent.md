@@ -57,6 +57,6 @@ This guide will provide step-by-step instructions on how to  to publish your exp
 
     Which means, prometheus agent's remote write is enabled.
 4. At this point the remote write functionality shoud be working.
-5. Check with Azure grafana (linked with AMW)dashboards to verify that the metrics are being ingested.
+5. Check with Azure grafana (linked with AMW) dashboards to verify that the metrics are being ingested.
 ![image](assets/azuregrafana-managed_prometheus.png)
-Note: You will have to design the dashboards (templated dashboards coming soon)
+Note: You will have to design the dashboards or use the template dashboards in the "Moneo/deploy_managed_infra/grafana_dashboard_templates" folder.

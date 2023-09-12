@@ -73,8 +73,6 @@ There five categories of metrics that Moneo monitors:
 
 ## Minimum Requirements ##
 
------
-
 - python >=3.7 installed
 
 - OS Support:
@@ -104,8 +102,6 @@ Note: Not applicable if using Azure Managed Grafana/Prometheus
   - filelock
 
 ## Usage ##
-
------
 
 ### Deploying Moneo ###
 
@@ -159,7 +155,7 @@ Note: For more options check the Moneo help menu
 
 - For Azure Managed Grafana the dashboards can be accessed via the endpoint provided on the resource overview.
 - For Moneo CLI deployment with a dedicated head node the Grafana portal can be reached via browser: http://master-ip-or-domain:3000
-- If Azure Monitor is used instead of Managed or local Grafana then you can navigate to the Azure Monitor Workspace on The Azure portal.
+- If Azure Monitor is navigate to the Azure Monitor Workspace on The Azure portal.
   
 ### _User Docs_ ###
 
@@ -188,7 +184,22 @@ Note: For more options check the Moneo help menu
 
 ## Troubleshooting ##
 
-1.
+1. For Managed Grafana (headless) deployment
+    - Verify that the user managed identity is assigned to the VM resource.
+    - Verify the the prerequisite configure file (`Moneo/src/worker/publisher/config/managed_prom_config.json`) is configured correctly on each worker node.
+    - On the worker nodes verify functionality of prometheus agent remote write:
+        - Check prometheus docker with `sudo docker logs prometheus | grep 'Done replaying WAL'`
+        It will have the result like this:
+
+    ```Bash
+        ts=2023-08-07T07:25:49.636Z caller=dedupe.go:112 component=remote level=info remote_name=6ac237 url="<ingestion_endpoint>" msg="Done replaying WAL" duration=8.339998173s
+    ```
+
+    - Check Azure Grafana's is linked to Azure Prometheus workspace.
+        - This can be done by accessing settings in Grafana dashboard and ensuring the ingestion link for the Managed Prometheus is being used for the datasource url.
+        - You can also verify The Managed Prometheus resource in the portal is linked with the managed Grafana resource
+        ![image](./docs/assets/promAMWLinkGrafana.png)
+
 2. For deployments with a Headnode:
 
     - Verifying Grafana and Prometheus containers are running:
