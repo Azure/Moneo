@@ -1,10 +1,7 @@
 # Managed Prometheus Agent User Guide (Preview) #
 
-=====
-
 ## Description ##
 
------
 This guide will provide step-by-step instructions on how to  to publish your exporter metrics to Azure Managed Prometheus in a second-level granularity interval.
 
 ## Prequisites ##
@@ -32,8 +29,6 @@ This guide will provide step-by-step instructions on how to  to publish your exp
     ```
 
 ## Steps ##
-
------
 
 1. Ensure that all prequisites are met.
 
