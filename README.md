@@ -7,7 +7,7 @@ Moneo is a distributed GPU system monitor for AI workflows. It orchestrates metr
 Moneo offers flexibility with 3 deployment methods:
 
 1. The preffered method using Azure Managed Prometheus/Grafana and Moneo linux services for collection (Headless deployment)
-2. Using Azure Monitor Workspace(AMW) and Moneo linux services for collection (Headless deployment w/ AMW).
+2. Using Azure Application Insights/Azure Monitor Workspace(AMW) (Headless deployment w/ App Insights).
 3. Using Moneo CLI with a dedicate headnode to host local Prometheus/Grafana servers (Local Grafana Deployment)
 
 Moneo Headless Method:
@@ -151,7 +151,7 @@ Note: For more options check the Moneo help menu
 
 - For Azure Managed Grafana the dashboards can be accessed via the endpoint provided on the resource overview.
 - For Moneo CLI deployment with a dedicated head node the Grafana portal can be reached via browser: http://master-ip-or-domain:3000
-- If Azure Monitor is navigate to the Azure Monitor Workspace on The Azure portal.
+- If Azure Monitor is used navigate to the Azure Monitor Workspace on The Azure portal.
   
 ## User Docs ##
 
@@ -160,7 +160,7 @@ Note: For more options check the Moneo help menu
 - To get started with job level filtering see: [Job Level Filtering](./docs/JobFiltering.md)
 - Slurm epilog/prolog integration: [Slurm example](./examples/slurm/README.md)
 - To deploy moneo-worker inside container: [Moneo-exporter](./docs/Moneo-exporter.md)
-- To integrate Moneo with Azure Insights dashboard see: [Azure Monitor](./docs/AzureMonitorAgent.md)
+- To integrate Moneo with Azure App Insights dashboard see: [Azure Monitor](./docs/AzureMonitorAgent.md)
 
 ## Known Issues ##
 
