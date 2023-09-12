@@ -2,9 +2,18 @@
 
 ## Description ##
 
-Moneo is a distributed GPU system monitor for AI workflows.
+Moneo is a distributed GPU system monitor for AI workflows. It orchestrates metric collection (DCGMI + Prometheus DB) and visualization (Grafana) across multi-GPU/node systems. This provides useful insights into workflow and system level characterization.
 
-Moneo orchestrates metric collection (DCGMI + Prometheus DB) and visualization (Grafana) across multi-GPU/node systems. This provides useful insights into workflow and system level characterization.
+Moneo offers flexibility with 3 deployment methods:
+
+1. The preffered method using Azure Managed Prometheus/Grafana and Moneo linux services for collection (Headless deployment)
+2. Using Azure Monitor Workspace(AMW) and Moneo linux services for collection (Headless deployment w/ AMW).
+3. Using Moneo CLI with a dedicate headnode to host local Prometheus/Grafana servers (Local Grafana Deployment)
+
+Moneo Headless Method:
+
+![image](./docs/assets/managedResourceDiagram.png)
+
 <details>
 <summary>Metrics</summary>
 
@@ -72,7 +81,7 @@ There five categories of metrics that Moneo monitors:
   - Ubuntu 18.04, 20.04, 22.04
   - AlmaLinux 8.6
 
-### Manager node requirements ###
+### Manager Node Requirements ###
 
 Note: Not applicable if using Azure Managed Grafana/Prometheus
 
@@ -100,13 +109,34 @@ Note: Not applicable if using Azure Managed Grafana/Prometheus
 
 ### Deploying Moneo ###
 
-There are a few methods to deploy Moneo. They can be found here [Getting started Guide](./docs/QuickStartGuide.md)
+Get the code:
 
-1. Preffered Method Using Azure Managed Prometheus/Grafana and Moneo linux services for collection
-2. Alternative 1: Using Azure Monitor Workspace and Moneo linux services for collection
-3. Alternative 2: Using Moneo CLI with a dedicate headnode to host local Prometheus/Grafana servers
+- Clone Moneo from Github.
 
-Note: Moneo CLI can be used in place of Moneo linux services to deploy Moneo workers
+    ```sh
+        # get the code
+        git clone https://github.com/Azure/Moneo.git
+        cd Moneo
+        # install dependency
+        sudo apt-get install pssh
+    ```
+
+    Note: If you are using an [Azure Ubuntu HPC-AI](https://github.com/Azure/azhpc-images) VM image you can find the Moneo in this path: /opt/azurehpc/tools/Moneo
+
+### Preffered Moneo Deployment ###
+
+The preffered way to deploy Moneo is the headless method using Azure Managaed Grafana and Prometheus resources.
+
+Complete the steps listed here: [Headless Deployment Guide](./docs/HeadlessDeployment.md)
+
+### Alternative deployment using Moneo CLI and head node ###
+
+This method requires a deploying of a head node to host the local Prometheus database and Grafana server.
+
+- The headnode must have enough storage available to facilitate data collection
+- Grafana and Prometheus is accessed via web browser. Ensure proper access from web browser to headnode IP.
+
+Complete the steps listed here: [Local Grafana Deployment Guide](./docs/LocalGrafanDeployment.md)
 
 ### Moneo CLI ###
 
@@ -122,7 +152,7 @@ Moneo CLI provides an alternative way to deploy and update Moneo manager and wor
 Note: For more options check the Moneo help menu
 
 ```sh
-python3 moneo.py --help
+    python3 moneo.py --help
 ```
 
 ### Access the Grafana Portal ###
@@ -139,9 +169,7 @@ python3 moneo.py --help
 - To deploy moneo-worker inside container: [Moneo-exporter](./docs/Moneo-exporter.md)
 - To integrate Moneo with Azure Insights dashboard see: [Azure Monitor](./docs/AzureMonitorAgent.md)
 
-### Known Issues ###
-
------
+## Known Issues ##
 
 - NVIDIA exporter may conflict with DCGMI
 
@@ -160,15 +188,17 @@ python3 moneo.py --help
 
 ## Troubleshooting ##
 
------
+1.
+2. For deployments with a Headnode:
 
-- Verifying Grafana and Prometheus containers are running:
-  - Check browser http://master-ip-or-domain:3000 (Grafana), http://master-ip-or-domain:9090 (Prometheus)
-  - On Manager node terminal run ```sudo docker container ls```
-  
+    - Verifying Grafana and Prometheus containers are running:
+        - Check browser http://master-ip-or-domain:3000 (Grafana), http://master-ip-or-domain:9090 (Prometheus)
+        - On Manager node terminal run ```sudo docker container ls```
     ![image](https://user-images.githubusercontent.com/70273488/205715440-9f994c84-b115-4a98-9535-fdce8a4adf7d.png)
-- Verifying exporters on worker node:
-  - ``` ps -eaf | grep python3 ```
+
+3. All deployments:
+    - Verifying exporters on worker node:
+        - ``` ps -eaf | grep python3 ```
 
     ![image](https://user-images.githubusercontent.com/70273488/205716391-d0144085-8948-4269-a25c-51bc68448e1e.png)
 
