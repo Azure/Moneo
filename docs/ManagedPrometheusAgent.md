@@ -1,4 +1,4 @@
-# Managed Prometheus Agent User Guide (Preview) #
+# Managed Prometheus Agent User Guide #
 
 ## Description ##
 
