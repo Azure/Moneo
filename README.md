@@ -93,13 +93,9 @@ Note: Not applicable if using Azure Managed Grafana/Prometheus
   - Volta
   - Ampere
   - Hopper
-- docker 20.10.23 (Only if using geneva agent. May work with other versions but this has been tested.)
-- Installed with install script at time of deployment (If not installed.):
-  - DCGM 3.1.6
-  - pip3
-  - prometheus_client
-  - psutil
-  - filelock
+- Installed with install script at time of deployment (If not installed):
+  - DCGM 3.1.6 (For Nvidia deployments)
+  - Check install scripts for the various python packages installed.
 
 ## Usage ##
 
@@ -157,9 +153,10 @@ Note: For more options check the Moneo help menu
 - For Moneo CLI deployment with a dedicated head node the Grafana portal can be reached via browser: http://master-ip-or-domain:3000
 - If Azure Monitor is navigate to the Azure Monitor Workspace on The Azure portal.
   
-### _User Docs_ ###
+## User Docs ##
 
-- [Quick Start](./docs/QuickStartGuide.md)
+- [Headless Deployment Guide](./docs/HeadlessDeployment.md)
+- [Local Grafana Deployment Guide](./docs/LocalGrafanDeployment.md)
 - To get started with job level filtering see: [Job Level Filtering](./docs/JobFiltering.md)
 - Slurm epilog/prolog integration: [Slurm example](./examples/slurm/README.md)
 - To deploy moneo-worker inside container: [Moneo-exporter](./docs/Moneo-exporter.md)
@@ -210,8 +207,8 @@ Note: For more options check the Moneo help menu
 3. All deployments:
     - Verifying exporters on worker node:
         - ``` ps -eaf | grep python3 ```
-
-    ![image](https://user-images.githubusercontent.com/70273488/205716391-d0144085-8948-4269-a25c-51bc68448e1e.png)
+    
+        ![image](https://user-images.githubusercontent.com/70273488/205716391-d0144085-8948-4269-a25c-51bc68448e1e.png)
 
 ## Contributing ##
 
