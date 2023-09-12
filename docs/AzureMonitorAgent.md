@@ -4,8 +4,6 @@ Description
 -----
 This guide will provide step-by-step instructions on how to share your exporter metrics with Azure by utilizing Azure Monitor Metrics.
 
-If you are an internal Microsoft user, we recommend utilizing the Geneva agent instead. For detailed instructions, please refer to this document [Geneva Agent](GenevaAgent.MD).
-
 Prequisites:
 1. An Azure Monitor Metrics (Application Insights) resource, please enable alerting on custom metric dimensions by refering this [document](https://learn.microsoft.com/en-us/azure/azure-monitor/app/pre-aggregated-metrics-log-metrics#custom-metrics-dimensions-and-pre-aggregation) to restore the metrics dimentions.(Lead to a extra cost)
 2. PSSH installed on manager nodes.
