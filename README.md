@@ -12,7 +12,7 @@ Moneo offers flexibility with 3 deployment methods:
 
 Moneo Headless Method:
 
-![image](./docs/assets/managedResourceDiagram.png)
+![image](./docs/assets/managedResourceDiagram.svg)
 
 <details>
 <summary>Metrics</summary>
@@ -207,7 +207,7 @@ Note: For more options check the Moneo help menu
 3. All deployments:
     - Verifying exporters on worker node:
         - ``` ps -eaf | grep python3 ```
-    
+
         ![image](https://user-images.githubusercontent.com/70273488/205716391-d0144085-8948-4269-a25c-51bc68448e1e.png)
 
 ## Contributing ##
