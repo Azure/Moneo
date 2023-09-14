@@ -1,10 +1,7 @@
-# Managed Prometheus Agent User Guide (Preview) #
-
-=====
+# Managed Prometheus Agent User Guide #
 
 ## Description ##
 
------
 This guide will provide step-by-step instructions on how to  to publish your exporter metrics to Azure Managed Prometheus in a second-level granularity interval.
 
 ## Prequisites ##
@@ -33,13 +30,11 @@ This guide will provide step-by-step instructions on how to  to publish your exp
 
 ## Steps ##
 
------
-
 1. Ensure that all prequisites are met.
 
 2. deploy Moneo on worker nodes:
 
-    - Worker deployment
+    - Worker deployment using CLI
 
     ```bash
         python3 moneo.py -d -c hostlist workers -g managed_prometheus -a umi 
@@ -57,6 +52,6 @@ This guide will provide step-by-step instructions on how to  to publish your exp
 
     Which means, prometheus agent's remote write is enabled.
 4. At this point the remote write functionality shoud be working.
-5. Check with Azure grafana (linked with AMW)dashboards to verify that the metrics are being ingested.
+5. Check with Azure grafana (linked with AMW) dashboards to verify that the metrics are being ingested.
 ![image](assets/azuregrafana-managed_prometheus.png)
-Note: You will have to design the dashboards (templated dashboards coming soon)
+Note: You will have to design the dashboards or use the template dashboards in the "Moneo/deploy_managed_infra/grafana_dashboard_templates" folder.
