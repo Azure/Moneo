@@ -13,7 +13,22 @@ else
 	source $(dirname "${BASH_SOURCE[0]}")/common.sh
 fi
 
-python3 -m pip uninstall opentelemetry-sdk azure-monitor-opentelemetry opentelemetry-exporter-otlp opentelemetry-exporter-otlp-proto-grpc opentelemetry-exporter-otlp-proto-http -y
+# uninstall to deal with Azure monitor and Geneva differences
+python3 -m pip uninstall \
+azure-monitor-opentelemetry-exporter  \
+opentelemetry-instrumentation \
+opentelemetry-api \
+opentelemetry-sdk \
+azure-monitor-opentelemetry \
+opentelemetry-exporter-otlp \
+opentelemetry-exporter-otlp-proto-grpc \
+opentelemetry-exporter-otlp-proto-http \
+opentelemetry-instrumentation-django \
+opentelemetry-instrumentation-flask \
+opentelemetry-instrumentation-requests \
+opentelemetry-instrumentation-wsgi \
+opentelemetry-instrumentation-dbapi \
+opentelemetry-instrumentation-psycopg2 -y
 
 if [ -n "$PUBLISHER_INSTALL" ];
 then

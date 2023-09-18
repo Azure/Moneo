@@ -1,11 +1,15 @@
 #!/bin/bash
-WITH_AZ_MON=$1
 
-# Two modes of operation managed prometheus (default) and  az monitor (WITH_AZ_MON) enabled w/ WITH_AZ_MON=true
 
-# User can modify this if they need to change
+# Usage:
+# Managed Prometheus deployment: ./start_moneo_services.sh 
+# Azure Monitor: ./stop_moneo_services.sh azure_monitor
+# Geneva (internal msft): ./stop_moneo_services.sh geneva
+PublisherMethod=$1 
+
+# Modify as necessary
 MONEO_PATH=/opt/azurehpc/tools/Moneo
-
+PUBLISHER_AUTH=umi # other choice is cert
 
 if [[ ! -d "$MONEO_PATH" ]];
 then
@@ -20,7 +24,13 @@ if lspci | grep -iq NVIDIA ; then
     procs+=("nvidia_exporter")
 fi
 
-if [[ -n $WITH_AZ_MON && $WITH_AZ_MON = true ]]; then
+if [[ -n $PublisherMethod ]]; then
+    if [ "$PublisherMethod" == "geneva" ] || [ "$PublisherMethod" == "azure_monitor" ]; then
+        echo "PublisherMethod is valid: $PublisherMethod"
+    else
+        echo "PublisherMethod is not one of the valid choices."
+        exit 1
+    fi
     procs+=("metrics_publisher")
 fi
 
@@ -59,7 +69,10 @@ systemctl start moneo@node_exporter.service
 systemctl start moneo@net_exporter.service
 systemctl start moneo@nvidia_exporter.service
 
-if [[ -n $WITH_AZ_MON && $WITH_AZ_MON = true ]]; then
+if [[ -n $PublisherMethod ]]; then
+    if [ "$PublisherMethod" == "geneva" ]; then
+        $MONEO_PATH/src/worker/start_geneva.sh $PUBLISHER_AUTH /tmp/moneo-worker/publisher/config
+    fi
     sleep 5 # wait a bit for the exporters to start
     systemctl enable moneo_publisher.service
     systemctl start moneo_publisher.service 
