@@ -1,29 +1,10 @@
-######################################################
-# This exporter file can be modified or used as
-# an example of how to create a custom exporter.
-#
-# The following files have been modified to
-# integrate this exporter:
-#    src/ansible/deploy.yaml
-#    src/ansible/prometheus.config.j2
-#    src/ansible/updateJobID.yaml
-#    src/master/prometheus.yml
-#    src/worker/shutdown.sh
-#
-# Modifications to the Grafana dashboard needs
-# be done to view metrics exported
-# (not done in this example)
-######################################################
-
 import sys
 import os
 import signal
 import logging
 import argparse
-from base_exporter import BaseExporter
 import subprocess
 import shlex
-import psutil
 import time
 import re
 import prometheus_client
@@ -37,21 +18,6 @@ IB_Mapping = {}
 # feel free to copy and paste if os commands are needed
 
 
-def shell_cmd(cmd, timeout):
-    """Helper Function for running subprocess"""
-    args = shlex.split(cmd)
-    child = subprocess.Popen(args, stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
-    try:
-        result, errs = child.communicate(timeout=timeout)
-    except subprocess.TimeoutExpired:
-        child.kill()
-        print("Command " + " ".join(args) + ", Failed on timeout")
-        result = 'TimeOut'
-        return result
-    return result.decode()
-
-
 class CustomExporter():
     '''Example custom node exporter'''
 
@@ -60,6 +26,7 @@ class CustomExporter():
         self.custom_metrics_file_path = custom_metrics_file_path
         self.init_connection()
         self.init_gauges()
+        # self.init_infos()
         signal.signal(signal.SIGUSR1, self.jobID_update_flag)
 
     def init_connection(self):
@@ -80,6 +47,16 @@ class CustomExporter():
                 'custom_{}'.format(field_name),
                 ['job_id']
             )
+    
+    # def init_infos(self):
+    #     '''Initialization of infos'''
+    #     self.infos = {}
+    #     for field_name in self.field_list:
+    #         self.infos[field_name] = prometheus_client.Info(
+    #             'custom_{}'.format(field_name),
+    #             'custom_{}'.format(field_name),
+    #             ['job_id']
+    #         )
 
     def collect_custom_metrics(self):
         '''Updates custom metrics'''
@@ -99,17 +76,24 @@ class CustomExporter():
                 continue
             self.handle_field(node_field, value)
 
-    def update_field(self, field_name, value, *labels):
+    # def update_infos_field(self, field_name, value, *labels):
+    #     print(value)
+    #     print(self.infos[field_name])
+    #     self.infos[field_name].labels(
+    #         *labels
+    #     ).info({field_name: value})
+
+    def update_gauges_field(self, field_name, value, *labels):
         self.gauges[field_name].labels(
             *labels
         ).set(value)
 
     def handle_field(self, field_name, value):  # noqa: C901
         '''Update metric value for gauge'''
-        self.update_field(field_name, value, config['job_id'])
+        self.update_infos_field(field_name, value, config['job_id'])
         logging.debug('Custom exporter field %s: %s', field_name, str(value))
 
-    def remove_metric(self, field_name, Mapping):
+    def remove_metric(self, field_name):
         self.gauges[field_name].remove(config['job_id'])
 
     def jobID_update_flag(self, signum, stack):
@@ -179,8 +163,6 @@ def init_custom_metrics(custom_metcis_file_path):
         FIELD_LIST.append(custom_metrics_name)
 
 
-
-
 # You can just copy paste this function. Used to handle signals
 def init_signal_handler():
     '''Handles exit signals, User defined signale defined in Base class'''
@@ -212,54 +194,6 @@ def get_log_level(args):
         args.print_help()
         sys.exit(2)
     return numeric_log_level
-
-
-def init_ib_config():
-    global config
-    global GPU_Mapping
-    global IB_Mapping
-    global FIELD_LIST
-    # IB mapping
-    cmd = 'ibv_devinfo -l'
-    result = shell_cmd(cmd, 5)
-    if 'HCAs found' in result or 'HCA found' in result:
-        try:
-            result = result.split('\n')[1:]
-            for ib in result:
-                if "ib" not in ib:
-                    continue
-                if len(ib):
-                    mapping = re.search(r"ib\d", ib.strip()).group()
-                    IB_Mapping[mapping] = ib.strip() + ':1'
-        except Exception as e:
-            print(e)
-            pass
-
-
-def init_nvidia_config():
-    global config
-    global GPU_Mapping
-    global IB_Mapping
-    global FIELD_LIST
-    # check if nvidiaVM
-    nvArch = os.path.exists('/dev/nvidiactl')
-    if nvArch:
-        config['counter']['xid_error'] = {}
-        cmd = 'nvidia-smi -L'
-        result = shell_cmd(cmd, 5)
-        gpuCount = len(result.split('\nGPU'))
-        try:
-            for gpu in range(gpuCount):
-                cmd = 'nvidia-smi -q -g ' + str(gpu) + ' -d ACCOUNTING'
-                result = shell_cmd(cmd, 5)
-                pci = re.search(r"\w+:\w\w:\w\w\.", result).group().lower()
-                pci = pci.replace('.', '')[-10:]
-                GPU_Mapping[pci] = str(gpu)  # pci mapping
-                config['counter']['xid_error'][pci] = []
-            FIELD_LIST.append('xid_error')
-        except Exception as e:
-            print(e)
-            pass
 
 
 # Copy paste this function, modify if needed
