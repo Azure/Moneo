@@ -27,7 +27,6 @@ import psutil
 import re
 import prometheus_client
 from datetime import datetime, timedelta
-import json
 
 FIELD_LIST = [
     'net_rx',
@@ -417,6 +416,7 @@ def init_nvidia_config():
         except Exception as e:
             print(e)
             pass
+
 
 # Copy paste this function, modify if needed
 def main():
