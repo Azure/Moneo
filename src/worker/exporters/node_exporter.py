@@ -418,36 +418,6 @@ def init_nvidia_config():
             print(e)
             pass
 
-
-def init_custom_metric():
-    try:
-        metric_json_path = '/home/rafsalas/Moneo/custom.json'
-        if not os.path.exists(metric_json_path):
-            print(f"JSON file '{metric_json_path}' not found.")
-            return False
-        with open(metric_json_path, 'r') as cmetric_file:
-            metric_dict = json.load(cmetric_file)
-        gpuCount = 0
-        if os.path.exists('/dev/nvidiactl'):
-            cmd = 'nvidia-smi -L'
-            result = shell_cmd(cmd, 5)
-            gpuCount = len(result.split('\nGPU'))
-        for metric in metric_dict:
-            custom_metric = metric['metric_name'] + "_custom"
-            FIELD_LIST.append(custom_metric)
-            config['sample_timestamp'][custom_metric] = datetime.now()
-            config['fieldFiles'][custom_metric] = metric['counter_file']
-            config['command']['custom_metric'] = "sudo tail -n 1 " + config['fieldFiles'][custom_metric]
-            if metric['gpu_metric'] == 'true' and gpuCount > 0:
-                config['command']['custom_metric'] = "sudo tail -n " + gpuCount + config['fieldFiles'][custom_metric]
-                config['counter'][custom_metric] = {i: '' for i in range(gpuCount)}
-            config['labels'][custom_metric] = metric['labels']
-            config['columns'][custom_metric] = metric['columns_to_extract']
-    except Exception as e:
-        logging.error('Raised exception. Message: %s', e)
-        return False
-
-
 # Copy paste this function, modify if needed
 def main():
     '''main function'''
