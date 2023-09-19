@@ -3,8 +3,8 @@
 
 # Usage:
 # Managed Prometheus deployment: ./start_moneo_services.sh 
-# Azure Monitor: ./stop_moneo_services.sh azure_monitor
-# Geneva (internal msft): ./stop_moneo_services.sh geneva
+# Azure Monitor: ./start_moneo_services.sh azure_monitor
+# Geneva (internal msft): ./start_moneo_services.sh geneva
 PublisherMethod=$1 
 
 # Modify as necessary

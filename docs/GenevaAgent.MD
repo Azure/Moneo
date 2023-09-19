@@ -1,11 +1,12 @@
-Geneva Agent User Guide
-=====
-Description
------
+# Geneva Agent User Guide #
+
+## Description ##
+
 This guide will walk you through how to share your exporter metrics with Azure using the Geneva Agent.
 Note: Currently this feature is private preview and is turned off by default. As of now only internal Microsoft Azure subscriptions are whitelisted, and we recommend you use azure monitor instead, Detailed please refer to this doc: [Azure Monitor Agent](AzureMonitorAgent.md)
 
-Prequisites:
+## Prequisites ##
+
 1. Prepare Authentication for geneva agent:
 
     a. User Managed Identity (umi)
@@ -19,14 +20,18 @@ Prequisites:
 
     b. Certificate (cert)
     - Create Private key pem and public key pem files by:
+
       ```bash
       openssl genrsa 2048 > mdm-key.pem
       openssl req -x509 -new -key gcskey.pem -out mdm-cert.pem
       ```
+
     - Print out and get the certicate thumbprint:
+
       ```
       openssl x509 -in mdm-cert.pem -noout -sha1 -fingerprint
       ```
+
     - Replace above key-cert pairs with `src/worker/publisher/config/mdm-key.pem` and `src/worker/publisher/config/mdm-cert.pem`
     - Register the thumbprint on geneva portal with a metricsPublisher role.
 2. Currently the only supported OS's are Ubuntu 20.04+ and Mariner.
@@ -34,8 +39,8 @@ Prequisites:
 4. PSSH installed on manager nodes.
 5. Ensure passwordless ssh is installed in you environment.
 
-Steps
------
+## Steps ##
+
 1. Ensure that all prequisites are met.
 2. deploy Moneo
     - Full deployment with umi auth:
