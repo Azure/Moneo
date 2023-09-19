@@ -1,65 +1,61 @@
-Moneo Quick Start Guide
-=====
-Description
------
-This guide will walk you through the simple steps of setting up Moneo.
-This guide assume that all dependencies and requirements have been meant.
+# Moneo Quick Start Guide #
 
-Steps
------
-1. Clone Moneo from Github and install ansible. 
+1. Clone Moneo from Github.
+
     ```sh
-    # get the code
-    git clone https://github.com/Azure/Moneo.git
-    cd Moneo
-
-    # install dependencies
-    sudo apt-get install pssh
+        # get the code
+        git clone https://github.com/Azure/Moneo.git
+        cd Moneo
+        # install dependencies
+        sudo apt-get install pssh
     ```
+
     Note: If you are using an [Azure Ubuntu HPC-AI](https://github.com/Azure/azhpc-images) VM image you can find the Moneo in this path: /opt/azurehpc/tools/Moneo
 
-2. Next create a hostfile file.  
-    ```hostfile
-    192.168.0.100
-    192.168.0.101
-    192.168.0.110
-    ```
-    Note: The manager node can also be a work node as well. The manager node will have the Grafana and Prometheus docker containers deployed to it.
-    
-    Note: You must have passwordless ssh enabled on your nodes
-    
-    Note: The manager node must be able to ssh into itself
-    
-3. Now deploy Moneo
-    * using Moneo cli:
-    ```sh 
-    python3 moneo.py --deploy -c hostfile full
-    ```
-    * If using the Azure HPC/AI marketplace image or if installation has been performed on all worker nodes by a previous deployment we can skip the install step:
-    ```sh 
-    python3 moneo.py --deploy -c hostfile full -w
-    ```
-    Note: See usage section of the README doc for more advance details on Moneo CLI
+## Preffered Moneo Deployment ##
 
-    Note: By default Moneo deploys to the manager using localhost. This can be changed using the "manager_host" flag.
+The preffered way to deploy Moneo is the headless method using Azure Managaed Grafana and Prometheus resources.
 
-4. Log into the portal by navigating to `http://manager-ip-or-domain:3000` and inputting your credentials
+Complete the steps listed here: [Headless Deployment Guide](./HeadlessDeployment.md)
 
-    ![image](https://user-images.githubusercontent.com/70273488/173685955-dc51f7fc-da55-450b-b214-20d875e7687f.png)
-    
-    Note: By default username/password are set to "azure". This can be changed here "src/master/grafana/grafana.env"
- 
-5. Navigating Moneo Grafana Portal
-    - The current view is labeled in the top left corner:
-    
-        ![image](https://user-images.githubusercontent.com/70273488/173687229-d1d64693-58d6-4874-a61c-c32af67e3fea.png)
-    - VM instance and GPU can be selected from the drop down menus in the top left corner:
+## Alternative deployment using Moneo CLI and head node ##
 
-        ![image](https://user-images.githubusercontent.com/70273488/173687914-ee684e71-02a7-429e-abfa-046244e9eea0.png)
-    - Various actions such as dashboard selection or data source configuration can be achieved using the left screen menu:
+This method requires a deploying of a head node to host the local Prometheus database and Grafana server.
 
-      ![image](https://user-images.githubusercontent.com/70273488/173689054-661bb442-4883-4f99-9147-b8307821a6b2.png)
-    - Metric groups are collapsable:
+- The headnode must have enough storage available to facilitate data collection
+- Grafana and Prometheus is accessed via web browser. Ensure proper access from web browser to headnode IP.
 
-      ![image](https://user-images.githubusercontent.com/70273488/173689514-e7532cfb-0b56-41ed-b9b9-1d71beaab123.png)
+Complete the steps listed here: [Local Grafana Deployment Guide](./HeadlessDeployment.md)
 
+## Known Issues ##
+
+- NVIDIA exporter may conflict with DCGMI
+
+  There're [two modes for DCGM](https://docs.nvidia.com/datacenter/dcgm/latest/dcgm-user-guide/getting-started.html#content): embedded mode and standalone mode.
+
+  If DCGM is started as embedded mode (e.g., `nv-hostengine -n`, using no daemon option `-n`), the exporter will use the DCGM agent while DCGMI may return error.
+
+  It's recommended to start DCGM in standalone mode in a daemon, so that multiple clients like exporter and DCGMI can interact with DCGM at the same time, according to [NVIDIA](https://docs.nvidia.com/datacenter/dcgm/latest/dcgm-user-guide/getting-started.html#standalone-mode).
+
+  > Generally, NVIDIA prefers this mode of operation, as it provides the most flexibility and lowest maintenance cost to users.
+
+- Moneo will attempt to install a tested version of DCGM if it is not present on the worker nodes. However, this step is skipped if DCGM is already installed. In instances DCGM installed may be too old.
+
+  This may cause the Nvidia exporter to fail. In this case it is recommended that DCGM be upgrade to atleast version 2.4.4.
+  To view which exporters are running on a worker just run ```ps -eaf | grep python3```
+
+## Troubleshooting ##
+
+1.
+2. For deployments with a Headnode:
+
+    - Verifying Grafana and Prometheus containers are running:
+        - Check browser http://master-ip-or-domain:3000 (Grafana), http://master-ip-or-domain:9090 (Prometheus)
+        - On Manager node terminal run ```sudo docker container ls```
+    ![image](https://user-images.githubusercontent.com/70273488/205715440-9f994c84-b115-4a98-9535-fdce8a4adf7d.png)
+
+3. All deployments:
+    - Verifying exporters on worker node:
+        - ``` ps -eaf | grep python3 ```
+
+    ![image](https://user-images.githubusercontent.com/70273488/205716391-d0144085-8948-4269-a25c-51bc68448e1e.png)

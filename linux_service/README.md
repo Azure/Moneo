@@ -7,16 +7,16 @@ Setting up Moneo exporters as Linux service will allow for easy management and d
 
 Three launch methods provided:
 
-1. The basic launch method launches the exporters on the compute node. It is up to the user to either:
-   - Use Moneo CLI to launch the manager Grafana and Prometheus containers on a head node.
-   - Or use you own method to scrape from the exporter ports ("nvidia_exporter": 8000 "net_exporter": 8001 "node_exporter": 8002).
-2. Launch exporters and an [Azure Monitor](../docs/AzureMonitorAgent.md) publisher.
-   - Before launch you must modify the "azure_monitor_agent_config" section of [publisher_config](../src/worker/publisher/config/publisher_config.json) file with the Azure Monitor workspace connection string.
-3. Azure Managed Grafana/Prometheus.
+1. Azure Managed Grafana/Prometheus.
    - This will require you to set up Managed Prometheus and Managed Grafana
    - See prereqs for [Managed Prometheus](../docs/ManagedPrometheusAgent.md)
    - Once Managed Prometheus is set up you can link it to a Grafana Dashboard.
    - See [Azure Managed Grafana overview](https://learn.microsoft.com/en-us/azure/managed-grafana/overview) for info on setting up Grafana.
+2. The basic launch method launches the exporters on the compute node. It is up to the user to either:
+   - Use Moneo CLI to launch the manager Grafana and Prometheus containers on a head node.
+   - Or use you own method to scrape from the exporter ports ("nvidia_exporter": 8000 "net_exporter": 8001 "node_exporter": 8002).
+3. Launch exporters and an [Azure Monitor](../docs/AzureMonitorAgent.md) publisher.
+   - Before launch you must modify the "azure_monitor_agent_config" section of [publisher_config](../src/worker/publisher/config/publisher_config.json) file with the Azure Monitor workspace connection string.
 
 This guide will walk you through how to set up Linux services for Moneo exporters.
 
@@ -44,6 +44,7 @@ Configuration/Installation is only required once. Afte that is complete the Linu
 1. Configuration and installation of the Linux service is done with the following command:
    ```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/configure_service.sh"```
    - If You will only be launching the exporters without AZ monitor or Managed Prometheus Continue to the Launch Services section else continue.
+
 2. For Azure Monitor or Managed Prometheus methods if you have not yet modified the configuration files reference the following:
    - For Azure Managed Prometheus:
      - modify [managed_prom_config.json](../src/worker/publisher/config) and copy the file to the compute nodes.
