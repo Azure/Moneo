@@ -26,7 +26,7 @@ import shlex
 import psutil
 import re
 import prometheus_client
-import datetime
+from datetime import datetime, timedelta
 
 FIELD_LIST = [
     'net_rx',
@@ -132,24 +132,28 @@ class NodeExporter(BaseExporter):
         elif 'xid' in field_name or "link_flap" in field_name:
             try:
                 value = {}
-                cmd = config['command'][field_name]
+                cmd = self.config['command'][field_name]
                 # check if error present in logs
                 field_check = shell_cmd(cmd, 5)
                 result = [line for line in field_check.split(
                     '\n') if line.strip() != '']
                 for line in result:
                     timestamp = re.search(
-                        r"\w\w\w\s+\d+\s\d\d:\d\d:\d\d", line).group()
+                        r"\w\w\w\s+\d+\s\d\d:\d\d:\d\d", line)
+                    if not timestamp:
+                        continue
+                    timestamp = timestamp.group()
                     if 'xid' in field_name:
-                        results = re.search(r"\(.+\):\s\d\d", line).group().split()
+                        results = re.search(r"\(.+\):\s\d\d", line)
                         if not results:
                             continue
+                        results = results.group().split()
                         pci = results[0].replace('(PCI:', '').replace('):', '')[-10:]
                         if pci not in value:
                             value = {pci: {timestamp: []}}
                         if timestamp not in value[pci]:
                             value[pci][timestamp] = []
-                        value[pci][timestamp].append(int(results[1]))
+                        value[pci][timestamp].append(int(results[1].replace(',', '')))
                     else:  # link flap
                         results = re.search(r"\bib\d:", line)
                         if not results:
@@ -161,8 +165,6 @@ class NodeExporter(BaseExporter):
             except Exception as e:
                 logging.error('Raised exception. Message: %s', e)
                 pass
-            # update search time stamp
-            self.config['event_timestamp'] = datetime.datetime.now().strftime("%b %d %H:%M:%S")
         else:
             value = 0
         return value
@@ -177,7 +179,7 @@ class NodeExporter(BaseExporter):
         if 'cpu' in field_name:
             logging.debug(f'Handeling field: {field_name}')
             for id, k in enumerate(value.keys()):
-                numa_domain = config['cpu_numa_map'][id]
+                numa_domain = self.config['cpu_numa_map'][id]
                 logging.debug(f'Handeling key: {k}. Setting value: {value[k]}')
                 self.update_field(field_name, value[k], self.config['job_id'], k, numa_domain)
         elif 'xid' in field_name or 'link_flap' in field_name:
@@ -189,9 +191,9 @@ class NodeExporter(BaseExporter):
                     for time_stamp in iter_object:
                         label_values = [self.config['job_id'], dev_id, Mapping[dev_id], time_stamp] \
                             if 'xid' in field_name else [self.config['job_id'], Mapping[dev_id], time_stamp]
-                        event_time = datetime.datetime.strptime(time_stamp, "%b %d %H:%M:%S")
-                        collect_time = datetime.datetime.strptime(self.config['event_timestamp'], "%b %d %H:%M:%S")
-                        if event_time < collect_time:
+                        collect_time = self.config['sample_timestamp'][field_name]
+                        event_time = datetime.strptime(time_stamp, "%b %d %H:%M:%S").replace(year=collect_time.year)
+                        if event_time <= collect_time:
                             continue
                         if 'xid' in field_name:
                             for code in value[dev_id][time_stamp]:
@@ -199,6 +201,7 @@ class NodeExporter(BaseExporter):
                         else:
                             self.update_field(field_name, 1, *label_values)
                         self.config['counter'][field_name][dev_id].append(time_stamp)
+                        self.config['sample_timestamp'][field_name] = event_time
             except Exception as e:
                 logging.error('Raised exception. Message: %s', e)
                 pass
@@ -209,7 +212,7 @@ class NodeExporter(BaseExporter):
     def remove_metric(self, field_name, Mapping):
         if 'cpu' in field_name:
             for id in range(self.config['num_cores']):
-                numa_domain = config['cpu_numa_map'][id]
+                numa_domain = self.config['cpu_numa_map'][id]
                 self.gauges[field_name].remove(self.config['job_id'], str(id), numa_domain)
         elif 'xid' in field_name or 'link_flap' in field_name:
             for dev_id in self.config['counter'][field_name].keys():
@@ -287,7 +290,7 @@ def init_config(job_id, port=None):
         'job_id': job_id,
         'fieldFiles': {},
         'counter': {},
-        'event_timestamp': datetime.datetime.now().strftime("%b %d %H:%M:%S")
+        'sample_timestamp': {}
     }
     # for xid and link flaps
     config['command'] = {}
@@ -305,12 +308,14 @@ def init_config(job_id, port=None):
         init_ib_config()
     else:
         logging.info('OS not supported attempting to continue...')
+
     # get NUMA domain
     config['num_cores'] = psutil.cpu_count()
     config['cpu_numa_map'] = get_core_numa_mapping(config['num_cores'])
 
     # initalize field specific config parameters
     for field_name in FIELD_LIST:
+        config['sample_timestamp'][field_name] = datetime.now() - timedelta(seconds=5)
         if 'net' in field_name:
             config['fieldFiles'][field_name] = '/proc/net/dev'
             # initialize counter, this will ensure a initial value is present
@@ -320,7 +325,6 @@ def init_config(job_id, port=None):
                 config['counter'][field_name] = shell_cmd(cmd, 5).split()[1]
             elif field_name == 'net_tx':
                 config['counter'][field_name] = shell_cmd(cmd, 5).split()[9]
-
         elif 'cpu' in field_name:
             if 'util' in field_name:
                 # Call cpu_percent to get intial 0.0 values
