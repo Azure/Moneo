@@ -19,17 +19,14 @@ Steps
 
    ```json
    {
-       // GPU Related Metrics
        "gpu_0_metric1": 1.0,
        "gpu_1_metric1": 1.0,
        "gpu_2_metric1": 1.0,
        "gpu_3_metric1": 1.0,
-       // IB Related Metrics
        "ib_0_metric2": 1.0,
        "ib_1_metric2": 1.0,
        "ib_2_metric2": 1.0,
        "ib_3_metric2": 1.0,
-       // Other Metrics
        "metric3": 1.0,
        "metric4": 1.0
    }
