@@ -46,7 +46,7 @@ Configuration/Installation is only required once. After that is complete the Lin
 1. Configuration and installation of the Linux service is done with the following command:
    ```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/configure_service.sh"```
      - Note: If using Azure monitor or Geneva add an extra argument "./start_moneo_services.sh azure_monitor"  or "./configure_service.sh geneva" respectively.
-     - Note: Geneva authentication is user managed identity "umi"by default, you can choose to change to "cert" method by modifiying [the start script](./configure_service.sh) "PUBLISHER_AUTH" variable.
+     - Note: Geneva authentication is user managed identity "umi" by default, you can choose to change to "cert" method by modifiying [the start script](./configure_service.sh) "PUBLISHER_AUTH" variable.
 
 2. For Azure Monitor or Managed Prometheus methods if you have not yet modified the configuration files reference the following:
    - For Azure Managed Prometheus:

@@ -15,7 +15,7 @@ if [[ -n $PublisherMethod ]]; then
     fi
 fi
 
-MONEO_PATH=/home/rafsalas/Moneo
+MONEO_PATH=/opt/azurehpc/tools/Moneo
 
 if [[ ! -d "$MONEO_PATH" ]];
 then
