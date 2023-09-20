@@ -173,6 +173,7 @@ There are several cases based on the networking configuration:
 - Slurm epilog/prolog integration: [Slurm example](./examples/slurm/README.md)
 - To deploy moneo-worker inside container: [Moneo-exporter](./docs/Moneo-exporter.md)
 - To integrate Moneo with Azure Insights dashboard see: [Azure Monitor](./docs/AzureMonitorAgent.md)
+- To expose customized metrics by using custom exporter [Custom Exporter](./docs/CustomExporter.md)
 
 Known Issues
 ------------
