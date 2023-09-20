@@ -290,9 +290,7 @@ def init_config(job_id, port=None):
         'job_id': job_id,
         'fieldFiles': {},
         'counter': {},
-        'sample_timestamp': {},
-        'labels': {},
-        'columns': {}
+        'sample_timestamp': {}
     }
     # for xid and link flaps
     config['command'] = {}
@@ -303,7 +301,6 @@ def init_config(job_id, port=None):
         config['command']['xid_error'] = "sudo grep 'NVRM: Xid' /var/log/syslog"
         init_nvidia_config()
         init_ib_config()
-
     elif "AlmaLinux" in result:
         config['command']['link_flap'] = "sudo grep 'Lost carrier' /var/log/messages"
         config['command']['xid_error'] = "sudo grep 'NVRM: Xid' /var/log/messages"
