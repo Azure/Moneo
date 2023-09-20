@@ -29,3 +29,9 @@ if [ "$node_pid"!="" ];
 then
     kill -USR1 $node_pid
 fi
+#update jobid for custom exporter
+custom_pid=`pgrep -fx ".*python3 .*custom_exporter.py.*"`
+if [ "$custom_pid"!="" ];
+then
+    kill -USR1 $custom_pid
+fi

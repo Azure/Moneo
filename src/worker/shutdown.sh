@@ -16,6 +16,7 @@ kill_exporters() {
     pkill -f "${1}_exporter.py*"
     pkill -f "net_exporter.py*"
     pkill -f "node_exporter.py*"
+    pkill -f "custom_exporter.py*"
     pkill -f "metrics_publisher.py*"
 }
 

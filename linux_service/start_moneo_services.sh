@@ -24,6 +24,10 @@ if [[ -n $WITH_AZ_MON && $WITH_AZ_MON = true ]]; then
     procs+=("metrics_publisher")
 fi
 
+if ps -aux | grep custom_exporter ; then
+    procs+=("custom_exporter")
+fi
+
 function proc_check(){
     CHECK=`ps -eaf | grep /tmp/moneo-worker/`
     WITH_MANAGED_PROM=$1
@@ -54,10 +58,12 @@ $MONEO_PATH/linux_service/moneo_prestart.sh $MONEO_PATH 2> /dev/null
 systemctl enable moneo@node_exporter.service
 systemctl enable moneo@net_exporter.service
 systemctl enable moneo@nvidia_exporter.service
+systemctl enable moneo@custom_exporter.service
 
 systemctl start moneo@node_exporter.service
 systemctl start moneo@net_exporter.service
 systemctl start moneo@nvidia_exporter.service
+systemctl start moneo@custom_exporter.service
 
 if [[ -n $WITH_AZ_MON && $WITH_AZ_MON = true ]]; then
     sleep 5 # wait a bit for the exporters to start

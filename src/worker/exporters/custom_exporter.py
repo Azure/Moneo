@@ -8,14 +8,69 @@ import shlex
 import time
 import re
 import prometheus_client
-import datetime
 import json
 
 FIELD_LIST = []
-
+metrics_list = []
 GPU_Mapping = {}
 IB_Mapping = {}
 # feel free to copy and paste if os commands are needed
+
+def shell_cmd(cmd, timeout):
+    """Helper Function for running subprocess"""
+    args = shlex.split(cmd)
+    child = subprocess.Popen(args, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+    try:
+        result, errs = child.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        child.kill()
+        print("Command " + " ".join(args) + ", Failed on timeout")
+        result = 'TimeOut'
+        return result
+    return result.decode()
+
+def init_ib_config():
+    # IB mapping
+    cmd = 'ibv_devinfo -l'
+    result = shell_cmd(cmd, 5)
+    if 'HCAs found' in result or 'HCA found' in result:
+        try:
+            result = result.split('\n')[1:]
+            for idx, ib in enumerate(result):
+                if "ib" not in ib:
+                    continue
+                if len(ib):
+                    mapping = re.search(r"ib\d", ib.strip()).group()
+                    IB_Mapping[mapping] = ib.strip() + ':1'
+                    config['ib_port'][str(idx)] = ib.strip() + ':1'
+        except Exception as e:
+            print(e)
+            pass
+
+
+def init_nvidia_config():
+    global config
+    global GPU_Mapping
+    global IB_Mapping
+    global FIELD_LIST
+    # check if nvidiaVM
+    nvArch = os.path.exists('/dev/nvidiactl')
+    if nvArch:
+        cmd = 'nvidia-smi -L'
+        result = shell_cmd(cmd, 5)
+        gpuCount = len(result.split('\nGPU'))
+        try:
+            for gpu in range(gpuCount):
+                cmd = 'nvidia-smi -q -g ' + str(gpu) + ' -d ACCOUNTING'
+                result = shell_cmd(cmd, 5)
+                pci = re.search(r"\w+:\w\w:\w\w\.", result).group().lower()
+                pci = pci.replace('.', '')[-10:]
+                GPU_Mapping[pci] = str(gpu)  # pci mapping
+                config['gpu_id'][str(gpu)] = str(gpu)
+        except Exception as e:
+            print(e)
+            pass
 
 
 class CustomExporter():
@@ -26,7 +81,6 @@ class CustomExporter():
         self.custom_metrics_file_path = custom_metrics_file_path
         self.init_connection()
         self.init_gauges()
-        # self.init_infos()
         signal.signal(signal.SIGUSR1, self.jobID_update_flag)
 
     def init_connection(self):
@@ -42,21 +96,34 @@ class CustomExporter():
         Override in Child Class if needed'''
         self.gauges = {}
         for field_name in self.field_list:
-            self.gauges[field_name] = prometheus_client.Gauge(
-                'custom_{}'.format(field_name),
-                'custom_{}'.format(field_name),
-                ['job_id']
-            )
-    
-    # def init_infos(self):
-    #     '''Initialization of infos'''
-    #     self.infos = {}
-    #     for field_name in self.field_list:
-    #         self.infos[field_name] = prometheus_client.Info(
-    #             'custom_{}'.format(field_name),
-    #             'custom_{}'.format(field_name),
-    #             ['job_id']
-    #         )
+            metric_name = ''
+            if "gpu_" in field_name:
+                metric_name = field_name.split('_')[0] + '_' + field_name.split('_')[-1]
+                if metric_name in metrics_list:
+                    continue
+                self.gauges[metric_name] = prometheus_client.Gauge(
+                    'custom_{}'.format(metric_name),
+                    'custom_{}'.format(metric_name),
+                    ['gpu_id', 'job_id']
+                )
+            elif "ib_" in field_name:
+                metric_name = field_name.split('_')[0] + '_' + field_name.split('_')[2]
+                if metric_name in metrics_list:
+                    continue
+                self.gauges[metric_name] = prometheus_client.Gauge(
+                    'custom_{}'.format(metric_name),
+                    'custom_{}'.format(metric_name),
+                    ['ib_port', 'job_id']
+                ) 
+            else:
+                self.gauges[field_name] = prometheus_client.Gauge(
+                    'custom_{}'.format(field_name),
+                    'custom_{}'.format(field_name),
+                    ['job_id']
+                )
+            if metric_name != '' and metric_name not in metrics_list:
+                metrics_list.append(metric_name)
+                logging.info('Publishing metric: {}'.format(metric_name))
 
     def collect_custom_metrics(self):
         '''Updates custom metrics'''
@@ -70,31 +137,53 @@ class CustomExporter():
     def process(self):
         custom_metrics = self.collect_custom_metrics()
         for node_field in self.field_list:
-            metric_name = node_field.split('_')[1]
-            value = custom_metrics[metric_name] if metric_name in custom_metrics.keys() else None
+            value = custom_metrics[node_field] if node_field in custom_metrics.keys() else None
             if not value:
                 continue
             self.handle_field(node_field, value)
 
-    # def update_infos_field(self, field_name, value, *labels):
-    #     print(value)
-    #     print(self.infos[field_name])
-    #     self.infos[field_name].labels(
-    #         *labels
-    #     ).info({field_name: value})
-
-    def update_gauges_field(self, field_name, value, *labels):
-        self.gauges[field_name].labels(
-            *labels
-        ).set(value)
+    def update_gauges_field(self, field_name, value, config):
+        if "gpu_" in field_name:
+            gpu_idx = field_name.split('_')[1]
+            metric_name = field_name.split('_')[0] + '_' + field_name.split('_')[2]
+            if int(gpu_idx) < len(GPU_Mapping):
+                self.gauges[metric_name].labels(
+                    config['gpu_id'][gpu_idx],
+                    config['job_id']
+                ).set(value)
+        elif "ib_" in field_name:
+            ib_port = field_name.split('_')[1]
+            metric_name = field_name.split('_')[0] + '_' + field_name.split('_')[2]
+            if int(ib_port) < len(IB_Mapping):
+                self.gauges[metric_name].labels(
+                    config['ib_port'][ib_port],
+                    config['job_id']
+                ).set(value)
+        else:
+            self.gauges[field_name].labels(
+                config['job_id']
+            ).set(value)
 
     def handle_field(self, field_name, value):  # noqa: C901
         '''Update metric value for gauge'''
-        self.update_infos_field(field_name, value, config['job_id'])
+        self.update_gauges_field(field_name, value, config)
         logging.debug('Custom exporter field %s: %s', field_name, str(value))
 
     def remove_metric(self, field_name):
-        self.gauges[field_name].remove(config['job_id'])
+        """Remove mertics label values"""
+        if "gpu_" in field_name:
+            gpu_idx = field_name.split('_')[1]
+            metric_name = field_name.split('_')[0] + field_name.split('_')[2]
+            if int(gpu_idx) < len(GPU_Mapping):
+                self.gauges[metric_name].remove(config['gpu_id'][gpu_idx], config['job_id'])
+        elif "ib_" in field_name:
+            ib_port = field_name.split('_')[1]
+            metric_name = field_name.split('_')[0] + field_name.split('_')[2]
+            if int(ib_port) < len(IB_Mapping):
+                ib_port = field_name.split('_')[1]
+            self.gauges[metric_name].remove(config['ib_port'][ib_port], config['job_id'])
+        else:
+            self.gauges[field_name].remove(config['job_id'])
 
     def jobID_update_flag(self, signum, stack):
         '''Sets job update flag when user defined signal comes in'''
@@ -103,6 +192,10 @@ class CustomExporter():
 
     def jobID_update(self):
         '''Updates job id when job update flag has been set'''
+        # Remove last set of label values
+        for field_name in self.field_list:
+            self.remove_metric(field_name)
+
         # Update job id
         with open('/tmp/moneo-worker/curr_jobID') as f:
             config['job_id'] = f.readline().strip()
@@ -135,7 +228,6 @@ class CustomExporter():
 def init_config(job_id, port=None):
     '''Example of config initialization'''
     global config
-    global CUSTOM_FIELD_LIST
     if not port:
         port = 8003
     config = {
@@ -143,10 +235,9 @@ def init_config(job_id, port=None):
         'update_freq': 1,
         'listen_port': port,
         'publish_interval': 1,
+        'gpu_id': {},
+        'ib_port': {},
         'job_id': job_id,
-        'fieldFiles': {},
-        'counter': {},
-        'event_timestamp': datetime.datetime.now().strftime("%b %d %H:%M:%S")
     }
 
 def init_custom_metrics(custom_metcis_file_path):
@@ -159,9 +250,7 @@ def init_custom_metrics(custom_metcis_file_path):
         custom_metrics = json.load(f)
 
     for metrics_name, _ in custom_metrics.items():
-        custom_metrics_name = "custom_" + metrics_name
-        FIELD_LIST.append(custom_metrics_name)
-
+        FIELD_LIST.append(metrics_name)
 
 # You can just copy paste this function. Used to handle signals
 def init_signal_handler():
@@ -171,9 +260,6 @@ def init_signal_handler():
     signal.signal(signal.SIGINT, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)
 
-
-# You can just copy paste this function. This is used to parse the log-level
-# argument
 def get_log_level(args):
     '''Log level helper'''
     levelStr = args.log_level.upper()
@@ -196,7 +282,6 @@ def get_log_level(args):
     return numeric_log_level
 
 
-# Copy paste this function, modify if needed
 def main():
     '''main function'''
     parser = argparse.ArgumentParser()
@@ -231,6 +316,8 @@ def main():
     init_config(jobId, args.port)
     init_custom_metrics(args.custom_metrics_file_path)
     init_signal_handler()
+    init_nvidia_config()
+    init_ib_config()
     exporter = CustomExporter(args.custom_metrics_file_path)
     exporter.loop()
     # except Exception as e:

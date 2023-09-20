@@ -39,6 +39,7 @@ generate_prom(){
     DCMG_TARGET="        - $INSTANCE_NAME:8000\n"
     NET_TARRGET="        - $INSTANCE_NAME:8001\n"
     NODE_TARGET="        - $INSTANCE_NAME:8002\n"
+    CUST_TARGET="        - $INSTANCE_NAME:8003\n"
 
     #replace placeholder
     sed -i -r "s/subscription_id/$SUBSCRIPTION_NAME/" $PROM_CONFIG
@@ -51,6 +52,7 @@ generate_prom(){
     sed -i -r "s/\s+- moneo-worker-0:8000/$DCMG_TARGET/" $PROM_CONFIG
     sed -i -r "s/\s+- moneo-worker-0:8001/$NET_TARRGET/" $PROM_CONFIG
     sed -i -r "s/\s+- moneo-worker-0:8002/$NODE_TARGET/" $PROM_CONFIG
+    sed -i -r "s/\s+- moneo-worker-0:8003/$CUST_TARGET/" $PROM_CONFIG
 }
 
 # generate prometheus config

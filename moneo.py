@@ -178,6 +178,11 @@ class MoneoCLI:
                 logging.info('Enable ' + agent + ' agent')
         else:
             cmd = cmd + ' false'
+            cmd = cmd + " ''"
+        if self.args.custom_metrics_file_path:
+            print('-Custom exporter enabled-')
+            logging.info('Custom exporter enabled')
+            cmd = cmd + ' ' + self.args.custom_metrics_file_path
         out = pssh(cmd=cmd, hosts_file=hosts_file, max_threads=max_threads, user=self.args.user)
         logging.info(out)
         print('--------------------------')
@@ -393,6 +398,10 @@ if __name__ == '__main__':
         type=str,
         help='Required if launching publisher with geneva. Authentication method for geneva. Choices: {umi, cert}.'
              'Please replace the mdm-key.pem and mdm-cert.pem in src/worker/publisher/config with yours if using cert.')
+    parser.add_argument(
+        '--custom_metrics_file_path',
+        type=str,
+        help='The path of the custom metrics file.')
     args = parser.parse_args()
 
     logging.basicConfig(
