@@ -1,4 +1,4 @@
 {
-    "IDENTITY_CLIENT_ID": "fe614657-bf7a-4ddd-b259-70f2b5084b04",
-    "INGESTION_ENDPOINT": "https://moneo-amw-q14z.southcentralus-1.metrics.ingest.monitor.azure.com/dataCollectionRules/dcr-c0192b4cd2c748f88ffd422e7a0d77ac/streams/Microsoft-PrometheusMetrics/api/v1/write?api-version=2023-04-24"
+    "IDENTITY_CLIENT_ID": "<identity client id>",
+    "INGESTION_ENDPOINT": "<metrics ingestion endpoint>"
 }
