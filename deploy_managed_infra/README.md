@@ -1,7 +1,5 @@
 # Azure Managed Moneo Resources #
 
-=====
-
 ## Overview ##
 
 Usining Moneo with Azure Managed resources is the prefered Method of deployment. These instructions will set up Azure managed Grafana and Azure Managed Prometheus to ingest and visualize data from Moneo exporters. This deployment only needs to be run ones.
@@ -35,3 +33,12 @@ Specifically:
 ![Alt text](image.png)
 4. Verify/Add Grafana admin,viewer,and/or editor roles to your grafana resource.
 5. The deployment is complete. You can now design the Grafana dashboards to your own specifications. Also see: [ManagedPrometheusAgent.md](../docs/ManagedPrometheusAgent.md) for details on how to launch Moneo on compute nodes and start ingesting data.
+
+## Dashboard templates ##
+
+You are free to design your own Grafana dashboards. We also provide dashboards in the grafana_dashboard_templates directory:
+
+- [Cluster View](./grafana_dashboard_templates/Cluster_View.json)
+- [GPU View](./grafana_dashboard_templates/GPU_View.json)
+- [Network View](./grafana_dashboard_templates/Network_View.json)
+- [Node View](./grafana_dashboard_templates/Node_View.json)
