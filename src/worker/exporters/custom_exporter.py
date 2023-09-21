@@ -15,6 +15,7 @@ metrics_list = []
 GPU_Mapping = {}
 IB_Mapping = {}
 
+
 def shell_cmd(cmd, timeout):
     """Helper Function for running subprocess"""
     args = shlex.split(cmd)
@@ -27,6 +28,7 @@ def shell_cmd(cmd, timeout):
     except subprocess.TimeoutExpired:
         logging.error(f"Command {' '.join(args)} timed out")
         return 'Timeout'
+
 
 def init_ib_config():
     """Initialize InfiniBand configuration"""
@@ -44,6 +46,7 @@ def init_ib_config():
                     config['ib_port'][str(idx)] = IB_Mapping[mapping]
         except Exception as e:
             logging.error(f"Error parsing IB info: {e}")
+
 
 def init_nvidia_config():
     """Initialize NVIDIA configuration"""
@@ -66,6 +69,7 @@ def init_nvidia_config():
         except Exception as e:
             logging.error(f"Error initializing NVIDIA config: {e}")
 
+
 class CustomExporter:
     '''Example custom node exporter'''
 
@@ -80,7 +84,7 @@ class CustomExporter:
         """Initialize Prometheus connection"""
         prometheus_client.start_http_server(config['listen_port'])
         logging.info('Started Prometheus client')
-        self.field_list = [] 
+        self.field_list = []
         self.field_list.extend(FIELD_LIST)
         logging.info('Publishing fields: %s', ','.join(self.field_list))
 
@@ -106,7 +110,7 @@ class CustomExporter:
                     f'custom_{metric_name}',
                     f'custom_{metric_name}',
                     ['ib_port', 'job_id']
-                ) 
+                )
             else:
                 self.gauges[field_name] = prometheus_client.Gauge(
                     f'custom_{field_name}',
@@ -210,6 +214,7 @@ class CustomExporter:
         except KeyboardInterrupt:
             pass
 
+
 def init_config(job_id, port=None):
     '''Example of config initialization'''
     global config
@@ -225,6 +230,7 @@ def init_config(job_id, port=None):
         'job_id': job_id,
     }
 
+
 def init_custom_metrics(custom_metrics_file_path):
     '''Example of custom metrics initialization'''
     metrics_json_path = custom_metrics_file_path
@@ -236,12 +242,14 @@ def init_custom_metrics(custom_metrics_file_path):
 
     FIELD_LIST.extend(custom_metrics.keys())
 
+
 def init_signal_handler():
     '''Handles exit signals, User-defined signals defined in the Base class'''
     def exit_handler(signalnum, frame):
         config['exit'] = True
     signal.signal(signal.SIGINT, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)
+
 
 def get_log_level(args):
     '''Log level helper'''
@@ -254,6 +262,7 @@ def get_log_level(args):
         '4': logging.DEBUG,
     }
     return log_level_map.get(log_level_str, logging.INFO)
+
 
 def main():
     '''Main function'''
@@ -290,6 +299,7 @@ def main():
         exporter.loop()
     except Exception as e:
         logging.error('Raised exception. Message: %s', e)
+
 
 if __name__ == '__main__':
     main()
