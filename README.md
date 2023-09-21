@@ -6,7 +6,7 @@ Moneo is a distributed GPU system monitor for AI workflows. It orchestrates metr
 
 Moneo offers flexibility with 3 deployment methods:
 
-1. The preffered method using Azure Managed Prometheus/Grafana and Moneo linux services for collection (Headless deployment)
+1. The prefered method using Azure Managed Prometheus/Grafana and Moneo linux services for collection (Headless deployment)
 2. Using Azure Application Insights/Azure Monitor Workspace(AMW) (Headless deployment w/ App Insights).
 3. Using Moneo CLI with a dedicate headnode to host local Prometheus/Grafana servers (Local Grafana Deployment)
 
@@ -89,7 +89,7 @@ Note: Not applicable if using Azure Managed Grafana/Prometheus
 
 ### Worker node requirements ###
 
-- Nvidia Architecture supported (only for Nvidai GPU monitoring):
+- Nvidia Architecture supported (only for Nvidia GPU monitoring):
   - Volta
   - Ampere
   - Hopper
@@ -115,9 +115,9 @@ Get the code:
 
     Note: If you are using an [Azure Ubuntu HPC-AI](https://github.com/Azure/azhpc-images) VM image you can find the Moneo in this path: /opt/azurehpc/tools/Moneo
 
-### Preffered Moneo Deployment ###
+### Prefered Moneo Deployment ###
 
-The preffered way to deploy Moneo is the headless method using Azure Managaed Grafana and Prometheus resources.
+The prefered way to deploy Moneo is the headless method using Azure Managaed Grafana and Prometheus resources.
 
 Complete the steps listed here: [Headless Deployment Guide](./docs/HeadlessDeployment.md)
 
@@ -126,13 +126,13 @@ Complete the steps listed here: [Headless Deployment Guide](./docs/HeadlessDeplo
 This method requires a deploying of a head node to host the local Prometheus database and Grafana server.
 
 - The headnode must have enough storage available to facilitate data collection
-- Grafana and Prometheus is accessed via web browser. Ensure proper access from web browser to headnode IP.
+- Grafana and Prometheus are accessed via web browser. Ensure proper access from web browser to headnode IP.
 
 Complete the steps listed here: [Local Grafana Deployment Guide](./docs/LocalGrafanDeployment.md)
 
 ### Moneo CLI ###
 
-Moneo CLI provides an alternative way to deploy and update Moneo manager and worker nodes. Although linux services are preffered this offeres an alternative way to control Moneo.
+Moneo CLI provides an alternative way to deploy and update Moneo manager and worker nodes. Although linux services are prefered this offers an alternative way to control Moneo.
 
 #### CLI Usage ####
 
@@ -177,14 +177,14 @@ Note: For more options check the Moneo help menu
 
 - Moneo will attempt to install a tested version of DCGM if it is not present on the worker nodes. However, this step is skipped if DCGM is already installed. In instances DCGM installed may be too old.
 
-  This may cause the Nvidia exporter to fail. In this case it is recommended that DCGM be upgrade to atleast version 2.4.4.
+  This may cause the Nvidia exporter to fail. In this case it is recommended that DCGM be upgraded to atleast version 2.4.4.
   To view which exporters are running on a worker just run ```ps -eaf | grep python3```
 
 ## Troubleshooting ##
 
 1. For Managed Grafana (headless) deployment
     - Verify that the user managed identity is assigned to the VM resource.
-    - Verify the the prerequisite configure file (`Moneo/src/worker/publisher/config/managed_prom_config.json`) is configured correctly on each worker node.
+    - Verify the prerequisite configure file (`Moneo/src/worker/publisher/config/managed_prom_config.json`) is configured correctly on each worker node.
     - On the worker nodes verify functionality of prometheus agent remote write:
         - Check prometheus docker with `sudo docker logs prometheus | grep 'Done replaying WAL'`
         It will have the result like this:
