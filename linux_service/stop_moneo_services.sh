@@ -12,6 +12,10 @@ systemctl disable moneo_publisher.service
 
 if [[ $(docker ps -a | grep prometheus) ]]; then
     echo "Stopping Prometheus containers"
-    docker stop prometheus
-    docker rm prometheus
+    docker stop prometheus genevamdmagent
+    docker rm prometheus genevamdmagent
+elif [[ $(docker ps -a | grep genevamdmagent) ]]; then 
+    docker stop genevamdmagent
+    docker rm genevamdmagent
+
 fi

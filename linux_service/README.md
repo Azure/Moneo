@@ -18,6 +18,8 @@ Three launch methods provided:
 3. Launch exporters and an [Azure Monitor](../docs/AzureMonitorAgent.md) publisher.
    - Before launch you must modify the "azure_monitor_agent_config" section of [publisher_config](../src/worker/publisher/config/publisher_config.json) file with the Azure Monitor workspace connection string.
 
+There is one additional method for internal Msft use that exports to Geneva. This method is similar to Azure Monitor method but uses a Geneva agent container to export. Reference the [Moneo Geneva Docs](../docs/GenevaAgent.MD). Ensure all prequisites are met. 
+
 This guide will walk you through how to set up Linux services for Moneo exporters.
 
 ## Prerequisites ##
@@ -39,11 +41,12 @@ Below are the prereqs needed:
 
 ### Configuration and Installation ###
 
-Configuration/Installation is only required once. Afte that is complete the Linux services can be started and stopped as desired.
+Configuration/Installation is only required once. After that is complete the Linux services can be started and stopped as desired.
 
 1. Configuration and installation of the Linux service is done with the following command:
    ```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/configure_service.sh"```
-   - If You will only be launching the exporters without AZ monitor or Managed Prometheus Continue to the Launch Services section else continue.
+     - Note: If using Azure monitor or Geneva add an extra argument "./start_moneo_services.sh azure_monitor"  or "./configure_service.sh geneva" respectively.
+     - Note: Geneva authentication is user managed identity "umi" by default, you can choose to change to "cert" method by modifiying [the start script](./configure_service.sh) "PUBLISHER_AUTH" variable.
 
 2. For Azure Monitor or Managed Prometheus methods if you have not yet modified the configuration files reference the following:
    - For Azure Managed Prometheus:
@@ -58,9 +61,11 @@ Configuration/Installation is only required once. Afte that is complete the Linu
 
 The [start_moneo_services.sh](./start_moneo_services.sh) script is used to start the Linux services once configuration/installation is complete.
 
-#### Exporters with Azure Monitor ####
+#### Exporters with Azure Monitor or Geneva(internal Msft) ####
 
-```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/start_moneo_services.sh true"```
+```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/start_moneo_services.sh azure_monitor"```
+   or
+```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/start_moneo_services.sh geneva"```
 
 #### Exporters with Managed Prometheus ####
 
@@ -75,12 +80,13 @@ Stopping services is the same command for all methods.
 
 Assuming configuration files have been updated and user managed ID applied if necessary (Managed Prometheus) reference these commands for the work flow:
 
-- Configuration/Install: 
+- Configuration/Install:
    ```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/configure_service.sh"```
 - Extra Configure step for AZ Monitor and/or Managed Prometheus
    ```parallel-scp -h hostfile /opt/azurehpc/tools/Moneo/src/worker/publisher/config/<Respective config file> /opt/azurehpc/tools/Moneo/src/worker/publisher/config```
 - Start
    ```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/start_moneo_services.sh"```
+   Note:
 - Stop
    ```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/stop_moneo_services.sh"```
 

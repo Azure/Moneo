@@ -161,6 +161,7 @@ Note: For more options check the Moneo help menu
 - Slurm epilog/prolog integration: [Slurm example](./examples/slurm/README.md)
 - To deploy moneo-worker inside container: [Moneo-exporter](./docs/Moneo-exporter.md)
 - To integrate Moneo with Azure App Insights dashboard see: [Azure Monitor](./docs/AzureMonitorAgent.md)
+- For Geneva ingestion (internal Microsoft) see: [Geneva](./docs/GenevaAgent.MD)
 
 ## Known Issues ##
 

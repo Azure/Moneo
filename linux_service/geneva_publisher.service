@@ -1,0 +1,13 @@
+[Unit]
+Description=Moneo exporter service geneva
+After=network.target
+
+[Service]
+Type=simple
+Restart=no
+ExecStart=/usr/bin/python3 /tmp/moneo-worker/publisher/metrics_publisher.py geneva
+User=root
+
+
+[Install]
+WantedBy=multi-user.target

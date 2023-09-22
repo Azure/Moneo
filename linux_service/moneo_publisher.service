@@ -1,5 +1,5 @@
 [Unit]
-Description=Moneo exporter service for %I
+Description=Moneo exporter service for Azure Monitor
 After=network.target
 
 [Service]
