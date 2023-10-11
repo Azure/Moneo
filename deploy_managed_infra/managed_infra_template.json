@@ -99,92 +99,92 @@
                     {
                         "record": "average_dcgm_gpu_temp",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "avg(dcgm_gpu_temp) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "max_dcgm_gpu_temp",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "max(dcgm_gpu_temp) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "min_dcgm_gpu_temp",
                         "enabled": true,
-                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "min(dcgm_gpu_temp) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "average_dcgm_memory_temp",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "avg(dcgm_memory_temp) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "max_dcgm_memory_temp",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "max(dcgm_memory_temp) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "min_dcgm_memory_temp",
                         "enabled": true,
-                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "min(dcgm_memory_temp) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "average_dcgm_sm_clock",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "avg(dcgm_sm_clock) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "max_dcgm_sm_clock",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "max(dcgm_sm_clock) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "min_dcgm_sm_clock",
                         "enabled": true,
-                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "min(dcgm_sm_clock) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "average_dcgm_memory_clock",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "avg(dcgm_memory_clock) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "max_dcgm_memory_clock",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "max(dcgm_memory_clock) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "min_dcgm_memory_clock",
                         "enabled": true,
-                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "min(dcgm_memory_clock) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "average_dcgm_gpu_utilization",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "avg(dcgm_gpu_utilization) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "max_dcgm_gpu_utilization",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "max(dcgm_gpu_utilization) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "min_dcgm_gpu_utilization",
                         "enabled": true,
-                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "min(dcgm_gpu_utilization) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "average_dcgm_mem_copy_utilization",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "avg(dcgm_mem_copy_utilization) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "max_dcgm_mem_copy_utilization",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "max(dcgm_mem_copy_utilization) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "min_dcgm_mem_copy_utilization",
                         "enabled": true,
-                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "min(dcgm_mem_copy_utilization) by (instance, subscription, cluster, job_id)"
                     }
                 ],
                 "interval": "PT1M"
@@ -213,7 +213,7 @@
                     {
                         "record": "max_dcgm_power_usage",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "max(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "min_dcgm_power_usage",
@@ -223,47 +223,47 @@
                     {
                         "record": "average_dcgm_total_energy_consumption",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "avg(dcgm_total_energy_consumption) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "max_dcgm_total_energy_consumption",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "max(dcgm_total_energy_consumption) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "min_dcgm_total_energy_consumption",
                         "enabled": true,
-                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "min(dcgm_total_energy_consumption) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "average_ib_port_xmit_data",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "avg(ib_port_xmit_data) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "max_ib_port_xmit_data",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "max(ib_port_xmit_data) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "min_ib_port_xmit_data",
                         "enabled": true,
-                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "min(ib_port_xmit_data) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "average_ib_port_rcv_data",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "avg(ib_port_rcv_data) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "max_ib_port_rcv_data",
                         "enabled": true,
-                        "expression": "avg(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "max(ib_port_rcv_data) by (instance, subscription, cluster, job_id)"
                     },
                     {
                         "record": "min_ib_port_rcv_data",
                         "enabled": true,
-                        "expression": "min(dcgm_power_usage) by (instance, subscription, cluster, job_id)"
+                        "expression": "min(ib_port_rcv_data) by (instance, subscription, cluster, job_id)"
                     }
                 ],
                 "interval": "PT1M"

@@ -162,6 +162,7 @@ Note: For more options check the Moneo help menu
 - To deploy moneo-worker inside container: [Moneo-exporter](./docs/Moneo-exporter.md)
 - To integrate Moneo with Azure Application Insights dashboard see: [Azure Monitor](./docs/AzureMonitorAgent.md)
 - To expose customized metrics by using custom exporter [Custom Exporter](./docs/CustomExporter.md)
+- For Geneva ingestion (internal Microsoft) see: [Geneva](./docs/GenevaAgent.MD)
 
 ## Known Issues ##
 
