@@ -178,7 +178,7 @@ class MoneoCLI:
                 logging.info('Enable ' + agent + ' agent')
         else:
             cmd = cmd + ' false'
-            cmd = cmd + " ''"
+            cmd = cmd + " \'\'"
         if self.args.custom_metrics_file_path:
             print('-Custom exporter enabled-')
             logging.info('Custom exporter enabled')
