@@ -7,6 +7,8 @@ PROF_METRICS=$1
 START_PUBLISHER=$2
 
 PUBLISHER_AUTH=${3:-""}
+
+CUTSOM_METRICS_PATH=${4:-""}
 #shutdown previous instances
 $WORK_DIR/shutdown.sh false
 
@@ -28,7 +30,10 @@ fi
 
 nohup python3  $WORK_DIR/exporters/net_exporter.py </dev/null >/dev/null 2>&1 &
 nohup python3  $WORK_DIR/exporters/node_exporter.py </dev/null >/dev/null 2>&1 &
-
+if [[ -n "$CUTSOM_METRICS_PATH" ]]
+then
+    nohup python3  $WORK_DIR/exporters/custom_exporter.py --custom_metrics_file_path $CUTSOM_METRICS_PATH </dev/null >/dev/null 2>&1 &
+fi
 
 if [ -n "$START_PUBLISHER" ]
 then

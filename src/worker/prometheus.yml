@@ -39,3 +39,12 @@ scrape_configs:
         target_label: instance
         regex: '([^:]+)(:[0-9]+)?'
         replacement: '${1}'
+  - job_name: 'custom_exporter'
+    static_configs:
+      - targets:
+        - moneo-worker-0:8003
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: '([^:]+)(:[0-9]+)?'
+        replacement: '${1}'
