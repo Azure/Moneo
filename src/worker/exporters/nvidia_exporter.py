@@ -134,13 +134,14 @@ class DcgmExporter(DcgmReader):
             self,
             fieldIds=dcgm_config['publishFieldIds'],
             ignoreList=dcgm_config['ignoreList'],
-            # updateFrequency=(dcgm_config['prometheusPublishInterval'] *
-            #                  1000000) / 2,
-            updateFrequency=100000,
+            updateFrequency=int(1000000 / dcgm_config['prometheusPublishInterval']),
             maxKeepAge=1800.0,
             fieldGroupName='dcgm_exporter_{}'.format(os.getpid()),
             hostname=dcgm_config['dcgmHostName'],
         )
+        logging.info(
+            'DCGM sample interval: {} microseconds'
+            .format(int(1000000 / dcgm_config['prometheusPublishInterval'])))
         self.InitConnection()
         self.InitGauges()
         signal.signal(signal.SIGUSR1, self.jobID_update_flag)
@@ -309,7 +310,13 @@ def parse_dcgm_cli():
         action='store_true',
         help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity).'
              'Addition of profile metrics encurs additional overhead on computer nodes.')
-
+    parser.add_argument(
+        '-s',
+        '--sample_per_min',
+        type=int,
+        default=2,
+        choices=[1, 2, 3, 10],
+        help='Samples per minute. Default 2')
     args = dcgm_client_cli_parser.run_parser(parser)
     # add profiling metrics if flag enabled
     if (args.profiler_metrics):
@@ -327,7 +334,7 @@ def parse_dcgm_cli():
     else:
         dcgm_config['dcgmHostName'] = args.hostname
     dcgm_config['prometheusPort'] = args.publish_port
-    dcgm_config['prometheusPublishInterval'] = args.interval
+    dcgm_config['prometheusPublishInterval'] = int(args.sample_per_min)
     dcgm_config['publishFieldIds'] = field_ids
     dcgm_config['sendUuid'] = True
     dcgm_config['jobId'] = None

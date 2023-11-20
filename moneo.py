@@ -179,6 +179,9 @@ class MoneoCLI:
         else:
             cmd = cmd + ' false'
             cmd = cmd + " \"\""
+        #  gpu sample rate
+        cmd = cmd + " " + str(args.gpu_sample_rate)
+        print(cmd)
         if self.args.custom_metrics_file_path:
             print('-Custom exporter enabled-')
             logging.info('Custom exporter enabled')
@@ -402,6 +405,12 @@ if __name__ == '__main__':
         '--custom_metrics_file_path',
         type=str,
         help='The path of the custom metrics file.')
+    parser.add_argument(
+        '--gpu_sample_rate',
+        type=int,
+        choices=[1, 2, 3, 10],
+        help='Number of samples per minute for GPU monitoring. Valid options are 1,2,3,10', default=2)
+
     args = parser.parse_args()
 
     logging.basicConfig(
