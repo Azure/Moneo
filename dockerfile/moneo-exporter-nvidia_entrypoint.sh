@@ -3,9 +3,6 @@ set -e
 
 enable_profiling=$1
 gpu_sample_rate=$2
-# Start NVIDIA DCGM Daemon
-# echo "Starting NVIDIA DCGM Daemon"
-# nv-hostengine
 
 # Start NVIDIA, Net and Node Exporter
 echo "Starting NVIDIA, Net and Node Exporter"

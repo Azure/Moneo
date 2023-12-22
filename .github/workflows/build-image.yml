@@ -7,9 +7,6 @@ on:
   pull_request:
     branches:
     - main
-  release:
-    types:
-    - published
   workflow_dispatch: 
 
 jobs:
@@ -24,7 +21,7 @@ jobs:
         include:
         - name: moneo-exporter
           dockerfile: moneo-exporter-nvidia
-          tags: azmoneo/moneo-exporter:${{ github.ref_name }},azmoneo/moneo-exporter:latest
+          tags: azmoneo/moneo-exporter:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
