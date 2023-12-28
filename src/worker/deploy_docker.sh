@@ -8,7 +8,7 @@ if [ -e "/dev/nvidiactl" ]; then
     docker pull $IMAGE
 
     docker rm --force $CONT_NAME && \
-    docker run --name=$CONT_NAME --net=host \
+    docker run --name=$CONT_NAME --net=host --restart=on-failure:10 \
         -e PROFILING=$PROFILING --rm --runtime=nvidia \
         --cap-add SYS_ADMIN -v /sys:/hostsys/ -itd $IMAGE
 else

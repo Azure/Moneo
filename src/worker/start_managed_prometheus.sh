@@ -1,7 +1,7 @@
 #!/bin/bash
 
 INSTANCE_NAME=$(hostname)
-WORK_DIR=/tmp/moneo-worker
+WORK_DIR="${1:-/tmp/moneo-worker}"
 PROM_CONFIG=$WORK_DIR/prometheus.yml
 CONFIG_DIR=$WORK_DIR/publisher/config
 MANAGED_PROM_CONFIG=$CONFIG_DIR/managed_prom_config.json
@@ -63,6 +63,7 @@ mkdir -m 777 /mnt/prometheus
 docker rm -f prometheus || true
 docker run --name prometheus \
     -it --net=host -d -p 9090:9090 \
+    --restart=on-failure:10        \
     -v /mnt/prometheus:/prometheus \
     -v $PROM_CONFIG:/etc/prometheus/prometheus.yml \
     prom/prometheus \
