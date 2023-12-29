@@ -63,7 +63,7 @@ mkdir -m 777 /mnt/prometheus
 docker rm -f prometheus || true
 docker run --name prometheus \
     -it --net=host -d -p 9090:9090 \
-    --restart=on-failure:10        \
+    --restart=unless-stopped       \
     -v /mnt/prometheus:/prometheus \
     -v $PROM_CONFIG:/etc/prometheus/prometheus.yml \
     prom/prometheus \
