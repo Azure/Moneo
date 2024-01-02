@@ -56,20 +56,23 @@ docker run
     --rm --runtime=nvidia
     --net=host
     -e PROFILING=<true/false>
+    -e GPU_SAMPLE_RATE=<gpu_sample_rate:(1,2,10)>
     --cap-add SYS_ADMIN 
     -v /sys:/hostsys
     -itd moneo-exporter-nvidia:latest
 ```
-2. Check the port 8000 and 8001 is up, which is the moneo-exporter listening to:
+2. Check the port 8000, 8001, 8002 is up, which is the moneo-exporter listening to:
 ```bash
 root@azureuser:~$ sudo netstat -tulpn | grep LISTEN | grep python3
 tcp        0      0 0.0.0.0:8000            0.0.0.0:*               LISTEN      94787/python3       
 tcp        0      0 0.0.0.0:8001            0.0.0.0:*               LISTEN      94788/python3  
+tcp        0      0 0.0.0.0:8002            0.0.0.0:*               LISTEN      94789/python3  
 ```
 3. Get the prometheus metrics from Moneo-exporter.
 ```bash
 curl localhost:8000
 curl localhost:8001
+curl localhost:8002
 ```
 You can see the following prometheus metrics just as below, which means moneo-exporter can work normally.
 ```bash
@@ -98,5 +101,28 @@ ib_port_xmit_data{ib_port="mlx5_ib3:1",ib_sys_guid="********",job_id="None"} 0.0
 ib_port_xmit_data{ib_port="mlx5_ib1:1",ib_sys_guid="********",job_id="None"} 0.0
 ib_port_xmit_data{ib_port="mlx5_ib6:1",ib_sys_guid="********",job_id="None"} 0.0
 ib_port_xmit_data{ib_port="mlx5_ib4:1",ib_sys_guid="********",job_id="None"} 0.0
+...
+root@azureuser:~$ curl localhost:8001
+...
+# HELP python_gc_objects_collected_total Objects collected during gc
+# TYPE python_gc_objects_collected_total counter
+python_gc_objects_collected_total{generation="0"} 104.0
+python_gc_objects_collected_total{generation="1"} 304.0
+python_gc_objects_collected_total{generation="2"} 0.0
+# HELP python_gc_objects_uncollectable_total Uncollectable objects found during GC
+# TYPE python_gc_objects_uncollectable_total counter
+python_gc_objects_uncollectable_total{generation="0"} 0.0
+python_gc_objects_uncollectable_total{generation="1"} 0.0
+python_gc_objects_uncollectable_total{generation="2"} 0.0
+# HELP node_mem_available node_mem_available
+# TYPE node_mem_available gauge
+node_mem_available{job_id="None"} 1.841545956e+09
+# HELP node_mem_util node_mem_util
+# TYPE node_mem_util gauge
+node_mem_util{job_id="None"} 0.9
+# HELP node_xid_error node_xid_error
+# TYPE node_xid_error gauge
+# HELP node_link_flap node_link_flap
+# TYPE node_link_flap gauge
 ...
 ```
