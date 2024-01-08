@@ -179,9 +179,8 @@ class MoneoCLI:
         else:
             cmd = cmd + ' false'
             cmd = cmd + " \"\""
-        #  gpu sample rate
-        cmd = cmd + " " + str(args.gpu_sample_rate)
-        print(cmd)
+        #  gpu sample rate + ethernet device
+        cmd = cmd + " " + str(args.gpu_sample_rate) + " " + args.ethernet_device
         if self.args.custom_metrics_file_path:
             print('-Custom exporter enabled-')
             logging.info('Custom exporter enabled')
@@ -408,8 +407,13 @@ if __name__ == '__main__':
     parser.add_argument(
         '--gpu_sample_rate',
         type=int,
-        choices=[1, 2, 3, 10],
-        help='Number of samples per minute for GPU monitoring. Valid options are 1,2,3,10', default=2)
+        choices=[1, 2, 30, 60, 120, 600],
+        help='Number of samples per minute for GPU monitoring. Valid options are 1,2,3,10', default=60)
+    parser.add_argument(
+        '--ethernet_device',
+        type=str,
+        default='eth0',
+        help='The name of the ethernet device to use for network monitoring. Default is eth0')
 
     args = parser.parse_args()
 

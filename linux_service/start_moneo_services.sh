@@ -48,7 +48,7 @@ function proc_check(){
 
     if [[ -n $WITH_MANAGED_PROM && $WITH_MANAGED_PROM = true ]];
     then
-        if [[ $(docker ps -a | grep prometheus) ]] ; then
+        if [[ $(sudo docker ps -a | grep prometheus) ]] ; then
             echo "Prometheus docker containers running."
         else
             echo "Prometheus failed to start. Please ensure you have the proper user managed identity assigned to your VMSS/VM."
@@ -61,24 +61,24 @@ function proc_check(){
 
 $MONEO_PATH/linux_service/moneo_prestart.sh $MONEO_PATH 2> /dev/null
 
-systemctl enable moneo@node_exporter.service
-systemctl enable moneo@net_exporter.service
-systemctl enable moneo@nvidia_exporter.service
+sudo systemctl enable moneo@node_exporter.service
+sudo systemctl enable moneo@net_exporter.service
+sudo systemctl enable moneo@nvidia_exporter.service
 
-systemctl start moneo@node_exporter.service
-systemctl start moneo@net_exporter.service
-systemctl start moneo@nvidia_exporter.service
+sudo systemctl start moneo@node_exporter.service
+sudo systemctl start moneo@net_exporter.service
+sudo systemctl start moneo@nvidia_exporter.service
 
 if [[ -n $PublisherMethod ]]; then
     if [ "$PublisherMethod" == "geneva" ]; then
-        $MONEO_PATH/src/worker/start_geneva.sh $PUBLISHER_AUTH /tmp/moneo-worker/publisher/config
+        sudo $MONEO_PATH/src/worker/start_geneva.sh $PUBLISHER_AUTH /tmp/moneo-worker/publisher/config
     fi
-    sleep 5 # wait a bit for the exporters to start
-    systemctl enable moneo_publisher.service
-    systemctl start moneo_publisher.service 
+    sleep 10 # wait a bit for the exporters to start
+    sudo systemctl enable moneo_publisher.service
+    sudo systemctl start moneo_publisher.service 
     proc_check false
 else
-    $MONEO_PATH/src/worker/start_managed_prometheus.sh 2> /dev/null
-    sleep 5
+    sudo $MONEO_PATH/src/worker/start_managed_prometheus.sh 2> /dev/null
+    sleep 10 # wait a bit for the exporters to start
     proc_check true
 fi

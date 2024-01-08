@@ -1,21 +1,22 @@
 #!/bin/bash
+echo "Stopping Exporters Services"
 
-systemctl stop moneo@node_exporter.service
-systemctl stop moneo@net_exporter.service
-systemctl stop moneo@nvidia_exporter.service
-systemctl stop moneo_publisher.service
+sudo systemctl stop moneo@node_exporter.service 2> /dev/null
+sudo systemctl stop moneo@net_exporter.service 2> /dev/null
+sudo systemctl stop moneo@nvidia_exporter.service 2> /dev/null
+sudo systemctl stop moneo_publisher.service 2> /dev/null
 
-systemctl disable moneo@node_exporter.service
-systemctl disable moneo@net_exporter.service
-systemctl disable moneo@nvidia_exporter.service
-systemctl disable moneo_publisher.service
+sudo systemctl disable moneo@node_exporter.service 2> /dev/null
+sudo systemctl disable moneo@net_exporter.service 2> /dev/null
+sudo systemctl disable moneo@nvidia_exporter.service 2> /dev/null
+sudo systemctl disable moneo_publisher.service 2> /dev/null
 
-if [[ $(docker ps -a | grep prometheus) ]]; then
+if [[ $(sudo docker ps -a | grep prometheus) ]]; then
     echo "Stopping Prometheus containers"
-    docker stop prometheus genevamdmagent
-    docker rm prometheus genevamdmagent
-elif [[ $(docker ps -a | grep genevamdmagent) ]]; then 
-    docker stop genevamdmagent
-    docker rm genevamdmagent
-
+    sudo docker stop prometheus genevamdmagent 2> /dev/null
+    sudo docker rm prometheus genevamdmagent 2> /dev/null
+elif [[ $(sudo docker ps -a | grep genevamdmagent) ]]; then
+    echo "Stopping Geneva containers"
+    sudo docker stop genevamdmagent 2> /dev/null
+    sudo docker rm genevamdmagent 2> /dev/null
 fi
