@@ -101,7 +101,7 @@ class NodeExporter(BaseExporter):
         '''Custom collection Method'''
         value = None
         if 'net' in field_name:
-            cmd = "grep 'eth0' " + self.config['fieldFiles'][field_name]
+            cmd = "grep '{}' ".format(config['ethernet_device']) + self.config['fieldFiles'][field_name]
             val = None
             if 'net_rx' in field_name:
                 val = shell_cmd(cmd, 5).split()[1]
@@ -322,7 +322,7 @@ def init_config(job_id, port=None, ethernet_device='eth0'):
             config['fieldFiles'][field_name] = '/proc/net/dev'
             # initialize counter, this will ensure a initial value is present
             # to calculate bandwidth
-            cmd = "grep 'eth0' " + config['fieldFiles'][field_name]
+            cmd = "grep '{}' ".format(config['ethernet_device']) + config['fieldFiles'][field_name]
             if field_name == 'net_rx':
                 config['counter'][field_name] = shell_cmd(cmd, 5).split()[1]
             elif field_name == 'net_tx':
