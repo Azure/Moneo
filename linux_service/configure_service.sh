@@ -10,7 +10,7 @@ if [[ -n $PublisherMethod ]]; then
     if [ "$PublisherMethod" == "geneva" ] || [ "$PublisherMethod" == "azure_monitor" ]; then
         echo "PublisherMethod is valid: $PublisherMethod"
     else
-        echo "PublisherMethod $PublisherMethod is not one of the valid choices {azure_monitor, geneva}."
+        echo "PublisherMethod $PublisherMethod is not one of the valid choices {azure_monitor, geneva}. Leave empty for managed prometheus deployment"
         exit 1
     fi
 fi
@@ -31,9 +31,12 @@ if [[ "$PublisherMethod" == "geneva" ]]; then
     # writes to the same file location as Azure monitor
     cp $MONEO_PATH/linux_service/geneva_publisher.service /etc/systemd/system/moneo_publisher.service
     $MONEO_PATH/src/worker/install/install.sh geneva 
+elif [[ "$PublisherMethod" == "azure_monitor" ]]; then
+    cp $MONEO_PATH/linux_service/moneo_publisher.service /etc/systemd/system/moneo_publisher.service
+    $MONEO_PATH/src/worker/install/install.sh azure_monitor 
 else
     cp $MONEO_PATH/linux_service/moneo_publisher.service /etc/systemd/system/moneo_publisher.service
-    $MONEO_PATH/src/worker/install/install.sh azure_monitor
+    $MONEO_PATH/src/worker/install/install.sh
 fi
 
 systemctl daemon-reload

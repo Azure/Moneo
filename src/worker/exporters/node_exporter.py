@@ -52,6 +52,7 @@ def shell_cmd(cmd, timeout):
     except subprocess.TimeoutExpired:
         child.kill()
         print("Command " + " ".join(args) + ", Failed on timeout")
+        logging.error("Command " + " ".join(args) + ", Failed on timeout")
         result = 'TimeOut'
         return result
     return result.decode()
@@ -163,7 +164,7 @@ class NodeExporter(BaseExporter):
                             value[hca] = []
                         value[hca].append(timestamp)
             except Exception as e:
-                logging.error('Raised exception. Message: %s', e)
+                logging.exception('Exception occured during collection. Message: %s', e)
                 pass
         else:
             value = 0
@@ -203,7 +204,7 @@ class NodeExporter(BaseExporter):
                         self.config['counter'][field_name][dev_id].append(time_stamp)
                         self.config['sample_timestamp'][field_name] = event_time
             except Exception as e:
-                logging.error('Raised exception. Message: %s', e)
+                logging.exception('Raised exception during xid/linkflap handling. Message: %s', e)
                 pass
         else:
             self.update_field(field_name, value, self.config['job_id'])
@@ -277,7 +278,7 @@ def get_core_numa_mapping(core_count):
 # you will need to initialize your custom metric's file if we are exporting
 # from a file you may also want to initialize the config's counter member
 # for the specific field
-def init_config(job_id, port=None):
+def init_config(job_id, port=None, ethernet_device='eth0'):
     '''Example of config initialization'''
     global config
     if not port:
@@ -290,7 +291,8 @@ def init_config(job_id, port=None):
         'job_id': job_id,
         'fieldFiles': {},
         'counter': {},
-        'sample_timestamp': {}
+        'sample_timestamp': {},
+        'ethernet_device': ethernet_device
     }
     # for xid and link flaps
     config['command'] = {}
@@ -385,7 +387,7 @@ def init_ib_config():
                     IB_Mapping[mapping] = ib.strip() + ':1'
             FIELD_LIST.append('link_flap')
         except Exception as e:
-            print(e)
+            logging.exception('Exception occured during configuration. Message: %s', e)
             pass
 
 
@@ -411,7 +413,7 @@ def init_nvidia_config():
                 config['counter']['xid_error'][pci] = []
             FIELD_LIST.append('xid_error')
         except Exception as e:
-            print(e)
+            logging.exception('Exception occured during configuration. Message: %s', e)
             pass
 
 
@@ -435,6 +437,12 @@ def main():
         type=int,
         default=None,
         help='Port to export metrics from')
+    parser.add_argument(
+        "-e",
+        "--ethernet_device",
+        type=str,
+        default='eth0',
+        help='Ethernet device to monitor')
     args = parser.parse_args()
     # set up logging
     os.makedirs('/tmp/moneo-worker', exist_ok=True)
@@ -442,12 +450,12 @@ def main():
                         format='[%(asctime)s] node_exporter-%(levelname)s-%(message)s')
     jobId = None  # set a default job id of None
     try:
-        init_config(jobId, args.port)
+        init_config(jobId, args.port, args.ethernet_device)
         init_signal_handler()
         exporter = NodeExporter(FIELD_LIST, config)
         exporter.loop()
     except Exception as e:
-        logging.error('Raised exception. Message: %s', e)
+        logging.exception('Exception occured during configuration. Message: %s', e)
 
 
 if __name__ == '__main__':

@@ -134,14 +134,14 @@ class DcgmExporter(DcgmReader):
             self,
             fieldIds=dcgm_config['publishFieldIds'],
             ignoreList=dcgm_config['ignoreList'],
-            updateFrequency=int(1000000 / dcgm_config['prometheusPublishInterval']),
+            updateFrequency=int(60000000 / dcgm_config['prometheusPublishInterval']),
             maxKeepAge=1800.0,
             fieldGroupName='dcgm_exporter_{}'.format(os.getpid()),
             hostname=dcgm_config['dcgmHostName'],
         )
         logging.info(
-            'DCGM sample interval: {} microseconds'
-            .format(int(1000000 / dcgm_config['prometheusPublishInterval'])))
+            'DCGM sample interval: {} per minute'
+            .format(dcgm_config['prometheusPublishInterval']))
         self.InitConnection()
         self.InitGauges()
         signal.signal(signal.SIGUSR1, self.jobID_update_flag)
@@ -268,7 +268,7 @@ class DcgmExporter(DcgmReader):
                 if (job_update):
                     self.jobID_update()
                 self.Process()
-                time.sleep(0.1)
+                time.sleep(60 / int(dcgm_config['prometheusPublishInterval']))
                 if dcgm_config['exit']:
                     logging.info('Received exit signal, shutting down ...')
                     break
@@ -314,9 +314,9 @@ def parse_dcgm_cli():
         '-s',
         '--sample_per_min',
         type=int,
-        default=2,
-        choices=[1, 2, 3, 10],
-        help='Samples per minute. Default 2')
+        default=60,
+        choices=[1, 2, 30, 60, 120, 600],
+        help='Samples per minute. Default 60')
     args = dcgm_client_cli_parser.run_parser(parser)
     # add profiling metrics if flag enabled
     if (args.profiler_metrics):

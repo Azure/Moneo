@@ -14,7 +14,7 @@ else
 fi
 
 # uninstall to deal with Azure monitor and Geneva differences
-python3 -m pip uninstall \
+python3 -m pip -qqq uninstall \
 azure-monitor-opentelemetry-exporter  \
 opentelemetry-instrumentation \
 opentelemetry-api \
@@ -35,7 +35,7 @@ then
     if [ $PUBLISHER_INSTALL == 'geneva' ];
     then
         # Install open telemetry related packages
-        python3 -m pip install opentelemetry-sdk opentelemetry-exporter-otlp
+        python3 -m pip -qqq install opentelemetry-sdk opentelemetry-exporter-otlp
         
         # Pull Geneva Metrics Extension(MA) docker image
         docker pull linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION

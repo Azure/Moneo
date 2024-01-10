@@ -128,7 +128,7 @@ This method requires a deploying of a head node to host the local Prometheus dat
 - The headnode must have enough storage available to facilitate data collection
 - Grafana and Prometheus are accessed via web browser. Ensure proper access from web browser to headnode IP.
 
-Complete the steps listed here: [Local Grafana Deployment Guide](./docs/LocalGrafanDeployment.md)
+Complete the steps listed here: [Local Grafana Deployment Guide](./docs/LocalGrafanaDeployment.md)
 
 ### Moneo CLI ###
 
@@ -156,7 +156,7 @@ Note: For more options check the Moneo help menu
 ## User Docs ##
 
 - [Headless Deployment Guide](./docs/HeadlessDeployment.md)
-- [Local Grafana Deployment Guide](./docs/LocalGrafanDeployment.md)
+- [Local Grafana Deployment Guide](./docs/LocalGrafanaDeployment.md)
 - To get started with job level filtering see: [Job Level Filtering](./docs/JobFiltering.md)
 - Slurm epilog/prolog integration: [Slurm example](./examples/slurm/README.md)
 - To deploy moneo-worker inside container: [Moneo-exporter](./docs/Moneo-exporter.md)
