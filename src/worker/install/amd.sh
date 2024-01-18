@@ -4,7 +4,7 @@ set -e
 
 # install dependencies
 source ./$(dirname "${BASH_SOURCE[0]}")/common.sh
-sudo apt-get install -y automake make g++ unzip build-essential autoconf libtool pkg-config libgflags-dev libgtest-dev libc++-dev curl libcap-dev
+apt-get install -y automake make g++ unzip build-essential autoconf libtool pkg-config libgflags-dev libgtest-dev libc++-dev curl libcap-dev
 
 # install grpc
 export GRPC_ROOT=/opt/grpc
@@ -25,7 +25,7 @@ cmake -B build \
     -DCMAKE_INSTALL_LIBDIR=lib \
     -DCMAKE_BUILD_TYPE=Release
 make -C build -j $(nproc)
-sudo make -C build install
+make -C build install
 echo "$GRPC_ROOT" | sudo tee /etc/ld.so.conf.d/grpc.conf
 
 
