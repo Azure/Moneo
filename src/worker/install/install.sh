@@ -40,9 +40,9 @@ then
         
         if ! docker images | grep genevamdm | grep -q $DOCKER_IMAGE_ID; then
             # Pull Geneva Metrics Extension(MA) docker image
-			docker pull	linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
-			docker tag linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION genevamdm
-			docker rmi linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
+		    docker pull linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
+		    docker tag linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION genevamdm
+		    docker rmi linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
         fi
     elif [ $PUBLISHER_INSTALL == 'azure_monitor' ];
     then
