@@ -25,7 +25,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 41,
   "links": [
     {
       "asDropdown": true,
@@ -1033,7 +1032,5 @@
   },
   "timezone": "utc",
   "title": "Node View",
-  "uid": "DBUc8IU4k",
-  "version": 19,
   "weekStart": ""
 }

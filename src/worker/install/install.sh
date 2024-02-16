@@ -2,6 +2,7 @@
 
 PUBLISHER_INSTALL=$1
 MDM_DOCKER_VERSION=2.2023.316.006-5d91fa-20230316t1622
+DOCKER_IMAGE_ID=7f41d00ddf6a
 
 if [ -e '/dev/nvidiactl' ]; then
 # Nvidia
@@ -37,10 +38,12 @@ then
         # Install open telemetry related packages
         python3 -m pip -qqq install opentelemetry-sdk opentelemetry-exporter-otlp
         
-        # Pull Geneva Metrics Extension(MA) docker image
-        docker pull linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
-        docker tag linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION genevamdm
-        docker rmi linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
+        if ! docker images | grep genevamdm | grep -q $DOCKER_IMAGE_ID; then
+            # Pull Geneva Metrics Extension(MA) docker image
+			docker pull	linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
+			docker tag linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION genevamdm
+			docker rmi linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
+        fi
     elif [ $PUBLISHER_INSTALL == 'azure_monitor' ];
     then
         $(dirname "${BASH_SOURCE[0]}")/azure_monitor.sh

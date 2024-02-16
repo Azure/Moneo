@@ -24,7 +24,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 40,
   "links": [
     {
       "asDropdown": true,
@@ -1226,7 +1225,5 @@
   },
   "timezone": "utc",
   "title": "Network View",
-  "uid": "IziFPI8Vk",
-  "version": 16,
   "weekStart": ""
 }
