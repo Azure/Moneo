@@ -38,7 +38,7 @@ then
         # Install open telemetry related packages
         python3 -m pip -qqq install opentelemetry-sdk opentelemetry-exporter-otlp
         
-        if ! docker images | grep genevamdm | grep -q $DOCKER_IMAGE_ID; then
+        if ! sudo docker images | grep genevamdm | grep -q $DOCKER_IMAGE_ID; then
             # Pull Geneva Metrics Extension(MA) docker image
 		    docker pull linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
 		    docker tag linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION genevamdm
