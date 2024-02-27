@@ -5,6 +5,7 @@
 # Managed Prometheus deployment: ./start_moneo_services.sh 
 # Azure Monitor: ./start_moneo_services.sh azure_monitor
 # Geneva (internal msft): ./start_moneo_services.sh geneva
+# Only start workers: ./start_moneo_services.sh workers
 PublisherMethod=$1 
 
 # Modify as necessary
@@ -24,14 +25,16 @@ if lspci | grep -iq NVIDIA ; then
     procs+=("nvidia_exporter")
 fi
 
-if [[ -n $PublisherMethod ]]; then
+if [[ -n $PublisherMethod ]] ; then
     if [ "$PublisherMethod" == "geneva" ] || [ "$PublisherMethod" == "azure_monitor" ]; then
         echo "PublisherMethod is valid: $PublisherMethod"
+        procs+=("metrics_publisher")
+    elif [ "$PublisherMethod" == "workers" ]; then
+        echo "Only starting workers"
     else
         echo "PublisherMethod is not one of the valid choices."
         exit 1
     fi
-    procs+=("metrics_publisher")
 fi
 
 function proc_check(){
@@ -68,6 +71,10 @@ sudo systemctl enable moneo@nvidia_exporter.service
 sudo systemctl start moneo@node_exporter.service
 sudo systemctl start moneo@net_exporter.service
 sudo systemctl start moneo@nvidia_exporter.service
+
+if [ "$PublisherMethod" == "workers" ]; then
+    proc_check false
+fi
 
 if [[ -n $PublisherMethod ]]; then
     if [ "$PublisherMethod" == "geneva" ]; then

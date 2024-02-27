@@ -67,6 +67,10 @@ The [start_moneo_services.sh](./start_moneo_services.sh) script is used to start
    or
 ```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/start_moneo_services.sh geneva"```
 
+#### Exporters Alone ####
+
+```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/start_moneo_services.sh workers"```
+
 #### Exporters with Managed Prometheus ####
 
 ```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/start_moneo_services.sh"```
