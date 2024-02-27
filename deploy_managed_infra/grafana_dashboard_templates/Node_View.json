@@ -1,4 +1,41 @@
 {
+  "__inputs": [
+    {
+      "name": "DS_MANAGED_PROMETHEUS_MONEO-AMW",
+      "label": "Managed_Prometheus_moneo-amw",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "9.5.16"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
   "annotations": {
     "list": [
       {
@@ -25,7 +62,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 41,
+  "id": null,
   "links": [
     {
       "asDropdown": true,
@@ -60,7 +97,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "moneo-amw"
+        "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
       },
       "description": "CPU Utilization",
       "fieldConfig": {
@@ -148,7 +185,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -168,7 +205,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "moneo-amw"
+        "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
       },
       "description": "CPU Utilization",
       "fieldConfig": {
@@ -256,7 +293,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -286,7 +323,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "description": "Memory Utilization",
           "fieldConfig": {
@@ -373,7 +410,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "moneo-amw"
+                "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -393,7 +430,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "description": "Memory Utilization",
           "fieldConfig": {
@@ -480,7 +517,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "moneo-amw"
+                "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -514,7 +551,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "description": "TX Rate of VM's  Ethernet Interface",
           "fieldConfig": {
@@ -598,7 +635,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "moneo-amw"
+                "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -618,7 +655,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "description": "RX Rate of VM's  Ethernet Interface",
           "fieldConfig": {
@@ -702,7 +739,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "moneo-amw"
+                "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -739,7 +776,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "moneo-amw"
+        "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
       },
       "fieldConfig": {
         "defaults": {
@@ -789,12 +826,12 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.5.13",
+      "pluginVersion": "9.5.16",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "editorMode": "builder",
           "expr": "node_mem_util{subscription=\"$Subscription\", cluster=\"$Cluster\", instance=\"$Instance\"}",
@@ -878,14 +915,10 @@
   "templating": {
     "list": [
       {
-        "current": {
-          "selected": false,
-          "text": "d71c7216-6409-45f8-be15-35cf57b8527c",
-          "value": "d71c7216-6409-45f8-be15-35cf57b8527c"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "moneo-amw"
+          "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
         },
         "definition": "label_values(up,subscription)",
         "hide": 0,
@@ -905,14 +938,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "selected": false,
-          "text": "none",
-          "value": "none"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "moneo-amw"
+          "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
         },
         "definition": "label_values(up{subscription=\"$Subscription\"},cluster)",
         "hide": 0,
@@ -932,15 +961,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "isNone": true,
-          "selected": false,
-          "text": "None",
-          "value": ""
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "moneo-amw"
+          "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
         },
         "definition": "label_values(up{cluster=\"$Cluster\"},job_id)",
         "description": "",
@@ -961,14 +985,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "selected": false,
-          "text": "none",
-          "value": "none"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "moneo-amw"
+          "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
         },
         "definition": "label_values(up{cluster=\"$Cluster\", job_id=\"$JobId\"},instance)",
         "hide": 0,
@@ -988,14 +1008,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "moneo-amw"
+          "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
         },
         "definition": "label_values(node_cpu_util{instance=~\"$Instance\"},numa_domain)",
         "hide": 0,
