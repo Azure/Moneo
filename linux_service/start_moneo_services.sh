@@ -21,11 +21,11 @@ fi
 
 procs=("net_exporter" "node_exporter")
 
-if lspci | grep -iq NVIDIA ; then
+if lspci | grep -iq NVIDIA; then
     procs+=("nvidia_exporter")
 fi
 
-if [[ -n $PublisherMethod ]] ; then
+if [[ -n $PublisherMethod ]]; then
     if [ "$PublisherMethod" == "geneva" ] || [ "$PublisherMethod" == "azure_monitor" ]; then
         echo "PublisherMethod is valid: $PublisherMethod"
         procs+=("metrics_publisher")
@@ -38,7 +38,7 @@ if [[ -n $PublisherMethod ]] ; then
 fi
 
 function proc_check(){
-    CHECK=`ps -eaf | grep /tmp/moneo-worker/`
+    CHECK=$( ps -eaf | grep /tmp/moneo-worker/)
     WITH_MANAGED_PROM=$1
     for substring in "${procs[@]}"; do
         if [[ $CHECK == *"$substring"* ]]; then
@@ -51,7 +51,7 @@ function proc_check(){
 
     if [[ -n $WITH_MANAGED_PROM && $WITH_MANAGED_PROM = true ]];
     then
-        if [[ $(sudo docker ps -a | grep prometheus) ]] ; then
+        if [[ $(sudo docker ps -a | grep prometheus) ]]; then
             echo "Prometheus docker containers running."
         else
             echo "Prometheus failed to start. Please ensure you have the proper user managed identity assigned to your VMSS/VM."
