@@ -37,10 +37,12 @@ then
         # Install open telemetry related packages
         python3 -m pip -qqq install opentelemetry-sdk opentelemetry-exporter-otlp
         
-        # Pull Geneva Metrics Extension(MA) docker image
-        docker pull linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
-        docker tag linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION genevamdm
-        docker rmi linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
+        if ! sudo docker images | grep -q genevamdm ; then
+            # Pull Geneva Metrics Extension(MA) docker image
+		    docker pull linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
+		    docker tag linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION genevamdm
+		    docker rmi linuxgeneva-microsoft.azurecr.io/genevamdm:$MDM_DOCKER_VERSION
+        fi
     elif [ $PUBLISHER_INSTALL == 'azure_monitor' ];
     then
         $(dirname "${BASH_SOURCE[0]}")/azure_monitor.sh

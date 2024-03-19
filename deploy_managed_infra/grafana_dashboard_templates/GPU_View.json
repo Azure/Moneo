@@ -24,7 +24,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 39,
   "links": [
     {
       "asDropdown": true,
@@ -2135,7 +2134,5 @@
   },
   "timezone": "utc",
   "title": "GPU View",
-  "uid": "dHpbWBP4z",
-  "version": 43,
   "weekStart": ""
 }
