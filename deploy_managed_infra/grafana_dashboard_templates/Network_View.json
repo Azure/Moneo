@@ -1,4 +1,41 @@
 {
+  "__inputs": [
+    {
+      "name": "DS_MANAGED_PROMETHEUS_MONEO-AMW",
+      "label": "Managed_Prometheus_moneo-amw",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "9.5.16"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
   "annotations": {
     "list": [
       {
@@ -24,6 +61,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
+  "id": null,
   "links": [
     {
       "asDropdown": true,
@@ -58,7 +96,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "moneo-amw"
+        "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
       },
       "description": "Indication of IB Link Flap",
       "fieldConfig": {
@@ -157,7 +195,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "editorMode": "builder",
           "exemplar": false,
@@ -177,7 +215,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "moneo-amw"
+        "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
       },
       "description": "The rate of data transmitted over InfiniBand.",
       "fieldConfig": {
@@ -259,7 +297,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -279,7 +317,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "moneo-amw"
+        "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
       },
       "description": "The rate of data transmitted over InfiniBand.",
       "fieldConfig": {
@@ -361,7 +399,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -391,7 +429,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "description": "Total number of outbound packets discarded by the port because the port is down or congested.",
           "fieldConfig": {
@@ -471,7 +509,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "moneo-amw"
+                "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -491,7 +529,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "description": "Total number of packets not transmitted from the switch physical port.",
           "fieldConfig": {
@@ -571,7 +609,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "moneo-amw"
+                "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -591,7 +629,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "description": "Total number of packets containing an error that were received on the port.",
           "fieldConfig": {
@@ -671,7 +709,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "moneo-amw"
+                "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -691,7 +729,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "description": "Total number of packets received on the switch physical port that are discarded.",
           "fieldConfig": {
@@ -771,7 +809,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "moneo-amw"
+                "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -791,7 +829,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "description": "Indication of IB Link Flap",
           "fieldConfig": {
@@ -856,7 +894,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "moneo-amw"
+                "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -935,7 +973,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "moneo-amw"
+            "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
           },
           "fieldConfig": {
             "defaults": {
@@ -989,7 +1027,7 @@
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "moneo-amw"
+                "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
               },
               "editorMode": "builder",
               "expr": "ib_port_rcv_errors{subscription=\"$Subscription\", cluster=\"$Cluster\", instance=~\"$Instance\", ib_port=\"mlx5_ib0:1\"}",
@@ -1068,14 +1106,10 @@
   "templating": {
     "list": [
       {
-        "current": {
-          "selected": false,
-          "text": "d71c7216-6409-45f8-be15-35cf57b8527c",
-          "value": "d71c7216-6409-45f8-be15-35cf57b8527c"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "moneo-amw"
+          "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
         },
         "definition": "label_values(ib_port_physical_state, subscription)",
         "hide": 0,
@@ -1095,14 +1129,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "selected": false,
-          "text": "none",
-          "value": "none"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "moneo-amw"
+          "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
         },
         "definition": "label_values(ib_port_physical_state{subscription=~\"$Subscription\"}, cluster)",
         "hide": 0,
@@ -1122,14 +1152,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "selected": false,
-          "text": "none",
-          "value": "none"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "moneo-amw"
+          "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
         },
         "definition": "label_values(ib_port_physical_state{cluster=\"$Cluster\"},job_id)",
         "hide": 0,
@@ -1149,14 +1175,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "selected": false,
-          "text": "none",
-          "value": "none"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "moneo-amw"
+          "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
         },
         "definition": "label_values(ib_port_physical_state{cluster=\"$Cluster\", job_id=\"$JobId\"},instance)",
         "hide": 0,
@@ -1176,18 +1198,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "moneo-amw"
+          "uid": "${DS_MANAGED_PROMETHEUS_MONEO-AMW}"
         },
         "definition": "label_values(ib_port_physical_state{instance=~\"$Instance\"}, ib_port)",
         "hide": 0,
