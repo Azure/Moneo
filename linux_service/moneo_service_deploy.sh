@@ -8,11 +8,10 @@
 
 MONEO_VERSION=v0.3.4 # Release tag
 MONITOR_DIR=/opt/azurehpc/tools # install directory
-IDENTITY_CLIENT_ID="38b84eb5-8aec-4971-aaeb-ddd7e9bfef98" # This is the client ID of the Managed Identity for the Azure Prometheus Monitor Workspace
-INGESTION_ENDPOINT="https://moneo-amw-q14z.southcentralus-1.metrics.ingest.monitor.azure.com/dataCollectionRules/dcr-c0192b4cd2c748f88ffd422e7a0d77ac/streams/Microsoft-PrometheusMetrics/api/v1/write?api-version=2023-04-24" # This is the ingestion endpoint for the Azure Prometheus Monitor Workspace
-MONEO_PATH=$MONITOR_DIR/Moneo
+IDENTITY_CLIENT_ID="" # This is the client ID of the Managed Identity for the Azure Prometheus Monitor Workspace
+INGESTION_ENDPOINT=""
 PublisherMethod="" # This is the publisher method for Moneo. Options are azure_monitor, geneva (Msft internal Use), or leave blank for Azure Managed Prometheus
-
+MONEO_PATH=$MONITOR_DIR/Moneo
 # clone source to specified directory
 if [[ -d "$MONEO_PATH" ]]; then
     pushd $MONEO_PATH 
@@ -36,9 +35,9 @@ fi
 sudo chmod -R 777 $MONEO_PATH
 
 # Configure step
-echo "{
-    \"IDENTITY_CLIENT_ID\": \"$IDENTITY_CLIENT_ID\",
-    \"INGESTION_ENDPOINT\":  \"$INGESTION_ENDPOINT\" }" > $MONEO_PATH/src/worker/publisher/config/managed_prom_config.json
+jq '(.prom_config.IDENTITY_CLIENT_ID |= "'"$IDENTITY_CLIENT_ID"'")' "$MONEO_PATH/moneo_config.json" > "$MONEO_PATH/temp.json" && mv "$MONEO_PATH/temp.json" "$MONEO_PATH/moneo_config.json"
+jq '(.prom_config.INGESTION_ENDPOINT |= "'"$INGESTION_ENDPOINT"'")' "$MONEO_PATH/moneo_config.json" > "$MONEO_PATH/temp.json" && mv "$MONEO_PATH/temp.json" "$MONEO_PATH/moneo_config.json"
+rm -f "$MONEO_PATH/temp.json"
 
 pushd $MONEO_PATH/linux_service
     sudo ./configure_service.sh >> moneoServiceInstall.log

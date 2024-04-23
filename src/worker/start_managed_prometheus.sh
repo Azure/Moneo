@@ -3,8 +3,8 @@
 INSTANCE_NAME=$(hostname)
 WORK_DIR="${1:-/tmp/moneo-worker}"
 PROM_CONFIG=$WORK_DIR/prometheus.yml
-CONFIG_DIR=$WORK_DIR/publisher/config
-MANAGED_PROM_CONFIG=$CONFIG_DIR/managed_prom_config.json
+CONFIG_DIR=$WORK_DIR
+MANAGED_PROM_CONFIG=$CONFIG_DIR/moneo_config.json
 
 get_subscription(){
     subscription_name=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute/subscriptionId?api-version=2021-02-01&format=text")
@@ -32,8 +32,8 @@ SUBSCRIPTION_NAME=$(get_subscription)
 CLUSTER_NAME=$(get_cluster_name)
 PHYS_HOST_NAME=$(get_physical_host_name)
 
-IDENTITY_CLIENT_ID=$(jq -r '.IDENTITY_CLIENT_ID' $MANAGED_PROM_CONFIG)
-INGESTION_ENDPOINT=$(jq -r '.INGESTION_ENDPOINT' $MANAGED_PROM_CONFIG)
+IDENTITY_CLIENT_ID=$(jq -r '.prom_config.IDENTITY_CLIENT_ID' $MANAGED_PROM_CONFIG)
+INGESTION_ENDPOINT=$(jq -r '.prom_config.INGESTION_ENDPOINT' $MANAGED_PROM_CONFIG)
 
 generate_prom(){
     DCMG_TARGET="        - $INSTANCE_NAME:8000\n"

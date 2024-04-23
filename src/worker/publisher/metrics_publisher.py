@@ -94,7 +94,7 @@ def get_publisher_metrics_config():
     Returns:
         config(dict): The geneva metrics configuration
     """
-    with open('/tmp/moneo-worker/publisher/config/publisher_config.json') as f:
+    with open('/tmp/moneo-worker/publisher/config/moneor_config.json') as f:
         config = json.load(f)
     return config
 
@@ -272,15 +272,15 @@ if __name__ == '__main__':
     agent_config = get_publisher_metrics_config()
 
     # Get common config
-    metrics_ports = agent_config['common_config']['metrics_ports']
-    metrics_namespace = agent_config['common_config']['metrics_namespace']
-    interval = int(agent_config['common_config']['interval'])
+    metrics_ports = agent_config['publisher_config']['common_config']['metrics_ports']
+    metrics_namespace = agent_config['publisher_config']['common_config']['metrics_namespace']
+    interval = int(agent_config['publisher_config']['common_config']['interval'])
 
     # Get publisher agent config
     if publisher_agent == 'geneva':
-        metrics_auth = agent_config['geneva_agent_config']['metrics_account']
+        metrics_auth = agent_config['publisher_config']['geneva_agent_config']['metrics_account']
     elif publisher_agent == 'azure_monitor':
-        metrics_auth = agent_config['azure_monitor_agent_config']['connection_string']
+        metrics_auth = agent_config['publisher_config']['azure_monitor_agent_config']['connection_string']
     else:
         raise Exception('##[ERROR]The publisher agent is not supported')
 

@@ -56,7 +56,7 @@ then
                 then
                     # Start Geneva Metrics Extension(MA) docker container with UMI
                     echo "Starting Geneva Metrics Extension(MA) docker container with $PUBLISHER_AUTH"
-                    $WORK_DIR/start_geneva.sh $PUBLISHER_AUTH $WORK_DIR/publisher/config
+                    $WORK_DIR/start_geneva.sh $PUBLISHER_AUTH $WORK_DIR
                 else
                     # Unsupported auth type
                     echo "Publisher auth not supported"

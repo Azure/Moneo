@@ -123,6 +123,10 @@ class MoneoCLI:
         logging.info('Copying files to workers')
         out = pscp(copy_path, destination_dir, hosts_file, user=self.args.user)
         logging.info(out)
+        copy_path = './moneo_config.json'
+        destination_dir = '/tmp/moneo-worker'
+        out = pscp(copy_path, destination_dir, hosts_file, user=self.args.user)
+        logging.info(out)
         print('--------------------------')
         if self.args.skip_install:
             pass
