@@ -8,7 +8,7 @@ Prequisites:
 1. An Azure Monitor Metrics (Application Insights) resource, please enable alerting on custom metric dimensions by refering this [document](https://learn.microsoft.com/en-us/azure/azure-monitor/app/pre-aggregated-metrics-log-metrics#custom-metrics-dimensions-and-pre-aggregation) to restore the metrics dimentions.(Lead to a extra cost)
 2. PSSH installed on manager nodes.
 3. Ensure passwordless ssh is installed in you environment.
-4. Config publisher config file in `Moneo/src/worker/publisher/config/publisher_config.json`.
+4. Config publisher config file in `Moneo/moneo_config.json`.
     Note: You can obtain your connection string from the Application Insights pages you created in the Azure portal.
     ```
     {

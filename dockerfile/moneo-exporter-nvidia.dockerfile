@@ -6,8 +6,6 @@ ARG BRANCH_OR_TAG=main
 
 ENV DCGM_VERSION=3.1.1
 ENV OFED_VERSION=23.07-0.5.1.2
-ENV PROFILING false
-ENV GPU_SAMPLE_RATE 2
 
 # Install dependencies
 RUN apt-get update -y                           \
@@ -43,6 +41,9 @@ RUN cd /tmp && \
 RUN git config --global advice.detachedHead false
 RUN git clone --branch ${BRANCH_OR_TAG} https://github.com/Azure/Moneo.git
 
+# Set up tmp space for Moneo
+RUN mkdir -p /tmp/moneo-worker
+
 # Install DCGM
 WORKDIR Moneo/src/worker
 RUN sudo bash install/nvidia.sh
@@ -50,4 +51,4 @@ RUN sudo bash install/nvidia.sh
 # Set EntryPoint
 COPY dockerfile/moneo-exporter-nvidia_entrypoint.sh .
 RUN chmod +x moneo-exporter-nvidia_entrypoint.sh
-CMD /bin/bash moneo-exporter-nvidia_entrypoint.sh ${PROFILING} ${GPU_SAMPLE_RATE}
+CMD /bin/bash moneo-exporter-nvidia_entrypoint.sh

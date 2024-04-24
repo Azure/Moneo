@@ -45,17 +45,18 @@ Configuration/Installation is only required once. After that is complete the Lin
 
 1. Configuration and installation of the Linux service is done with the following command:
    ```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/configure_service.sh"```
-     - Note: If using Azure monitor or Geneva add an extra argument "./start_moneo_services.sh azure_monitor"  or "./configure_service.sh geneva" respectively.
+     - Note: If using the Azure AI/HPC VM market place image, this step is already completed for managed prometheus deployment
+     - Note: If using Azure monitor or Geneva add an extra argument "./configure_service.sh azure_monitor"  or "./configure_service.sh geneva" respectively.
      - Note: Geneva authentication is user managed identity "umi" by default, you can choose to change to "cert" method by modifiying [the start script](./configure_service.sh) "PUBLISHER_AUTH" variable.
 
 2. For Azure Monitor or Managed Prometheus methods if you have not yet modified the configuration files reference the following:
    - For Azure Managed Prometheus:
-     - modify [managed_prom_config.json](../src/worker/publisher/config) and copy the file to the compute nodes.
-     - ```parallel-scp -h hostfile /opt/azurehpc/tools/Moneo/src/worker/publisher/config/managed_prom_config.json /opt/azurehpc/tools/Moneo/src/worker/publisher/config```
+     - modify [moneo_config.json](../moneo_config.json) and copy the file to the compute nodes.
+     - ```parallel-scp -h hostfile /opt/azurehpc/tools/Moneo/moneo_config.json /opt/azurehpc/tools/Moneo```
      - Lastly check that that the managed user identity used to set up Managed Prometheus (Azure role assignments) is assigned to your VMSS.
    - For Azure Monitor:
      - modify the connection string of "azure_monitor_agent_config" section and copy the file to the compute nodes.
-     - ```parallel-scp -h hostfile /opt/azurehpc/tools/Moneo/src/worker/publisher/config/publisher_config.json /opt/azurehpc/tools/Moneo/src/worker/publisher/config```
+     - ```parallel-scp -h hostfile /opt/azurehpc/tools/Moneo/moneo_config.json /opt/azurehpc/tools/Moneo```
 
 ### Launch Services ###
 
@@ -84,10 +85,10 @@ Stopping services is the same command for all methods.
 
 Assuming configuration files have been updated and user managed ID applied if necessary (Managed Prometheus) reference these commands for the work flow:
 
-- Configuration/Install:
+- Configuration/Install (not needed for market place image, using managed Prometheus):
    ```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/configure_service.sh"```
 - Extra Configure step for AZ Monitor and/or Managed Prometheus
-   ```parallel-scp -h hostfile /opt/azurehpc/tools/Moneo/src/worker/publisher/config/<Respective config file> /opt/azurehpc/tools/Moneo/src/worker/publisher/config```
+   ```parallel-scp -h hostfile /opt/azurehpc/tools/Moneo/moneo_config.json /opt/azurehpc/tools/Moneo```
 - Start
    ```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/start_moneo_services.sh"```
    Note:

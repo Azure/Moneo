@@ -18,11 +18,11 @@ This guide will provide step-by-step instructions on how to  to publish your exp
     - Click add at the bottom of the open blade.
 3. PSSH installed on manager nodes.
 4. Ensure passwordless ssh is installed in you environment.
-5. Config managed prometheus config file in `Moneo/src/worker/publisher/config/managed_prom_config.json`.
+5. Config managed prometheus config file in `Moneo/moneo_config.json`.
     Note: You can obtain your IDENTITY_CLIENT_ID in your indentity resource page and your metrics ingestion endpoint from the AWM pages you created in the Azure portal.
 
     ``` json
-        {
+        "prom_config": {
             "IDENTITY_CLIENT_ID": "<identity client id>",
             "INGESTION_ENDPOINT": "<metrics ingestion endpoint>"
         }

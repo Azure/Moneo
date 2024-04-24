@@ -115,6 +115,20 @@ Get the code:
 
     Note: If you are using an [Azure Ubuntu HPC-AI](https://github.com/Azure/azhpc-images) VM image you can find the Moneo in this path: /opt/azurehpc/tools/Moneo
 
+### Configuration File ###
+
+The [moneo_config.json](./moneo_config.json) file can be used to specify certain deployment settings prior to moneo deployment.
+
+There are 4 groups of configurations:
+
+  1. exporter_conf - This applies to all deployments. See the following settings:
+     - gpu_sample_interval - Sample rate per minute for Nvidia GPU exporter. Choices are [1, 2, 30, 60, 120, 600]. with 60 samples per minute being default.
+     - gpu_profiling - Switches on additional profile metrics (Tensor, FP16, FP32, and FP64). Choices are true/false with false as default.
+     - Note: These settings may have an impact on performance. Default settings were chosen to minimize impact.
+  2. prom_config - This group of settings applies to the Headless deployment method. Refer to [Headless Deployment Guide](./docs/HeadlessDeployment.md) for usage.
+  3. geneva_config - Applies to Geneva deployement. Refer to [Geneva deployment](./docs/GenevaAgent.MD) for usage.
+  4. publisher_config - Applies to both Geneva and Azure Monitor agent deployment methods see [Geneva deployment](./docs/GenevaAgent.MD) or [Azure Monitor Agent deployment](./docs/AzureMonitorAgent.md) for usage.
+
 ### Prefered Moneo Deployment ###
 
 The prefered way to deploy Moneo is the headless method using Azure Managaed Grafana and Prometheus resources.
@@ -185,7 +199,7 @@ Note: For more options check the Moneo help menu
 
 1. For Managed Grafana (headless) deployment
     - Verify that the user managed identity is assigned to the VM resource.
-    - Verify the prerequisite configure file (`Moneo/src/worker/publisher/config/managed_prom_config.json`) is configured correctly on each worker node.
+    - Verify the prerequisite configure file (`Moneo/moneo_config.json`) is configured correctly on each worker node.
     - On the worker nodes verify functionality of prometheus agent remote write:
         - Check prometheus docker with `sudo docker logs prometheus | grep 'Done replaying WAL'`
         It will have the result like this:

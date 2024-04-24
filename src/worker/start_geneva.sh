@@ -4,7 +4,7 @@ AUTH="${1}"
 CONFIG="${2}"
 CONTAINER_NAME="genevamdmagent"
 
-GENEVA_CONFIG=$CONFIG/geneva_config.json
+GENEVA_CONFIG=$CONFIG/moneo_config.json
 # check if the docker container is running
 if sudo docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
     echo "Geneva Docker is running"

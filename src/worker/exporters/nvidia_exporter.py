@@ -3,7 +3,7 @@ import sys
 import time
 import signal
 import logging
-
+import json
 import prometheus_client
 
 sys.path.append('/usr/local/dcgm/bindings/python3')
@@ -276,15 +276,40 @@ class DcgmExporter(DcgmReader):
             pass
 
 
+def get_custom_config():
+    try:
+        with open('/tmp/moneo-worker/moneo_config.json') as f:
+            mon_config = json.load(f)
+
+        sample_per_min = int(mon_config['exporter_config']['gpu_sample_interval'])
+        sample_intervals = [1, 2, 30, 60, 120, 600]
+
+        if sample_per_min not in sample_intervals:
+            mon_config['exporter_config']['gpu_sample_interval'] = 60
+        else:
+            mon_config['exporter_config']['gpu_sample_interval'] = sample_per_min
+
+        if (mon_config['exporter_config']['gpu_profiling']).lower() == "true":
+            mon_config['exporter_config']['gpu_profiling'] = True
+        else:
+            mon_config['exporter_config']['gpu_profiling'] = False
+        return mon_config
+    except Exception:
+        mon_config = {'exporter_config': {'gpu_sample_interval': 60, 'gpu_profiling': False}}
+        return mon_config
+
+
 def init_config():
     global dcgm_config
+    mon_config = get_custom_config()
     dcgm_config = {
         'exit': False,
         'ignoreList': [],
         'dcgmHostName': None,
         'prometheusPort': None,
-        'prometheusPublishInterval': None,
+        'prometheusPublishInterval': mon_config['exporter_config']['gpu_sample_interval'],
         'publishFieldIds': None,
+        'profilerMetrics': mon_config['exporter_config']['gpu_profiling'],
         'last_value': {}
     }
 
@@ -304,22 +329,9 @@ def parse_dcgm_cli():
         publish_port=8000,
         log_level='INFO',
     )
-    parser.add_argument(
-        '-m',
-        '--profiler_metrics',
-        action='store_true',
-        help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity).'
-             'Addition of profile metrics encurs additional overhead on computer nodes.')
-    parser.add_argument(
-        '-s',
-        '--sample_per_min',
-        type=int,
-        default=60,
-        choices=[1, 2, 30, 60, 120, 600],
-        help='Samples per minute. Default 60')
     args = dcgm_client_cli_parser.run_parser(parser)
     # add profiling metrics if flag enabled
-    if (args.profiler_metrics):
+    if (dcgm_config['profilerMetrics']):
         args.field_ids.extend(DCGM_PROF_FIELDS)
     field_ids = dcgm_client_cli_parser.get_field_ids(args)
     numeric_log_level = dcgm_client_cli_parser.get_log_level(args)
@@ -334,11 +346,9 @@ def parse_dcgm_cli():
     else:
         dcgm_config['dcgmHostName'] = args.hostname
     dcgm_config['prometheusPort'] = args.publish_port
-    dcgm_config['prometheusPublishInterval'] = int(args.sample_per_min)
     dcgm_config['publishFieldIds'] = field_ids
     dcgm_config['sendUuid'] = True
     dcgm_config['jobId'] = None
-    dcgm_config['profilerMetrics'] = args.profiler_metrics
     logging.basicConfig(
         level=numeric_log_level,
         filemode=filemode,

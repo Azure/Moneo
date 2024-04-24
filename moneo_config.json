@@ -1,5 +1,8 @@
-
 {
+    "exporter_config":{
+        "gpu_sample_interval": "60",
+        "gpu_profiling": "false"
+    },
     "prom_config":{
         "IDENTITY_CLIENT_ID": "<identity client id>",
         "INGESTION_ENDPOINT": "<metrics ingestion endpoint>"

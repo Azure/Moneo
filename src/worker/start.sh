@@ -2,35 +2,22 @@
 
 WORK_DIR=$(dirname "${BASH_SOURCE[0]}")
 
-PROF_METRICS=$1
+START_PUBLISHER=$1
 
-START_PUBLISHER=$2
+PUBLISHER_AUTH=${2:-""}
 
-PUBLISHER_AUTH=${3:-""}
+ETH_DEV=${3:-""}
 
-GPU_SAMPLE_RATE=$4
+CUTSOM_METRICS_PATH=${4:-""}
 
-ETH_DEV=${5:-""}
-
-CUTSOM_METRICS_PATH=${6:-""}
 #shutdown previous instances
 $WORK_DIR/shutdown.sh false
 
 # start exporters
 if [ -e "/dev/nvidiactl" ];
 then
-    if [ -z $GPU_SAMPLE_RATE ]; then
-        GPU_SAMPLE_RATE=2
-    fi
-
     nohup nv-hostengine </dev/null >/dev/null 2>&1 &
-
-    if [ $PROF_METRICS = true ];
-    then
-        nohup python3 $WORK_DIR/exporters/nvidia_exporter.py -m -s $GPU_SAMPLE_RATE </dev/null >/dev/null 2>&1 &
-    else
-        nohup python3 $WORK_DIR/exporters/nvidia_exporter.py -s $GPU_SAMPLE_RATE </dev/null >/dev/null 2>&1 &
-    fi
+    nohup python3 $WORK_DIR/exporters/nvidia_exporter.py </dev/null >/dev/null 2>&1 &
 elif [ -e '/dev/kfd' ];
 then
     nohup /opt/rocm/rdc/bin/rdcd -u </dev/null >/dev/null 2>&1 &

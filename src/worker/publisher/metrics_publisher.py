@@ -94,7 +94,7 @@ def get_publisher_metrics_config():
     Returns:
         config(dict): The geneva metrics configuration
     """
-    with open('/tmp/moneo-worker/publisher/config/moneor_config.json') as f:
+    with open('/tmp/moneo-worker/moneo_config.json') as f:
         config = json.load(f)
     return config
 
