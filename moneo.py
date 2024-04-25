@@ -123,6 +123,10 @@ class MoneoCLI:
         logging.info('Copying files to workers')
         out = pscp(copy_path, destination_dir, hosts_file, user=self.args.user)
         logging.info(out)
+        # Copy config file
+        copy_path = './moneo_config.json'
+        out = pscp(copy_path, destination_dir, hosts_file, user=self.args.user)
+        logging.info(out)
         print('--------------------------')
         if self.args.skip_install:
             pass
@@ -146,12 +150,6 @@ class MoneoCLI:
         print('-Starting metric exporters on workers-')
         logging.info('Starting metric exporters on workers')
         cmd = '/tmp/moneo-worker/start.sh'
-        if self.args.profiler_metrics:
-            print('-Profiling enabled-')
-            logging.info('Profiling enabled')
-            cmd = cmd + ' true'
-        else:
-            cmd = cmd + ' false'
         if self.args.launch_publisher:
             agent = self.args.launch_publisher
             if agent == 'geneva' and not self.args.publisher_auth:
@@ -179,8 +177,8 @@ class MoneoCLI:
         else:
             cmd = cmd + ' false'
             cmd = cmd + " \"\""
-        #  gpu sample rate + ethernet device
-        cmd = cmd + " " + str(args.gpu_sample_rate) + " " + args.ethernet_device
+        # ethernet device
+        cmd = cmd + " " + args.ethernet_device
         if self.args.custom_metrics_file_path:
             print('-Custom exporter enabled-')
             logging.info('Custom exporter enabled')
@@ -195,6 +193,10 @@ class MoneoCLI:
         destination_dir = '/tmp/moneo-worker'
         print('-Deploying docker containers to Nvidia support workers)-')
         logging.info('Deploying docker container to workers')
+        out = pscp(copy_path, destination_dir, hosts_file, user=self.args.user)
+        logging.info(out)
+        # Copy config file
+        copy_path = './moneo_config.json'
         out = pscp(copy_path, destination_dir, hosts_file, user=self.args.user)
         logging.info(out)
         out = pssh(cmd='/tmp/moneo-worker/deploy_docker.sh',
@@ -353,13 +355,6 @@ if __name__ == '__main__':
         nargs="?",
         help='Type of deployment/shutdown. Choices: {manager,workers,full}. Default: full.')
     parser.add_argument(
-        '-p',
-        '--profiler_metrics',
-        action='store_true',
-        default=False,
-        help='Enable profile metrics (Tensor Core,FP16,FP32,FP64 activity).'
-             'Addition of profile metrics encurs additional overhead on computer nodes.')
-    parser.add_argument(
         '-r',
         '--container',
         action='store_true',
@@ -404,11 +399,6 @@ if __name__ == '__main__':
         '--custom_metrics_file_path',
         type=str,
         help='The path of the custom metrics file.')
-    parser.add_argument(
-        '--gpu_sample_rate',
-        type=int,
-        choices=[1, 2, 30, 60, 120, 600],
-        help='Number of samples per minute for GPU monitoring. Valid options are 1,2,3,10', default=60)
     parser.add_argument(
         '--ethernet_device',
         type=str,

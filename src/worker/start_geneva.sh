@@ -4,15 +4,15 @@ AUTH="${1}"
 CONFIG="${2}"
 CONTAINER_NAME="genevamdmagent"
 
-GENEVA_CONFIG=$CONFIG/geneva_config.json
+GENEVA_CONFIG=$CONFIG/moneo_config.json
 # check if the docker container is running
 if sudo docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
     echo "Geneva Docker is running"
     exit 0
 fi
 
-GENEVA_ACCOUNT_NAME=$(jq -r '.AccountName' $GENEVA_CONFIG)
-GENEVA_MDM_ENDPOINT=$(jq -r '.MDMEndPoint' $GENEVA_CONFIG)
+GENEVA_ACCOUNT_NAME=$(jq -r '.geneva_config.AccountName' $GENEVA_CONFIG)
+GENEVA_MDM_ENDPOINT=$(jq -r '.geneva_config.MDMEndPoint' $GENEVA_CONFIG)
 
 # Set Geneva Metrics Extension(MA) endpoint
 if [[ "$GENEVA_MDM_ENDPOINT" == *"ppe"* ]]; then
@@ -32,7 +32,7 @@ echo "GENEVA_DIR: $GENEVA_DIR"
 
 if [ $AUTH == "umi" ];
 then
-    GENEVA_UMI_OBJECT_ID=$(jq -r '.UmiObjectId' $GENEVA_CONFIG)
+    GENEVA_UMI_OBJECT_ID=$(jq -r '.geneva_config.UmiObjectId' $GENEVA_CONFIG)
     GENEVA_UMI_DIR=$GENEVA_DIR'/auth_umi.json'
 
 cat > $GENEVA_UMI_DIR << EOF

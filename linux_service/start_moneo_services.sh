@@ -61,6 +61,9 @@ function proc_check(){
     echo "All Services Running"
     exit 0
 }
+# stop nvidia exporter in the event there was a config change
+sudo systemctl stop moneo@nvidia_exporter.service 2> /dev/null
+sleep 2 # wait a bit for the exporter to stop
 
 $MONEO_PATH/linux_service/moneo_prestart.sh $MONEO_PATH 2> /dev/null
 

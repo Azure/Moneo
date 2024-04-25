@@ -1,0 +1,28 @@
+{
+    "exporter_config":{
+        "gpu_sample_interval": "60",
+        "gpu_profiling": "false"
+    },
+    "prom_config":{
+        "IDENTITY_CLIENT_ID": "<identity client id>",
+        "INGESTION_ENDPOINT": "<metrics ingestion endpoint>"
+    },
+    "geneva_config":{
+        "AccountName": "<account name>",
+        "MDMEndPoint": "<endpoint>",
+        "UmiObjectId": "<object ID>"
+    },
+    "publisher_config":{
+        "common_config": {
+            "metrics_ports": "8000,8001,8002",
+            "metrics_namespace": "<metrics_namespace>",
+            "interval": "20"
+        },
+        "geneva_agent_config": {
+            "metrics_account": "<metrics_account>"
+        },
+        "azure_monitor_agent_config": {
+            "connection_string": "<connectionString>"
+        }
+    }
+}

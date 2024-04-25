@@ -36,13 +36,13 @@ Follow steps outlined in [Infrastructure deployment](../deploy_managed_infra/REA
     3. Skip to step 5.
     Note: This step can be performed in parallel using pssh. Reference step 4 for start and stop commands.
 
-3. Modify the managed prometheus config file in `Moneo/src/worker/publisher/config/managed_prom_config.json`.
+3. Modify the managed prometheus config file in `Moneo/moneo_config.json`.
     - Reference the user managed identity created during infrastructure deployment to get the "identity client id"
     - Reference the Managed Prometheus resource created during infrastructure deployment to get the "metrics ingestion endpoint"
     - The config file modifcations must be distributed to the Moneo directories on all workers.
 
     ```json
-    {
+    "prom_config": {
         "IDENTITY_CLIENT_ID": "<identity client id>",
         "INGESTION_ENDPOINT": "<metrics ingestion endpoint>"
     } 

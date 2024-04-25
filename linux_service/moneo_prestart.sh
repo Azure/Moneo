@@ -21,3 +21,4 @@ fi
 mkdir -p /tmp/moneo-worker
 
 cp -rf $MONEO_PATH/src/worker/* /tmp/moneo-worker/
+cp -f $MONEO_PATH/moneo_config.json /tmp/moneo-worker/
