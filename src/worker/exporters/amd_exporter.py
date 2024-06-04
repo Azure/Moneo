@@ -10,12 +10,15 @@ import prometheus_client
 sys.path.extend([
     '/opt/rocm/libexec/rocm_smi',   # ROCm >=5.2
     '/opt/rocm/rocm_smi/bindings',  # ROCm <5.2
-    '/opt/rocm/rdc/python_binding',
+    '/opt/rdc/python_binding',
 ])
 
-from rsmiBindings import rocmsmi, rsmi_status_t
+from rsmiBindings import *
 from RdcReader import RdcReader
 from rdc_bootstrap import *  # noqa: F403
+
+PRINT_JSON = True
+rocmsmi = initRsmiBindings(silent=PRINT_JSON)
 
 RDC_FIELDS = [
     # PID
@@ -51,8 +54,8 @@ RDC_FIELDS = [
     # rdc_field_t.RDC_FI_PROF_NVLINK_TX_BYTES,
     # rdc_field_t.RDC_FI_PROF_NVLINK_RX_BYTES,
     # PCIe
-    rdc_field_t.RDC_FI_PCIE_TX,
-    rdc_field_t.RDC_FI_PCIE_RX,
+    # rdc_field_t.RDC_FI_PCIE_TX,
+    # rdc_field_t.RDC_FI_PCIE_RX,
 ]
 
 
@@ -82,18 +85,18 @@ class RdcExporter(RdcReader):
         logging.info('Publishing fields: {}'.format(','.join(field_name_list)))
 
     def init_gauges(self):
-        self.guages = {}
+        self.gauges = {}
         for field_id in self.field_ids:
             field_name = self.rdc_util.field_id_string(field_id).lower()
-            self.guages[field_id] = prometheus_client.Gauge(
+            self.gauges[field_id] = prometheus_client.Gauge(
                 'rdc_{}'.format(field_name),
                 'rdc_{}'.format(field_name),
                 ['gpu_id', 'gpu_uuid'],
             )
 
     def handle_field(self, gpu_id, value):
-        if value.field_id.value in self.guages:
-            self.guages[value.field_id.value].labels(
+        if value.field_id.value in self.gauges:
+            self.gauges[value.field_id.value].labels(
                 gpu_id,
                 rdc_config['device_uuid'][gpu_id],
             ).set(value.value.l_int)
