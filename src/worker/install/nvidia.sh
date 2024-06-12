@@ -67,7 +67,7 @@ if [[ $distro =~ "Ubuntu" ]]; then
 		systemctl --now enable nvidia-dcgm
 		systemctl start nvidia-dcgm
 	fi
-elif [[ $distro =~ "AlmaLinux" ]]; then
+elif [[ $distro =~ (AlmaLinux|Rocky Linux) ]]; then
 	dcgm_check=`rpm -qa`
 	if [[ $dcgm_check =~ "datacenter-gpu-manager" ]]; then
 		check_min_dcgm_ver alma_dcgm_install "2.4.4"
