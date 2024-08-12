@@ -130,11 +130,11 @@ class NetExporter():
             pass
 
 
-def init_config(job_id):
+def init_config(job_id, update_freq):
     global config
     config = {
         'exit': False,
-        'update_freq': 0.1,
+        'update_freq': update_freq,
         'listen_port': 8001,
         'publish_interval': 1,
         'ib_port': {},
@@ -207,7 +207,7 @@ def main(args):
                         format='[%(asctime)s] net_exporter-%(levelname)s-%(message)s')
     jobId = None
     try:
-        init_config(jobId)
+        init_config(jobId, args.update_freq)
         init_infiniband(args)
         init_signal_handler()
 
@@ -227,6 +227,7 @@ if __name__ == '__main__':
                         execution in addition to warnings and errors DEBUG (4) \
                         - Log debugging information in addition to all')
     parser.add_argument("--inifiband_sysfs", default='/sys/class/infiniband', help='The sysfs path of infiniband')
+    parser.add_argument("--update_freq", default=0.1, type=float, help='The update frequency of the exporter')
 
     args = parser.parse_args()
 
