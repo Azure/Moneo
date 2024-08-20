@@ -5,6 +5,8 @@ import signal
 import logging
 import json
 import prometheus_client
+import subprocess
+import shlex
 
 sys.path.append('/usr/local/dcgm/bindings/python3')
 import dcgm_fields
@@ -128,6 +130,22 @@ DCGM_FIELDS_DESCRIPTION = {
 }
 
 
+def shell_cmd(cmd, timeout):
+    """Helper Function for running subprocess"""
+    args = shlex.split(cmd)
+    child = subprocess.Popen(args, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+    try:
+        result, errs = child.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        child.kill()
+        print("Command " + " ".join(args) + ", Failed on timeout")
+        logging.error("Command " + " ".join(args) + ", Failed on timeout")
+        result = 'TimeOut'
+        return result
+    return result.decode()
+
+
 class DcgmExporter(DcgmReader):
     def __init__(self):
         DcgmReader.__init__(
@@ -177,6 +195,7 @@ class DcgmExporter(DcgmReader):
                 ],
             )
         self.m_gauges['dummy_field'] = prometheus_client.Gauge('dummy_field', 'dummy_field', ['gpu_id', 'gpu_uuid' if dcgm_config['sendUuid'] else 'gpu_bus_id', 'job_id'],)
+        self.m_gauges['nvlink_down_status'] = prometheus_client.Gauge('nvlink_down_status', 'nvlink_down_status', ['gpu_id', 'gpu_uuid' if dcgm_config['sendUuid'] else 'gpu_bus_id', 'job_id'],)
 
     def InitCounterConfig(self):
         global dcgm_config
@@ -190,6 +209,24 @@ class DcgmExporter(DcgmReader):
 
     def CustomDataHandler(self, fvs):
         global dcgm_config
+        def parse_nvlink_status(output):
+            down_statuses = {}
+            lines = output.splitlines()
+            current_gpu = None
+
+            for line in lines:
+                line = line.strip()
+                if line.startswith('gpuId'):
+                    current_gpu = line.split()[1][:-1]  # Extract the GPU ID
+                    down_statuses[current_gpu] = 0  # Initialize with 0 "D" statuses
+                elif current_gpu is not None:
+                    statuses = line.split()
+                    down_statuses[current_gpu] = sum(1 for status in statuses if status == 'D')
+            return down_statuses
+        cmd = 'sudo dcgmi nvlink -s'
+        nvlink_output = shell_cmd(cmd, 60)
+        nvlink_down_status = parse_nvlink_status(nvlink_output)
+
         for gpuId in fvs.keys():
             gpuUuid = self.m_gpuIdToUUId[gpuId]
             gpuBusId = self.m_gpuIdToBusId[gpuId]
@@ -221,6 +258,11 @@ class DcgmExporter(DcgmReader):
                 gpuUniqueId,
                 dcgm_config['jobId']
             ).set(1)
+            self.m_gauges['nvlink_down_status'].labels(
+            gpuId,
+            gpuUniqueId,
+            dcgm_config['jobId']
+            ).set(nvlink_down_status[str(gpuId)])
 
     def jobID_update_flag(self, signum, stack):
         '''Sets job update flag when user defined signal comes in'''
@@ -315,7 +357,7 @@ def init_config():
         'prometheusPort': None,
         'prometheusPublishInterval': mon_config['exporter_config']['gpu_sample_interval'],
         'publishFieldIds': None,
-        'profilerMetrics': mon_config['exporter_config']['gpu_profiling'],
+        'profilerMetrics': True,
         'last_value': {}
     }
 
