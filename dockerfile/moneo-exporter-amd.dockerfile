@@ -1,11 +1,11 @@
 # Use ROCm development image
-FROM rocm/dev-ubuntu-22.04:6.1.1
+FROM rocm/dev-ubuntu-22.04:6.2.2
 
 # Metadata
 LABEL maintainer="Moneo"
 
 # Environment variables
-ENV ROCM_VERSION=6.1.1 \
+ENV ROCM_VERSION=6.2.2 \
     DEBIAN_FRONTEND=noninteractive
 
 # Work directory setup

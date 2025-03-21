@@ -41,22 +41,97 @@ RDC_FIELDS = [
     # rdc_field_t.RDC_FI_DEV_ECC_DBE_VOL_TOTAL,
     rdc_field_t.RDC_FI_ECC_CORRECT_TOTAL,
     rdc_field_t.RDC_FI_ECC_UNCORRECT_TOTAL,
-    # CU
-    # rdc_field_t.RDC_FI_PROF_SM_ACTIVE,
-    # rdc_field_t.RDC_FI_PROF_SM_OCCUPANCY,
-    # rdc_field_t.RDC_FI_PROF_PIPE_TENSOR_ACTIVE,
-    # rdc_field_t.RDC_FI_PROF_PIPE_FP64_ACTIVE,
-    # rdc_field_t.RDC_FI_PROF_PIPE_FP32_ACTIVE,
-    # rdc_field_t.RDC_FI_PROF_PIPE_FP16_ACTIVE,
-    # Memory
-    # rdc_field_t.RDC_FI_PROF_DRAM_ACTIVE,
-    # xGMI
-    # rdc_field_t.RDC_FI_PROF_NVLINK_TX_BYTES,
-    # rdc_field_t.RDC_FI_PROF_NVLINK_RX_BYTES,
+
     # PCIe
-    # rdc_field_t.RDC_FI_PCIE_TX,
-    # rdc_field_t.RDC_FI_PCIE_RX,
+    rdc_field_t.RDC_FI_PCIE_BANDWIDTH,
+
+    # xGMI
+    rdc_field_t.RDC_FI_XGMI_0_READ_KB,
+    rdc_field_t.RDC_FI_XGMI_1_READ_KB,
+    rdc_field_t.RDC_FI_XGMI_2_READ_KB,
+    rdc_field_t.RDC_FI_XGMI_3_READ_KB,
+    rdc_field_t.RDC_FI_XGMI_4_READ_KB,
+    rdc_field_t.RDC_FI_XGMI_5_READ_KB,
+    rdc_field_t.RDC_FI_XGMI_6_READ_KB,
+    rdc_field_t.RDC_FI_XGMI_7_READ_KB,
+    rdc_field_t.RDC_FI_XGMI_0_WRITE_KB,
+    rdc_field_t.RDC_FI_XGMI_1_WRITE_KB,
+    rdc_field_t.RDC_FI_XGMI_2_WRITE_KB,
+    rdc_field_t.RDC_FI_XGMI_3_WRITE_KB,
+    rdc_field_t.RDC_FI_XGMI_4_WRITE_KB,
+    rdc_field_t.RDC_FI_XGMI_5_WRITE_KB,
+    rdc_field_t.RDC_FI_XGMI_6_WRITE_KB,
+    rdc_field_t.RDC_FI_XGMI_7_WRITE_KB,
 ]
+
+RDC_FIELDS_DESCRIPTION = {
+    # PID
+    # rdc_field_t.RDC_FI_DEV_COMPUTE_PIDS,
+    # Clock
+    rdc_field_t.RDC_FI_GPU_CLOCK:
+    'The current clock for the GPU',
+    rdc_field_t.RDC_FI_MEM_CLOCK:
+    'Clock for the memory',
+    # Temperature
+    rdc_field_t.RDC_FI_GPU_TEMP:
+    'Current temperature for the device',
+    rdc_field_t.RDC_FI_MEMORY_TEMP:
+    'Memory temperature for the device',
+    # Power
+    rdc_field_t.RDC_FI_POWER_USAGE:
+    'Power usage for the device',
+
+    # Utilization
+    rdc_field_t.RDC_FI_GPU_UTIL:
+    'GPU Utilization',
+    rdc_field_t.RDC_FI_GPU_MEMORY_USAGE:
+    'Memory usage of the GPU instance',
+    rdc_field_t.RDC_FI_GPU_MEMORY_TOTAL:
+    'Total memory of the GPU instance',
+    # ECC
+    rdc_field_t.RDC_FI_ECC_CORRECT_TOTAL:
+    'Accumulated correctable ECC errors',
+    rdc_field_t.RDC_FI_ECC_UNCORRECT_TOTAL:
+    'Accumulated uncorrectable ECC errors',
+
+    # PCIe
+    rdc_field_t.RDC_FI_PCIE_BANDWIDTH:
+    'PCIe bandwidth in GB/sec',
+
+    # xGMI
+    rdc_field_t.RDC_FI_XGMI_0_READ_KB:
+    'XGMI_0 accumulated data read size (KB)',
+    rdc_field_t.RDC_FI_XGMI_1_READ_KB:
+    'XGMI_1 accumulated data read size (KB)',
+    rdc_field_t.RDC_FI_XGMI_2_READ_KB:
+    'XGMI_2 accumulated data read size (KB)',
+    rdc_field_t.RDC_FI_XGMI_3_READ_KB:
+    'XGMI_3 accumulated data read size (KB)',
+    rdc_field_t.RDC_FI_XGMI_4_READ_KB:
+    'XGMI_4 accumulated data read size (KB)',
+    rdc_field_t.RDC_FI_XGMI_5_READ_KB:
+    'XGMI_5 accumulated data read size (KB)',
+    rdc_field_t.RDC_FI_XGMI_6_READ_KB:
+    'XGMI_6 accumulated data read size (KB)',
+    rdc_field_t.RDC_FI_XGMI_7_READ_KB:
+    'XGMI_7 accumulated data read size (KB)',
+    rdc_field_t.RDC_FI_XGMI_0_WRITE_KB:
+    'XGMI_0 accumulated data write size (KB)',
+    rdc_field_t.RDC_FI_XGMI_1_WRITE_KB:
+    'XGMI_1 accumulated data write size (KB)',
+    rdc_field_t.RDC_FI_XGMI_2_WRITE_KB:
+    'XGMI_2 accumulated data write size (KB)',
+    rdc_field_t.RDC_FI_XGMI_3_WRITE_KB:
+    'XGMI_3 accumulated data write size (KB)',
+    rdc_field_t.RDC_FI_XGMI_4_WRITE_KB:
+    'XGMI_4 accumulated data write size (KB)',
+    rdc_field_t.RDC_FI_XGMI_5_WRITE_KB:
+    'XGMI_5 accumulated data write size (KB)',
+    rdc_field_t.RDC_FI_XGMI_6_WRITE_KB:
+    'XGMI_6 accumulated data write size (KB)',
+    rdc_field_t.RDC_FI_XGMI_7_WRITE_KB:
+    'XGMI_7 accumulated data write size (KB)',
+}
 
 
 class RdcExporter(RdcReader):
@@ -90,7 +165,7 @@ class RdcExporter(RdcReader):
             field_name = self.rdc_util.field_id_string(field_id).lower()
             self.gauges[field_id] = prometheus_client.Gauge(
                 'rdc_{}'.format(field_name),
-                'rdc_{}'.format(field_name),
+                RDC_FIELDS_DESCRIPTION[field_id],
                 ['gpu_id', 'gpu_uuid'],
             )
         self.gauges['dummy_field'] = prometheus_client.Gauge('dummy_field', 'dummy_field', ['gpu_id', 'gpu_uuid'],)

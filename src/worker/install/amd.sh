@@ -35,9 +35,14 @@ if [ -d "$RDC_ROOT" ] && [ "$(ls -A $RDC_ROOT)" ]; then
     cd "$RDC_ROOT"
     git pull
 else
-    git clone --depth 1 --branch rocm-6.1.1 https://github.com/RadeonOpenCompute/rdc "$RDC_ROOT"
+    git clone --depth 1 --branch rocm-6.2.2 https://github.com/RadeonOpenCompute/rdc "$RDC_ROOT"
     cd "$RDC_ROOT"
 fi
+
+git fetch origin amd-staging
+git config user.email "Moneo@local.host"
+git config user.name "Moneo"
+git cherry-pick 660c5afaf49630781c1059ba6d30bae21743c32f
 
 # default installation location is /opt/rocm, specify with -DROCM_DIR or -DCMAKE_INSTALL_PREFIX
 cmake -B build -DGRPC_ROOT="$GRPC_ROOT" -DROCM_DIR="/opt/rocm" -DCMAKE_INSTALL_PREFIX="/opt/rocm"
