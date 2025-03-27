@@ -160,7 +160,8 @@ def init_infiniband(args):
                 if field_name == 'port_physical_state':
                     state_path = os.path.join(sysfs_path, hca, 'ports', port)
                     counter_file[field_name] = open(os.path.join(state_path, 'phys_state'), 'r')
-                    counters[field_name] = PORT_STATE[counter_file[field_name].readline().split()[1].strip()]
+                    counters[field_name] = PORT_STATE.get(
+                        counter_file[field_name].readline().split()[1].strip(), -1)
                     continue
                 counter_file[field_name] = open(
                     os.path.join(counter_path, field_name), 'r')
