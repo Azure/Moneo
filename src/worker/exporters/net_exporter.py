@@ -56,11 +56,14 @@ class NetExporter():
     def process(self):
         for ib_port in config['ib_port'].keys():
             ib_port_config = config['ib_port'][ib_port]
-            for field_name in IB_COUNTERS:
+            for field_name in sorted(IB_COUNTERS, key=lambda x: x != 'port_physical_state'):
+                if field_name not in ib_port_config['counter_file']:
+                    logging.warning('Field %s not found in counter_file for %s', field_name, ib_port)
+                    continue
                 ib_port_config['counter_file'][field_name].seek(0)
                 counter = 0
                 if field_name == 'port_physical_state':
-                    counter = PORT_STATE[ib_port_config['counter_file'][field_name].readline().split()[1].strip()]
+                    counter = PORT_STATE.get(ib_port_config['counter_file'][field_name].readline().split()[1].strip(), -1)
                 else:
                     counter = int(ib_port_config['counter_file']
                                   [field_name].readline().strip())
@@ -156,17 +159,24 @@ def init_infiniband(args):
             counter_file = {}
             counters = {}
 
-            for field_name in IB_COUNTERS:
+            for field_name in sorted(IB_COUNTERS, key=lambda x: x != 'port_physical_state'):
                 if field_name == 'port_physical_state':
                     state_path = os.path.join(sysfs_path, hca, 'ports', port)
                     counter_file[field_name] = open(os.path.join(state_path, 'phys_state'), 'r')
                     counters[field_name] = PORT_STATE.get(
                         counter_file[field_name].readline().split()[1].strip(), -1)
+                    if counters[field_name] == -1:
+                        logging.warning('Invalid port_physical_state for {}:{}'.format(hca, port))
+                        # Skip processing other items in IB_COUNTERS for this port
+                        break
                     continue
-                counter_file[field_name] = open(
-                    os.path.join(counter_path, field_name), 'r')
-                counters[field_name] = int(
-                    counter_file[field_name].readline().strip())
+                file_path = os.path.join(counter_path, field_name)
+                if os.path.isfile(file_path):
+                    counter_file[field_name] = open(file_path, 'r')
+                    counters[field_name] = int(counter_file[field_name].readline().strip())
+                else:
+                    logging.warning('File %s does not exist for %s:%s', file_path, hca, port)
+
             config['ib_port']['{}:{}'.format(hca, port)] = {
                 'sys_image_guid': sys_image_guid,
                 'counter_path': counter_path,
