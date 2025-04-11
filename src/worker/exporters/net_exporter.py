@@ -158,11 +158,30 @@ def init_config(job_id, update_freq):
 # /sys/class/net/eth0/statistics/rx_bytes
 def init_infiniband(args):
     sysfs_path = args.inifiband_sysfs
+    if not os.path.isdir(sysfs_path):
+        logging.error('The specified sysfs path does not exist: %s', sysfs_path)
+        config['ib_port'] = {}
+        return
+
     for hca in os.listdir(sysfs_path):
         sys_image_guid = ''
-        with open(os.path.join(sysfs_path, hca, 'sys_image_guid')) as f:
-            sys_image_guid = f.readline().strip().replace(':', '')
-        for port in os.listdir(os.path.join(sysfs_path, hca, 'ports')):
+
+        sys_image_guid_path = os.path.join(sysfs_path, hca, 'sys_image_guid')
+        if os.path.isfile(sys_image_guid_path):
+            try:
+                with open(sys_image_guid_path, 'r') as f:
+                    sys_image_guid = f.readline().strip().replace(':', '')
+            except Exception as e:
+                logging.warning('Error reading sys_image_guid for %s: %s', hca, e)
+        else:
+            logging.warning('File %s does not exist', sys_image_guid_path)
+
+        ports_path = os.path.join(sysfs_path, hca, 'ports')
+        if not os.path.isdir(ports_path):
+            logging.warning('The specified ports path does not exist: %s', ports_path)
+            continue
+
+        for port in os.listdir(ports_path):
 
             counter_path = os.path.join(sysfs_path, hca, 'ports', port,
                                         'counters')
