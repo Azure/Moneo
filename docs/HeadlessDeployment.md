@@ -48,7 +48,7 @@ Follow steps outlined in [Infrastructure deployment](../deploy_managed_infra/REA
     } 
     ```
 
-4. Start Services (Assumes Azure marketplace AI/HPC Image): ``` parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/start_moneo_services.sh true" ```
+4. Start Services (Assumes Azure marketplace AI/HPC Image): ``` parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/start_moneo_services.sh" ```
     - To stop services: ```parallel-ssh -i -t 0 -h hostfile "sudo /opt/azurehpc/tools/Moneo/linux_service/stop_moneo_services.sh"```
 
     Note: If not using Azure AI/HPC market place image reference the ["Deploying Linux services guide"](../linux_service/README.md) for full instructions.
